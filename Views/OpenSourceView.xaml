@@ -46,9 +46,6 @@
                         <WrapPanel Margin="0,12,0,0">
                             <Button x:Name="BtnRepo" Style="{StaticResource PrimaryButton}"
                                     Content="Abrir no GitHub" Click="BtnRepo_Click" Margin="0,0,8,8"/>
-                            <Button x:Name="BtnTransparency" Style="{StaticResource GhostButton}"
-                                    Content="Guia para staff" Click="BtnTransparency_Click" Margin="0,0,8,8"
-                                    ToolTip="TRANSPARENCIA.md — o que a app faz e não faz, com a linha de código de cada operação"/>
                             <Button x:Name="BtnCopy" Style="{StaticResource GhostButton}"
                                     Content="Copiar link" Click="BtnCopy_Click" Margin="0,0,8,8"/>
                         </WrapPanel>
@@ -60,7 +57,7 @@
                     <StackPanel>
                         <TextBlock Text="O que esta aplicação não faz" Style="{StaticResource H2}"/>
                         <TextBlock Style="{StaticResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap"
-                                   Text="Cada ponto é verificável no código — o guia para staff indica o ficheiro e a linha."/>
+                                   Text="Cada ponto é verificável no próprio código, que está publicado por inteiro."/>
                         <ItemsControl x:Name="ClaimList" Margin="0,12,0,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>

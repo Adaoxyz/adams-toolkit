@@ -18,7 +18,6 @@ namespace AdamsToolkit.Views;
 public partial class OpenSourceView : UserControl
 {
     public const string RepoUrl = "https://github.com/Adaoxyz/adams-toolkit";
-    public const string TransparencyUrl = RepoUrl + "/blob/main/TRANSPARENCIA.md";
 
     private static readonly string[] Claims =
     {
@@ -56,8 +55,6 @@ public partial class OpenSourceView : UserControl
     }
 
     private void BtnRepo_Click(object sender, RoutedEventArgs e) => DownloadManager.OpenUrl(RepoUrl);
-
-    private void BtnTransparency_Click(object sender, RoutedEventArgs e) => DownloadManager.OpenUrl(TransparencyUrl);
 
     private void BtnCopy_Click(object sender, RoutedEventArgs e)
     {

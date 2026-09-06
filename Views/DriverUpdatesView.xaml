@@ -1,0 +1,146 @@
+<UserControl x:Class="AdamsToolkit.Views.DriverUpdatesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Text="Atualizações" Style="{StaticResource H1}"/>
+                <TextBlock Text="Drivers verificados no Windows Update e nos serviços oficiais dos fabricantes (NVIDIA, AMD, Intel) — sem fontes de terceiros."
+                           Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+            </StackPanel>
+            <Button x:Name="RefreshBtn" Style="{StaticResource GhostButton}" Content="🔄  Verificar agora"
+                    HorizontalAlignment="Right" VerticalAlignment="Top" Click="Refresh_Click"/>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
+            <StackPanel>
+
+                <!-- Estado da verificação -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                    <StackPanel>
+                        <!-- a verificar -->
+                        <StackPanel x:Name="ScanningPanel" Visibility="Collapsed">
+                            <TextBlock Text="A verificar drivers no Windows Update…" Style="{StaticResource H2}"/>
+                            <ProgressBar Style="{StaticResource DlProgress}" IsIndeterminate="True" Margin="0,10,0,0"/>
+                            <TextBlock Text="Pode demorar 1–2 minutos na primeira verificação."
+                                       Style="{StaticResource Muted}" FontSize="11" Margin="0,6,0,0"/>
+                        </StackPanel>
+
+                        <!-- tudo em dia -->
+                        <StackPanel x:Name="UpToDatePanel" Visibility="Collapsed" Orientation="Horizontal">
+                            <TextBlock Text="✅" FontSize="20" VerticalAlignment="Center"/>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Drivers em dia" Style="{StaticResource H2}"/>
+                                <TextBlock x:Name="UpToDateSub" Text="Nenhuma atualização de driver encontrada."
+                                           Style="{StaticResource Muted}" FontSize="11.5" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- atualizações encontradas -->
+                        <Grid x:Name="FoundPanel" Visibility="Collapsed">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🔔" FontSize="20" VerticalAlignment="Center"/>
+                                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock x:Name="FoundTitle" Style="{StaticResource H2}"/>
+                                    <TextBlock Text="Encontradas no catálogo oficial da Microsoft para este PC."
+                                               Style="{StaticResource Muted}" FontSize="11.5" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <Button x:Name="UpdateAllBtn" Style="{StaticResource PrimaryButton}"
+                                    Content="Atualizar tudo" HorizontalAlignment="Right"
+                                    VerticalAlignment="Center" Click="UpdateAll_Click"/>
+                        </Grid>
+
+                        <!-- não foi possível verificar (neutro — nunca propõe instalar) -->
+                        <StackPanel x:Name="ErrorPanel" Visibility="Collapsed" Orientation="Horizontal">
+                            <TextBlock Text="⚠️" FontSize="20" VerticalAlignment="Center"/>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center" MaxWidth="640">
+                                <TextBlock Text="Não foi possível verificar agora" Style="{StaticResource H2}"/>
+                                <TextBlock x:Name="ErrorText" Style="{StaticResource Muted}" FontSize="11.5"
+                                           Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                <TextBlock Text="Nada será instalado sem uma verificação bem-sucedida. Tenta novamente mais tarde."
+                                           Style="{StaticResource Muted}" FontSize="11" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- progresso de instalação -->
+                        <StackPanel x:Name="InstallPanel" Visibility="Collapsed" Margin="0,12,0,0">
+                            <ProgressBar x:Name="InstallBar" Style="{StaticResource DlProgress}" Maximum="100"/>
+                            <TextBlock x:Name="InstallLabel" Style="{StaticResource Muted}" FontSize="11" Margin="0,5,0,0"/>
+                        </StackPanel>
+
+                        <!-- resultado final da instalação -->
+                        <TextBlock x:Name="ResultText" Visibility="Collapsed" Margin="0,12,0,0"
+                                   FontSize="12.5" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Driver NVIDIA mais recente (API oficial nvidia.com) -->
+                <Border x:Name="GpuUpdateCard" Style="{StaticResource Card}" Margin="0,0,0,10" Visibility="Collapsed">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Background="{DynamicResource BrSurface}" CornerRadius="10"
+                                Width="42" Height="42" VerticalAlignment="Center">
+                            <TextBlock Text="🎮" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+                            <TextBlock x:Name="GpuUpdTitle" Style="{StaticResource Body}"
+                                       FontWeight="SemiBold" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="GpuUpdSub" Style="{StaticResource Muted}"
+                                       FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Button Grid.Column="2" Content="Transferir (nvidia.com)"
+                                Style="{StaticResource PrimaryButton}" VerticalAlignment="Center"
+                                Click="GpuUpdate_Click"/>
+                    </Grid>
+                </Border>
+
+                <!-- Lista de drivers -->
+                <ItemsControl x:Name="UpdatesList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Background="{DynamicResource BrSurface}" CornerRadius="10"
+                                            Width="42" Height="42" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Icon}" FontSize="20"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Title}" Style="{StaticResource Body}"
+                                                   FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding Details}" Style="{StaticResource Muted}"
+                                                   FontSize="11" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="2" Content="{Binding ButtonLabel}"
+                                            Style="{StaticResource PrimaryButton}" VerticalAlignment="Center"
+                                            IsEnabled="{Binding CanUpdate}" Tag="{Binding}" Click="UpdateOne_Click"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="Fontes: catálogo oficial Microsoft (Windows Update) e serviços oficiais dos fabricantes (NVIDIA, AMD, Intel). A app nunca instala drivers de fontes de terceiros nem propõe atualizações que estas fontes não confirmem."
+                           Style="{StaticResource Muted}" FontSize="10.5" Margin="2,0,0,10" TextWrapping="Wrap"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -1,0 +1,479 @@
+<UserControl x:Class="AdamsToolkit.Views.FiveMCenterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- linha de ferramenta dentro de um card: ícone · título+descrição · ação à direita -->
+        <Style x:Key="ToolIcon" TargetType="Border">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="CornerRadius" Value="11"/>
+            <Setter Property="Background" Value="#1AA855F7"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Margin" Value="0,0,14,0"/>
+        </Style>
+        <Style x:Key="AccentSlider" TargetType="Slider">
+            <Setter Property="IsMoveToPointEnabled" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid Height="22">
+                            <Border Height="6" CornerRadius="3" Background="{DynamicResource BrSurface}" VerticalAlignment="Center"/>
+                            <Track x:Name="PART_Track" VerticalAlignment="Center">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="Slider.DecreaseLarge" Height="6" Cursor="Hand">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Background="{DynamicResource BrAccentGradient}" CornerRadius="3" Height="6"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="Slider.IncreaseLarge" Height="6" Cursor="Hand">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton"><Border Background="Transparent" Height="6"/></ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Width="18" Height="18" Cursor="Hand">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Ellipse Fill="#FFFFFF" Stroke="{DynamicResource BrAccent}" StrokeThickness="3"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- separador segmentado (igual ao Desinstalador) -->
+        <Style x:Key="SegBtn" TargetType="RadioButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="9" Padding="16,8" Margin="3">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrCardHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrAccentGradient}"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <!-- ===== cabeçalho fixo: título + barra de estado com ações rápidas ===== -->
+        <StackPanel Margin="0,0,0,14">
+            <TextBlock Text="FiveM Center" Style="{StaticResource H1}"/>
+            <TextBlock Text="Tudo o que precisas para jogar FiveM, num só sítio."
+                       Style="{StaticResource Muted}" Margin="0,4,0,14"/>
+
+            <!-- ===== separadores (v1.70): igual ao Otimizador ===== -->
+            <Border Style="{StaticResource Card}" Padding="10" Margin="0,0,0,12">
+                <Border Background="{DynamicResource BrSurface}" CornerRadius="11" HorizontalAlignment="Left">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="SecGame" Style="{StaticResource SegBtn}" Content="🎮  Jogo" IsChecked="True"/>
+                        <RadioButton x:Name="SecMaint" Style="{StaticResource SegBtn}" Content="🧹  Manutenção"/>
+                        <RadioButton x:Name="SecLinks" Style="{StaticResource SegBtn}" Content="🔗  Links úteis"/>
+                    </StackPanel>
+                </Border>
+            </Border>
+            <TextBlock x:Name="LinksCountText" Visibility="Collapsed"/>
+
+
+            <Border Style="{StaticResource Card}" Padding="16,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Width="44" Height="44" CornerRadius="12" Margin="0,0,14,0"
+                            Background="{DynamicResource BrAccentGradient}">
+                        <Path Data="{DynamicResource IcoGame}" Stretch="Uniform" Width="22" Height="22"
+                              Stroke="White" StrokeThickness="1.8" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="FiveM" Style="{StaticResource H2}"/>
+                        <TextBlock x:Name="FiveMStateText" Text="—" Style="{StaticResource Muted}" FontSize="11.5" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                        <Button Content="📁  Pasta" Style="{StaticResource GhostButton}" Margin="0,0,8,0"
+                                ToolTip="Dados da aplicação (mods, cache, logs)" Click="OpenFolder_Click"/>
+                        <Button Content="🌐  Cfx.re" Style="{StaticResource GhostButton}" Margin="0,0,8,0"
+                                ToolTip="Plataforma oficial do FiveM" Click="OpenCfx_Click"/>
+                        <Button Content="▶  Abrir FiveM" Style="{StaticResource PrimaryButton}" Click="OpenFiveM_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
+            <StackPanel>
+
+                <!-- ===== secção: 🎮  Jogo ===== -->
+                <StackPanel Margin="0,0,0,10"
+                            Visibility="{Binding IsChecked, ElementName=SecGame, Converter={StaticResource BoolToVis}}">
+
+                    <!-- Segundo FiveM (-cl2) -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource ToolIcon}">
+                                <TextBlock Text="👥" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Segundo FiveM" Style="{StaticResource H2}"/>
+                                <TextBlock Text="Abre uma 2ª instância (-cl2) para usares outra conta ao mesmo tempo."
+                                           Style="{StaticResource Muted}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                <TextBlock x:Name="Cl2StateText" Style="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0"
+                                           TextWrapping="Wrap" Visibility="Collapsed"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                                <Button Content="🖥  Criar atalho" Style="{StaticResource GhostButton}"
+                                        ToolTip="Cria 'FiveM 2' no ambiente de trabalho, já com -cl2"
+                                        Click="CreateCl2Shortcut_Click" Margin="0,0,8,0"/>
+                                <Button Content="Abrir 2º FiveM" Style="{StaticResource PrimaryButton}" Click="OpenCl2_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- ReShade WestRP -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource ToolIcon}">
+                                <TextBlock Text="✨" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="ReShade do servidor" Style="{StaticResource H2}" VerticalAlignment="Center"/>
+                                    <Border x:Name="ReshadeBadge" Background="#1A34D399" CornerRadius="6"
+                                            Padding="7,3" Margin="10,0,0,0" Visibility="Collapsed" VerticalAlignment="Center">
+                                        <TextBlock Text="✓ Instalado" FontSize="10.5" Foreground="{DynamicResource BrSuccess}"/>
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Text="Pack de gráficos oficial. Instala direto na pasta do FiveM e substitui qualquer ReShade que lá esteja."
+                                           Style="{StaticResource Muted}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                <StackPanel x:Name="ReshadeProgressPanel" Visibility="Collapsed" Margin="0,10,0,0">
+                                    <ProgressBar x:Name="ReshadeProgress" Style="{StaticResource DlProgress}" Maximum="100"/>
+                                    <TextBlock x:Name="ReshadeProgressText" Style="{StaticResource Muted}"
+                                               FontSize="10.5" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <TextBlock x:Name="ReshadeStatusText" Style="{StaticResource Muted}"
+                                           FontSize="11.5" Margin="0,6,0,0" Visibility="Collapsed" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button x:Name="ReshadeBtn" Grid.Column="2" Content="Instalar"
+                                    Style="{StaticResource PrimaryButton}" VerticalAlignment="Center"
+                                    Margin="16,0,0,0" Click="InstallReshade_Click"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Snap Tap (strafe): SOCD last-input-wins em A/D e W/S -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource ToolIcon}">
+                                <TextBlock Text="⌨️" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Snap Tap (strafe)" Style="{StaticResource H2}"/>
+                                <TextBlock Text="Quando carregas D com A ainda premida, o A solta-se no mesmo instante (e volta quando largas D). Mudança de direção sem o micro-travão. Não mexe no jogo nem em ficheiros. Atenção: noutros servidores/jogos pode ser proibido."
+                                           Style="{StaticResource Muted}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                <Border Background="#1AF59E0B" BorderBrush="#33F59E0B" BorderThickness="1" CornerRadius="8" Padding="10,7" Margin="0,8,0,0">
+                                    <TextBlock Style="{StaticResource Body}" FontSize="11.5" TextWrapping="Wrap"
+                                               Text="⚠️ Nem todos os servidores permitem Snap Tap/SOCD — confirma nas regras do servidor onde jogas ANTES de ativar; se não permitem, não uses. A responsabilidade é tua."/>
+                                </Border>
+                                <TextBlock x:Name="SnapState" Style="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0"
+                                           TextWrapping="Wrap" Text="Snap Tap desligado"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <CheckBox x:Name="SnapAD" Style="{StaticResource ToggleSwitch}" IsChecked="True" Click="Snap_OptChanged"/>
+                                    <TextBlock Text="A / D" Style="{StaticResource Body}" FontSize="12.5" VerticalAlignment="Center" Margin="8,0,22,0"/>
+                                    <CheckBox x:Name="SnapWS" Style="{StaticResource ToggleSwitch}" Click="Snap_OptChanged"/>
+                                    <TextBlock Text="W / S" Style="{StaticResource Body}" FontSize="12.5" VerticalAlignment="Center" Margin="8,0,22,0"/>
+                                    <CheckBox x:Name="SnapOnlyFiveM" Style="{StaticResource ToggleSwitch}" IsChecked="True" Click="Snap_OptChanged"/>
+                                    <TextBlock Text="Só com o FiveM em foco" Style="{StaticResource Body}" FontSize="12.5" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <Button x:Name="SnapBtn" Grid.Column="2" Content="Ativar Snap Tap"
+                                    Style="{StaticResource PrimaryButton}" VerticalAlignment="Center"
+                                    Margin="16,0,0,0" Click="Snap_Toggle"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- repetição do teclado em ms só WASD (hook LL, mínimo 10 ms) -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource ToolIcon}">
+                                <TextBlock Text="⌨️" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Repetição do teclado (W A S D)" Style="{StaticResource H2}"/>
+                                <TextBlock Text="Repetição do teclado em ms só nas teclas W, A, S e D: quanto tempo espera antes de repetir e a que ritmo repete (até 10 ms). Só com o FiveM em foco; o resto do teclado e o Windows ficam exatamente como estão — Repor desliga e pronto."
+                                           Style="{StaticResource Muted}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                <Border Background="#1AF59E0B" BorderBrush="#33F59E0B" BorderThickness="1" CornerRadius="8" Padding="10,7" Margin="0,8,0,0">
+                                    <TextBlock Style="{StaticResource Body}" FontSize="11.5" TextWrapping="Wrap"
+                                               Text="⚠️ Nem todos os servidores permitem isto — é alteração de input (repetição artificial de tecla) e em muitos conta como macro. Confirma nas regras do servidor onde jogas ANTES de ativar; se não permitem, não uses. A responsabilidade é tua."/>
+                                </Border>
+                                <TextBlock x:Name="KrState" Style="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap" Text=""/>
+                                <Grid Margin="0,12,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="70"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Atraso inicial" Style="{StaticResource Body}" FontSize="12.5" VerticalAlignment="Center"/>
+                                    <Slider x:Name="KrDelay" Grid.Column="1" Style="{StaticResource AccentSlider}" Minimum="100" Maximum="1000"
+                                            TickFrequency="10" IsSnapToTickEnabled="True" Value="500" Margin="10,0" ValueChanged="Kr_Changed"/>
+                                    <TextBlock x:Name="KrDelayText" Grid.Column="2" Text="500 ms" Style="{StaticResource Body}" FontSize="12.5"
+                                               FontWeight="SemiBold" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Row="1" Text="Intervalo de repetição" Style="{StaticResource Body}" FontSize="12.5" VerticalAlignment="Center" Margin="0,10,0,0"/>
+                                    <Slider x:Name="KrRepeat" Grid.Row="1" Grid.Column="1" Style="{StaticResource AccentSlider}" Minimum="10" Maximum="500"
+                                            TickFrequency="1" IsSnapToTickEnabled="True" Value="33" Margin="10,10,10,0" ValueChanged="Kr_Changed"/>
+                                    <TextBlock x:Name="KrRepeatText" Grid.Row="1" Grid.Column="2" Text="33 ms" Style="{StaticResource Body}" FontSize="12.5"
+                                               FontWeight="SemiBold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,10,0,0"/>
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0,0,0">
+                                <Button x:Name="KrApplyBtn" Style="{StaticResource PrimaryButton}" Content="Aplicar" Click="Kr_Apply"/>
+                                <Button x:Name="KrResetBtn" Style="{StaticResource GhostButton}" Content="Repor padrão" Margin="0,8,0,0" Click="Kr_Reset"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <!-- ===== secção: 🧹  Manutenção ===== -->
+                <StackPanel Margin="0,0,0,10"
+                            Visibility="{Binding IsChecked, ElementName=SecMaint, Converter={StaticResource BoolToVis}}">
+
+                    <!-- Limpar cache -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource ToolIcon}">
+                                <Path Data="{DynamicResource IcoBroom}" Stretch="Uniform" Width="18" Height="18"
+                                      Stroke="{DynamicResource BrAccent}" StrokeThickness="1.8" StrokeLineJoin="Round"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Limpar cache do FiveM" Style="{StaticResource H2}"/>
+                                <TextBlock Text="Resolve crashes, texturas bugadas e erros após updates. A pasta game-storage é preservada — não perdes definições."
+                                           Style="{StaticResource Muted}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                <TextBlock x:Name="CacheStatusText" Style="{StaticResource Muted}"
+                                           FontSize="11.5" Margin="0,6,0,0" Visibility="Collapsed" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button x:Name="ClearCacheBtn" Grid.Column="2" Content="Limpar cache"
+                                    Style="{StaticResource GhostButton}" VerticalAlignment="Center"
+                                    Margin="16,0,0,0" Click="ClearCache_Click"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Serviços do Windows -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Style="{StaticResource ToolIcon}">
+                                    <Path Data="{DynamicResource IcoShield}" Stretch="Uniform" Width="18" Height="18"
+                                          Stroke="{DynamicResource BrAccent}" StrokeThickness="1.8" StrokeLineJoin="Round"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="Serviços do Windows" Style="{StaticResource H2}"/>
+                                    <TextBlock Text="Serviços que o servidor exige ativos. Ativar põe-nos em arranque automático (pede administrador uma vez) e ficam ligados depois de reiniciares."
+                                               Style="{StaticResource Muted}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                                    <Button x:Name="EnableAllServicesBtn" Content="Ativar todos"
+                                            Style="{StaticResource GhostButton}" Margin="0,0,8,0"
+                                            Click="EnableAllServices_Click"/>
+                                    <Button x:Name="CheckServicesBtn" Content="Verificar"
+                                            Style="{StaticResource PrimaryButton}"
+                                            Click="CheckServices_Click"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- proteção de arranque: interruptor + texto -->
+                            <Border BorderBrush="{DynamicResource BrBorder}" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,12,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="ServicesGuardCheck" Style="{StaticResource ToggleSwitch}"
+                                              VerticalAlignment="Center" Margin="0,0,14,0"
+                                              Checked="ServicesGuard_Changed" Unchecked="ServicesGuard_Changed"/>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="Manter sempre ativos" Style="{StaticResource Body}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Reaplica em cada arranque do Windows — útil se tiveres otimizadores/debloat que voltam a desligar estes serviços. Tarefa agendada silenciosa, sem pedidos de administrador."
+                                                   Style="{StaticResource Muted}" FontSize="11.5" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <ItemsControl x:Name="ServicesList" Margin="0,10,0,0" Visibility="Collapsed">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{DynamicResource BrBorder}" BorderThickness="0,1,0,0" Padding="0,9">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="130"/>
+                                                    <ColumnDefinition/>
+                                                    <ColumnDefinition Width="120"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Display}" Style="{StaticResource Body}"
+                                                           FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Detail}" Style="{StaticResource Muted}"
+                                                           FontSize="11.5" VerticalAlignment="Center" Margin="8,0" TextWrapping="Wrap"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding StatusText}" Foreground="{Binding StatusBrush}"
+                                                           FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                <Button Grid.Column="3" Content="{Binding ActionText}" Style="{StaticResource GhostButton}"
+                                                        Padding="12,5" MinWidth="72" Visibility="{Binding ActionVisibility}"
+                                                        Click="EnableService_Click" Tag="{Binding}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock x:Name="ServicesStatusText" Style="{StaticResource Muted}"
+                                       FontSize="11.5" Margin="0,8,0,0" Visibility="Collapsed" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- PC Check (v1.83): está tudo o que a staff lê ativo e intacto? Só lê; Reparar nunca apaga. -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Style="{StaticResource ToolIcon}">
+                                    <TextBlock Text="🔎" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="Pronto para PC check?" Style="{StaticResource H2}"/>
+                                    <TextBlock Text="A staff baseia-se nos registos do Windows (Prefetch, eventos, BAM, serviços, recentes…). Isto confirma que está tudo ativo e intacto — se algo estiver desligado ou limpo, o check corre mal. Não apaga nada, nunca."
+                                               Style="{StaticResource Muted}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                                    <Button x:Name="PcCheckFixBtn" Content="Reparar" Style="{StaticResource GhostButton}" Margin="0,0,8,0" Visibility="Collapsed" Click="PcCheckFix_Click"/>
+                                    <Button x:Name="PcCheckBtn" Content="Verificar" Style="{StaticResource PrimaryButton}" Click="PcCheck_Click"/>
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock x:Name="PcCheckSummary" Style="{StaticResource Muted}" Margin="0,10,0,0" TextWrapping="Wrap" Visibility="Collapsed"/>
+                            <ItemsControl x:Name="PcCheckList" Margin="0,6,0,0" Visibility="Collapsed">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{DynamicResource BrBorder}" BorderThickness="0,1,0,0" Padding="0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="28"/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Top"/>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding Title}" Style="{StaticResource Body}" FontWeight="SemiBold" Foreground="{Binding Brush}"/>
+                                                    <TextBlock Text="{Binding Detail}" Style="{StaticResource Muted}" FontSize="11.5" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- ===== secção: 🔗  Links úteis ===== -->
+                <ItemsControl x:Name="LinksList" Margin="0,0,0,10"
+                              Visibility="{Binding IsChecked, ElementName=SecLinks, Converter={StaticResource BoolToVis}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="2"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Card}" Margin="0,0,12,12" Padding="14,12"
+                                    Cursor="Hand" MouseLeftButtonUp="Link_Click" Tag="{Binding}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource ToolIcon}" Width="36" Height="36" CornerRadius="10" Margin="0,0,12,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Icon}" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" Style="{StaticResource Body}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Description}" Style="{StaticResource Muted}" FontSize="11.5" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="↗" Foreground="{DynamicResource BrMuted}" FontSize="14" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

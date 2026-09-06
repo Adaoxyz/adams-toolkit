@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- WinExe = sem janela de consola a piscar -->
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+
+    <!-- self-contained: corre num PC SEM .NET (é esse o objetivo) -->
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>full</TrimMode>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <AssemblyName>AdamsToolkitSetup</AssemblyName>
+    <RootNamespace>AdamsSetup</RootNamespace>
+    <Version>1.4.0</Version>
+    <Company>WestRP</Company>
+    <Product>Adams Toolkit Setup</Product>
+    <Description>Instalador do Adams Toolkit — prepara os componentes e abre a aplicação.</Description>
+    <Copyright>© 2026 WestRP</Copyright>
+
+    <!-- mesmo logo da app: o instalador que chega pelo /dtoolkit deixa de ter o
+         ícone genérico do .NET (parecia ficheiro estranho a quem descarrega) -->
+    <ApplicationIcon>../Assets/app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <!-- ler o estado real do Smart App Control (HKLM\...\CI\Policy) em vez de o adivinhar -->
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,66 @@
+<UserControl x:Class="AdamsToolkit.Views.LoginView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Border Style="{StaticResource Card}" Width="420" Padding="34,34"
+                HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel>
+                <Image Source="/Assets/logo.png" Height="118" HorizontalAlignment="Center"
+                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                <TextBlock Text="ADAMS TOOLKIT" FontSize="23" FontWeight="Bold"
+                           HorizontalAlignment="Center" Margin="0,12,0,4"
+                           Foreground="{DynamicResource BrText}"/>
+                <TextBlock Text="Acesso privado — só membros do Discord Shame &amp; Adão"
+                           Style="{StaticResource Muted}" HorizontalAlignment="Center"
+                           TextAlignment="Center" Margin="0,0,0,22"/>
+
+                <TextBlock Style="{StaticResource Muted}" TextAlignment="Center" Margin="0,0,0,16">
+                    <Run Text="1. Clica em"/> <Run Text="Entrar com Discord" FontWeight="SemiBold" Foreground="{DynamicResource BrAccent}"/><LineBreak/>
+                    <Run Text="2. No browser, clica em"/> <Run Text="Autorizar" FontWeight="SemiBold"/><LineBreak/>
+                    <Run Text="3. Volta aqui — entras automaticamente"/>
+                </TextBlock>
+
+                <Button x:Name="AuthBtn" Style="{StaticResource PrimaryButton}"
+                        Content="🌐  Entrar com Discord" Height="40"
+                        Click="Auth_Click" IsEnabled="False"/>
+
+                <Button x:Name="NewCodeBtn" Style="{StaticResource GhostButton}"
+                        Content="🔄  Tentar novamente" Margin="0,10,0,0"
+                        Visibility="Collapsed" Click="NewCode_Click"/>
+
+                <!-- Fallback sem browser: código + /toolkit no Discord -->
+                <Border Background="{DynamicResource BrSurface}" CornerRadius="10"
+                        BorderBrush="{DynamicResource BrBorder}" BorderThickness="1"
+                        Padding="0,10" Margin="0,14,0,6">
+                    <TextBlock x:Name="CodeText" Text="· · · · · ·" FontSize="20" FontWeight="Bold"
+                               FontFamily="Consolas" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource BrText}"/>
+                </Border>
+                <TextBlock Style="{StaticResource Muted}" TextAlignment="Center" FontSize="11.5">
+                    <Run Text="Sem browser? Escreve"/> <Run Text="/toolkit" FontWeight="SemiBold" Foreground="{DynamicResource BrAccent}"/> <Run Text="com este código no Discord"/>
+                </TextBlock>
+                <Button x:Name="CopyBtn" Style="{StaticResource GhostButton}"
+                        Content="📋  Copiar código" Margin="0,8,0,0"
+                        Click="Copy_Click" IsEnabled="False"/>
+
+                <Button x:Name="RetryBtn" Style="{StaticResource GhostButton}"
+                        Content="🔄  Tentar novamente" Margin="0,10,0,0"
+                        Visibility="Collapsed" Click="Retry_Click"/>
+
+                <!-- Para quem ainda não está no Discord Shame &amp; Adão -->
+                <Border BorderBrush="{DynamicResource BrBorder}" BorderThickness="0,1,0,0"
+                        Margin="0,18,0,0" Padding="0,14,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Ainda não estás no Discord Shame &amp; Adão?"
+                                   Style="{StaticResource Muted}" HorizontalAlignment="Center"/>
+                        <Button Style="{StaticResource GhostButton}" Margin="0,8,0,0"
+                                Content="💬  Entrar no Discord Shame &amp; Adão" Click="JoinDiscord_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock x:Name="StatusText" Style="{StaticResource Muted}"
+                           HorizontalAlignment="Center" Margin="0,14,0,0" TextAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

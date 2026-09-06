@@ -1,0 +1,18 @@
+# build
+bin/
+obj/
+publish-folder/
+publish-single/
+bootstrap/bin/
+bootstrap/obj/
+bootstrap/out/
+
+# backups locais
+*.bak
+*.bak-*
+*.old.bak
+
+# segredos de assinatura (nunca commitar)
+codesign/
+*.pfx
+*.pass

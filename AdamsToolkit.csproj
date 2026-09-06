@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>Adams Toolkit</AssemblyName>
+    <RootNamespace>AdamsToolkit</RootNamespace>
+    <Version>1.94.0</Version>
+    <FileVersion>1.32.1.0</FileVersion>
+    <Company>WestRP</Company>
+    <Product>Adams Toolkit</Product>
+    <Authors>WestRP</Authors>
+    <Description>Adams Toolkit — Gaming Setup Manager para jogadores FiveM do servidor WestRP. Instala launchers e utilitários a partir das fontes oficiais.</Description>
+    <Copyright>© 2026 WestRP. Todos os direitos reservados.</Copyright>
+    <AssemblyTitle>Adams Toolkit</AssemblyTitle>
+    <NeutralLanguage>pt-PT</NeutralLanguage>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <ApplicationIcon>Assets/app.ico</ApplicationIcon>
+
+    <!-- Regra da pena: app de secretária, não servidor.
+         GC de estação de trabalho e SEM background GC = menos uma thread sempre
+         viva e menos RAM retida em idle; TieredPGO deixa o JIT afinar o que é
+         mesmo usado. Nada disto muda comportamento, só o peso. -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <RetainVMGarbageCollection>false</RetainVMGarbageCollection>
+    <TieredPGO>true</TieredPGO>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets/logo.png" />
+    <Resource Include="Assets/app.ico" />
+  </ItemGroup>
+
+  <!-- bootstrap/ é um projeto SEPARADO (AdamsToolkitSetup); não o compilar aqui -->
+  <ItemGroup>
+    <Compile Remove="bootstrap/**" />
+    <Page Remove="bootstrap/**" />
+    <Resource Remove="bootstrap/**" />
+    <None Remove="bootstrap/**" />
+  </ItemGroup>
+
+  <!-- WinForms só p/ o NotifyIcon da bandeja; tira os global usings que colidem com WPF -->
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.1" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="8.0.1" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.1" />
+    <PackageReference Include="System.Management" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

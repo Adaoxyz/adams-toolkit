@@ -1,0 +1,55 @@
+<Window x:Class="AdamsToolkit.EditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:v="clr-namespace:AdamsToolkit.Views"
+        Title="Editor de Clips — Adams Toolkit" Height="760" Width="1240" MinHeight="600" MinWidth="980"
+        WindowStartupLocation="CenterScreen" Icon="/Assets/app.ico"
+        Background="Transparent" WindowStyle="None" AllowsTransparency="True" ResizeMode="CanResizeWithGrip">
+    <Border x:Name="RootBorder" CornerRadius="14" Background="{DynamicResource BrBg}"
+            BorderBrush="{DynamicResource BrAccentGradient}" BorderThickness="1" ClipToBounds="True">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <!-- barra de título -->
+            <Border x:Name="TitleBar" Grid.Row="0" Background="{DynamicResource BrSurface}" CornerRadius="13,13,0,0" MouseLeftButtonDown="TitleBar_Drag">
+            <Grid>
+                <StackPanel Orientation="Horizontal" Margin="18,0,0,0" VerticalAlignment="Center">
+                    <Image Source="/Assets/logo.png" Height="28" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <TextBlock Text="✂" FontSize="15" Foreground="{DynamicResource BrAccent}" Margin="10,0,6,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Editor de Clips" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource BrText}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="VersionText" FontSize="11" Foreground="{DynamicResource BrMuted}" Margin="10,1,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <Button x:Name="ToolkitBtn" Content="🛠  Abrir o Toolkit" ToolTip="Abre o Adams Toolkit (o editor continua aberto)"
+                            Click="Toolkit_Click" Style="{StaticResource GhostButton}" Padding="10,5" FontSize="12" Margin="0,0,10,0"/>
+                    <Button Content="—" Click="Minimize_Click" Style="{StaticResource ChromeButton}"/>
+                    <Button x:Name="MaximizeBtn" Content="🗖" Click="Maximize_Click" Style="{StaticResource ChromeButton}"/>
+                    <Button Content="✕" Click="Close_Click" Style="{StaticResource ChromeButton}"/>
+                </StackPanel>
+            </Grid>
+            </Border>
+
+            <Grid Grid.Row="1">
+                <ContentControl x:Name="Host"/>
+
+                <!-- 1ª vez: descarregar FFmpeg -->
+                <Border x:Name="SetupPanel" Background="{DynamicResource BrBg}" Visibility="Collapsed">
+                    <Border Style="{StaticResource Card}" Width="440" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="24">
+                        <StackPanel>
+                            <TextBlock Text="A preparar o editor" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource BrText}"/>
+                            <TextBlock Style="{StaticResource Muted}" Margin="0,6,0,14" TextWrapping="Wrap"
+                                       Text="Só na primeira vez: o motor de vídeo (FFmpeg, 60 MB) é descarregado para o teu PC. Depois disto o editor abre na hora."/>
+                            <ProgressBar x:Name="SetupBar" Style="{StaticResource DlProgress}" Minimum="0" Maximum="100" Height="6"/>
+                            <TextBlock x:Name="SetupText" Style="{StaticResource Muted}" Margin="0,8,0,0" Text="A ligar…"/>
+                            <Button x:Name="RetryBtn" Content="Tentar outra vez" Style="{StaticResource PrimaryButton}" Margin="0,14,0,0"
+                                    HorizontalAlignment="Left" Visibility="Collapsed" Click="Retry_Click"/>
+                        </StackPanel>
+                    </Border>
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,962 @@
+{
+  "configVersion": 1,
+  "authApiBase": "https://adams-62-238-22-77.sslip.io",
+  "discordInvite": "https://discord.com/invite/westrpp",
+  "communityStatus": "Online",
+  "news": [
+    {
+      "date": "2026-07-14",
+      "title": "Adams Toolkit v1.0",
+      "body": "Primeira versão. Instala tudo o que precisas para jogar FiveM num só sítio."
+    }
+  ],
+  "apps": [
+    {
+      "id": "steam",
+      "name": "Steam",
+      "icon": "🕹️",
+      "description": "Loja e launcher de jogos da Valve.",
+      "version": "latest",
+      "website": "https://store.steampowered.com",
+      "downloadUrl": "https://cdn.fastly.steamstatic.com/client/installer/SteamSetup.exe",
+      "fileName": "SteamSetup.exe",
+      "detectPaths": [
+        "%ProgramFiles(x86)%\\Steam\\steam.exe"
+      ],
+      "detectRegistryNames": [
+        "Steam"
+      ],
+      "wingetId": "Valve.Steam",
+      "category": "Launchers"
+    },
+    {
+      "id": "rockstar",
+      "name": "Rockstar Games Launcher",
+      "icon": "⭐",
+      "description": "Necessário para GTA V.",
+      "version": "latest",
+      "website": "https://socialclub.rockstargames.com/rockstar-games-launcher",
+      "downloadUrl": "https://gamedownloads.rockstargames.com/public/installer/Rockstar-Games-Launcher.exe",
+      "fileName": "Rockstar-Games-Launcher.exe",
+      "detectPaths": [
+        "%ProgramFiles%\\Rockstar Games\\Launcher\\Launcher.exe"
+      ],
+      "detectRegistryNames": [
+        "Rockstar Games Launcher"
+      ],
+      "wingetId": "RockstarGames.Launcher",
+      "category": "Launchers"
+    },
+    {
+      "id": "epic",
+      "name": "Epic Games Launcher",
+      "icon": "🏪",
+      "category": "Launchers",
+      "version": "latest",
+      "description": "Loja Epic (Fortnite, jogos grátis semanais).",
+      "website": "https://store.epicgames.com",
+      "wingetId": "EpicGames.EpicGamesLauncher",
+      "downloadUrl": "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/installer/download/EpicGamesLauncherInstaller.msi",
+      "fileName": "EpicGamesLauncherInstaller.msi",
+      "detectPaths": [
+        "%ProgramFiles(x86)%\\Epic Games\\Launcher\\Portal\\Binaries\\Win64\\EpicGamesLauncher.exe"
+      ],
+      "detectRegistryNames": [
+        "Epic Games Launcher"
+      ]
+    },
+    {
+      "id": "ea",
+      "name": "EA app",
+      "icon": "🅴",
+      "category": "Launchers",
+      "version": "latest",
+      "description": "Launcher da Electronic Arts (ex-Origin).",
+      "website": "https://www.ea.com/ea-app",
+      "wingetId": "ElectronicArts.EADesktop",
+      "downloadUrl": "https://origin-a.akamaihd.net/EA-Desktop-Client-Download/installer-releases/EAappInstaller.exe",
+      "fileName": "EAappInstaller.exe",
+      "detectPaths": [
+        "%ProgramFiles%\\Electronic Arts\\EA Desktop\\EA Desktop\\EADesktop.exe"
+      ],
+      "detectRegistryNames": [
+        "EA app"
+      ]
+    },
+    {
+      "id": "ubisoft",
+      "name": "Ubisoft Connect",
+      "icon": "🌀",
+      "category": "Launchers",
+      "version": "latest",
+      "description": "Launcher da Ubisoft.",
+      "website": "https://ubisoftconnect.com",
+      "wingetId": "Ubisoft.Connect",
+      "downloadUrl": "https://static3.cdn.ubi.com/orbit/launcher_installer/UbisoftConnectInstaller.exe",
+      "fileName": "UbisoftConnectInstaller.exe",
+      "detectPaths": [
+        "%ProgramFiles(x86)%\\Ubisoft\\Ubisoft Game Launcher\\UbisoftConnect.exe"
+      ],
+      "detectRegistryNames": [
+        "Ubisoft Connect"
+      ]
+    },
+    {
+      "id": "battlenet",
+      "name": "Battle.net",
+      "icon": "❄️",
+      "category": "Launchers",
+      "version": "latest",
+      "description": "Launcher da Blizzard (WoW, Diablo, CoD).",
+      "website": "https://www.blizzard.com/apps/battle.net",
+      "wingetId": "Blizzard.BattleNet",
+      "downloadUrl": "https://downloader.battle.net/download/getInstaller?os=win&installer=Battle.net-Setup.exe",
+      "fileName": "Battle.net-Setup.exe",
+      "detectPaths": [
+        "%ProgramFiles(x86)%\\Battle.net\\Battle.net Launcher.exe"
+      ],
+      "detectRegistryNames": [
+        "Battle.net"
+      ]
+    },
+    {
+      "id": "gog",
+      "name": "GOG Galaxy",
+      "icon": "🌌",
+      "category": "Launchers",
+      "version": "latest",
+      "description": "Launcher da GOG, junta todas as bibliotecas.",
+      "website": "https://www.gog.com/galaxy",
+      "wingetId": "GOG.Galaxy",
+      "downloadUrl": "https://webinstallers.gog-statics.com/download/GOG_Galaxy_2.0.exe",
+      "fileName": "GOG_Galaxy_2.0.exe",
+      "detectPaths": [
+        "%ProgramFiles(x86)%\\GOG Galaxy\\GalaxyClient.exe"
+      ],
+      "detectRegistryNames": [
+        "GOG GALAXY"
+      ]
+    },
+    {
+      "id": "discord",
+      "name": "Discord",
+      "icon": "💬",
+      "description": "Comunicação por voz e texto.",
+      "version": "latest",
+      "website": "https://discord.com",
+      "downloadUrl": "https://discord.com/api/downloads/distributions/app/installers/latest?channel=stable&platform=win&arch=x64",
+      "fileName": "DiscordSetup.exe",
+      "detectPaths": [
+        "%LOCALAPPDATA%\\Discord\\Update.exe"
+      ],
+      "detectRegistryNames": [
+        "Discord"
+      ],
+      "wingetId": "Discord.Discord",
+      "category": "Comunicação"
+    },
+    {
+      "id": "vencord",
+      "name": "Vencord",
+      "icon": "🧩",
+      "category": "Comunicação",
+      "description": "Mod do Discord (plugins, temas). Requer Discord instalado.",
+      "version": "latest",
+      "website": "https://vencord.dev",
+      "wingetId": "",
+      "downloadUrl": "https://github.com/Vencord/Installer/releases/latest/download/VencordInstaller.exe",
+      "fileName": "VencordInstaller.exe",
+      "detectPaths": [
+        "%APPDATA%\\Vencord"
+      ],
+      "detectRegistryNames": [
+        "Vencord"
+      ]
+    },
+    {
+      "id": "teamspeak",
+      "name": "TeamSpeak",
+      "icon": "🎙️",
+      "category": "Comunicação",
+      "description": "Voz de baixa latência para gaming.",
+      "version": "latest",
+      "website": "https://teamspeak.com",
+      "downloadUrl": "https://files.teamspeak-services.com/releases/client/3.6.2/TeamSpeak3-Client-win64-3.6.2.exe",
+      "fileName": "TeamSpeak3-Client-win64.exe",
+      "detectPaths": [
+        "%ProgramFiles%\\TeamSpeak 3 Client\\ts3client_win64.exe"
+      ],
+      "detectRegistryNames": [
+        "TeamSpeak"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "rustdesk",
+      "name": "RustDesk",
+      "icon": "🖥️",
+      "category": "Acesso Remoto",
+      "description": "Acesso remoto open-source, alternativa ao TeamViewer.",
+      "website": "https://rustdesk.com",
+      "wingetId": "RustDesk.RustDesk",
+      "downloadUrl": "",
+      "fileName": "",
+      "detectPaths": [
+        "%ProgramFiles%\\RustDesk\\rustdesk.exe"
+      ],
+      "detectRegistryNames": [
+        "RustDesk"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "anydesk",
+      "name": "AnyDesk",
+      "icon": "🔴",
+      "category": "Acesso Remoto",
+      "description": "Acesso remoto rápido e leve.",
+      "website": "https://anydesk.com",
+      "wingetId": "AnyDeskSoftwareGmbH.AnyDesk",
+      "downloadUrl": "https://download.anydesk.com/AnyDesk.exe",
+      "fileName": "AnyDesk.exe",
+      "detectPaths": [
+        "%ProgramFiles(x86)%\\AnyDesk\\AnyDesk.exe"
+      ],
+      "detectRegistryNames": [
+        "AnyDesk"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "teamviewer",
+      "name": "TeamViewer",
+      "icon": "🔵",
+      "category": "Acesso Remoto",
+      "description": "Acesso remoto clássico.",
+      "website": "https://www.teamviewer.com",
+      "wingetId": "TeamViewer.TeamViewer",
+      "downloadUrl": "https://download.teamviewer.com/download/TeamViewer_Setup_x64.exe",
+      "fileName": "TeamViewer_Setup_x64.exe",
+      "detectPaths": [
+        "%ProgramFiles%\\TeamViewer\\TeamViewer.exe"
+      ],
+      "detectRegistryNames": [
+        "TeamViewer"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "chrome",
+      "name": "Google Chrome",
+      "icon": "🌐",
+      "category": "Browser",
+      "description": "Browser da Google.",
+      "website": "https://www.google.com/chrome/",
+      "wingetId": "Google.Chrome",
+      "downloadUrl": "https://dl.google.com/chrome/install/latest/chrome_installer.exe",
+      "fileName": "chrome_installer.exe",
+      "detectPaths": [
+        "%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe",
+        "%ProgramFiles(x86)%\\Google\\Chrome\\Application\\chrome.exe"
+      ],
+      "detectRegistryNames": [
+        "Google Chrome"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "firefox",
+      "name": "Mozilla Firefox",
+      "icon": "🦊",
+      "category": "Browser",
+      "description": "Browser open-source da Mozilla.",
+      "website": "https://www.mozilla.org/firefox/",
+      "wingetId": "Mozilla.Firefox",
+      "downloadUrl": "https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=pt-PT",
+      "fileName": "FirefoxSetup.exe",
+      "detectPaths": [
+        "%ProgramFiles%\\Mozilla Firefox\\firefox.exe"
+      ],
+      "detectRegistryNames": [
+        "Mozilla Firefox"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "edge",
+      "name": "Microsoft Edge",
+      "icon": "🧭",
+      "category": "Browser",
+      "description": "Browser da Microsoft (vem com o Windows).",
+      "website": "https://www.microsoft.com/edge",
+      "wingetId": "Microsoft.Edge",
+      "downloadUrl": "",
+      "fileName": "",
+      "detectPaths": [
+        "%ProgramFiles(x86)%\\Microsoft\\Edge\\Application\\msedge.exe"
+      ],
+      "detectRegistryNames": [
+        "Microsoft Edge"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "opera",
+      "name": "Opera",
+      "icon": "🅾️",
+      "category": "Browser",
+      "description": "Browser com VPN grátis integrada.",
+      "website": "https://www.opera.com",
+      "wingetId": "Opera.Opera",
+      "downloadUrl": "https://net.geo.opera.com/opera/stable/windows",
+      "fileName": "OperaSetup.exe",
+      "detectPaths": [
+        "%LOCALAPPDATA%\\Programs\\Opera\\launcher.exe"
+      ],
+      "detectRegistryNames": [
+        "Opera Stable",
+        "Opera 1"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "operagx",
+      "name": "Opera GX",
+      "icon": "🎮",
+      "category": "Browser",
+      "description": "Browser gaming (limita CPU/RAM).",
+      "website": "https://www.opera.com/gx",
+      "wingetId": "Opera.OperaGX",
+      "downloadUrl": "https://net.geo.opera.com/opera_gx/stable/windows",
+      "fileName": "OperaGXSetup.exe",
+      "detectPaths": [
+        "%LOCALAPPDATA%\\Programs\\Opera GX\\launcher.exe"
+      ],
+      "detectRegistryNames": [
+        "Opera GX"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "brave",
+      "name": "Brave",
+      "icon": "🦁",
+      "category": "Browser",
+      "description": "Browser focado em privacidade, bloqueia ads.",
+      "website": "https://brave.com",
+      "wingetId": "Brave.Brave",
+      "downloadUrl": "https://laptop-updates.brave.com/latest/winx64",
+      "fileName": "BraveSetup.exe",
+      "detectPaths": [
+        "%ProgramFiles%\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"
+      ],
+      "detectRegistryNames": [
+        "Brave"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "vivaldi",
+      "name": "Vivaldi",
+      "icon": "🎻",
+      "category": "Browser",
+      "description": "Browser ultra-personalizável.",
+      "website": "https://vivaldi.com",
+      "wingetId": "Vivaldi.Vivaldi",
+      "downloadUrl": "",
+      "fileName": "",
+      "detectPaths": [
+        "%LOCALAPPDATA%\\Vivaldi\\Application\\vivaldi.exe"
+      ],
+      "detectRegistryNames": [
+        "Vivaldi"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "vlc",
+      "name": "VLC",
+      "icon": "🎦",
+      "category": "Media & Streaming",
+      "description": "Leitor de vídeo/áudio universal, grátis.",
+      "website": "https://www.videolan.org/vlc/",
+      "wingetId": "VideoLAN.VLC",
+      "downloadUrl": "",
+      "fileName": "",
+      "detectPaths": [
+        "%ProgramFiles%\\VideoLAN\\VLC\\vlc.exe"
+      ],
+      "detectRegistryNames": [
+        "VLC"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "spotify",
+      "name": "Spotify",
+      "icon": "🎵",
+      "category": "Media & Streaming",
+      "description": "Streaming de música.",
+      "website": "https://www.spotify.com",
+      "wingetId": "Spotify.Spotify",
+      "downloadUrl": "https://download.scdn.co/SpotifySetup.exe",
+      "fileName": "SpotifySetup.exe",
+      "detectPaths": [
+        "%APPDATA%\\Spotify\\Spotify.exe"
+      ],
+      "detectRegistryNames": [
+        "Spotify"
+      ]
+    },
+    {
+      "id": "obs",
+      "name": "OBS Studio",
+      "icon": "🎥",
+      "description": "Gravação e streaming.",
+      "version": "latest",
+      "website": "https://obsproject.com",
+      "downloadUrl": "https://obsproject.com/download",
+      "fileName": "",
+      "detectPaths": [
+        "%ProgramFiles%\\obs-studio\\bin\\64bit\\obs64.exe"
+      ],
+      "detectRegistryNames": [
+        "OBS Studio"
+      ],
+      "wingetId": "OBSProject.OBSStudio",
+      "category": "Media & Streaming"
+    },
+    {
+      "id": "vcpp",
+      "name": "Visual C++ Redistributable",
+      "icon": "🧩",
+      "description": "Runtime necessário por muitos jogos (x64).",
+      "version": "2015-2022",
+      "website": "https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist",
+      "downloadUrl": "https://aka.ms/vs/17/release/vc_redist.x64.exe",
+      "fileName": "vc_redist.x64.exe",
+      "detectRegistryNames": [
+        "Microsoft Visual C++ 2015-2022 Redistributable (x64)"
+      ],
+      "wingetId": "Microsoft.VCRedist.2015+.x64",
+      "category": "Runtimes Essenciais"
+    },
+    {
+      "id": "directx",
+      "name": "DirectX Runtime",
+      "icon": "🎛️",
+      "description": "DirectX End-User Runtime — pedido por jogos antigos.",
+      "version": "Jun 2010",
+      "website": "https://www.microsoft.com/download/details.aspx?id=35",
+      "downloadUrl": "https://download.microsoft.com/download/1/7/1/1718CCC4-6315-4D8E-9543-8E28A4E18C4C/dxwebsetup.exe",
+      "fileName": "dxwebsetup.exe",
+      "detectRegistryNames": [
+        "DirectX"
+      ],
+      "wingetId": "Microsoft.DirectX",
+      "category": "Runtimes Essenciais"
+    },
+    {
+      "version": "latest",
+      "detectPaths": [],
+      "id": "webview2",
+      "name": "Edge WebView2 Runtime",
+      "icon": "🧩",
+      "category": "Runtimes Essenciais",
+      "description": "Runtime web usado por muitas apps (Discord, launchers, NUI).",
+      "website": "https://developer.microsoft.com/microsoft-edge/webview2/",
+      "wingetId": "Microsoft.EdgeWebView2Runtime",
+      "downloadUrl": "https://go.microsoft.com/fwlink/p/?LinkId=2124703",
+      "fileName": "MicrosoftEdgeWebView2Setup.exe",
+      "detectRegistryNames": [
+        "Microsoft Edge WebView2 Runtime"
+      ]
+    },
+    {
+      "version": "latest",
+      "detectPaths": [],
+      "id": "dotnet8",
+      "name": ".NET Desktop Runtime 8",
+      "icon": "🟣",
+      "category": "Runtimes Essenciais",
+      "description": "Necessário por apps .NET 8 (incluindo o Adams Toolkit).",
+      "website": "https://dotnet.microsoft.com/download/dotnet/8.0",
+      "wingetId": "Microsoft.DotNet.DesktopRuntime.8",
+      "downloadUrl": "https://aka.ms/dotnet/8.0/windowsdesktop-runtime-win-x64.exe",
+      "fileName": "windowsdesktop-runtime-8-win-x64.exe",
+      "detectRegistryNames": [
+        "Windows Desktop Runtime - 8"
+      ]
+    },
+    {
+      "version": "latest",
+      "detectPaths": [],
+      "id": "dotnet9",
+      "name": ".NET Desktop Runtime 9",
+      "icon": "🟣",
+      "category": "Runtimes Essenciais",
+      "description": "Necessário por apps .NET 9.",
+      "website": "https://dotnet.microsoft.com/download/dotnet/9.0",
+      "wingetId": "Microsoft.DotNet.DesktopRuntime.9",
+      "downloadUrl": "https://aka.ms/dotnet/9.0/windowsdesktop-runtime-win-x64.exe",
+      "fileName": "windowsdesktop-runtime-9-win-x64.exe",
+      "detectRegistryNames": [
+        "Windows Desktop Runtime - 9"
+      ]
+    },
+    {
+      "version": "latest",
+      "detectPaths": [],
+      "id": "dotnet10",
+      "name": ".NET Desktop Runtime 10",
+      "icon": "🟣",
+      "category": "Runtimes Essenciais",
+      "description": "Necessário por apps .NET 10.",
+      "website": "https://dotnet.microsoft.com/download/dotnet/10.0",
+      "wingetId": "Microsoft.DotNet.DesktopRuntime.10",
+      "downloadUrl": "https://aka.ms/dotnet/10.0/windowsdesktop-runtime-win-x64.exe",
+      "fileName": "windowsdesktop-runtime-10-win-x64.exe",
+      "detectRegistryNames": [
+        "Windows Desktop Runtime - 10"
+      ]
+    },
+    {
+      "id": "7zip",
+      "name": "7-Zip",
+      "icon": "🗜️",
+      "description": "Compressão/extração de ficheiros, grátis.",
+      "version": "24.09",
+      "website": "https://www.7-zip.org",
+      "downloadUrl": "https://www.7-zip.org/a/7z2409-x64.exe",
+      "fileName": "7z-x64.exe",
+      "detectPaths": [
+        "%ProgramFiles%\\7-Zip\\7z.exe"
+      ],
+      "detectRegistryNames": [
+        "7-Zip"
+      ],
+      "wingetId": "7zip.7zip",
+      "category": "Utilitários"
+    },
+    {
+      "version": "latest",
+      "id": "qbittorrent",
+      "name": "qBittorrent",
+      "icon": "🌊",
+      "category": "Utilitários",
+      "description": "Cliente torrent open-source, sem ads.",
+      "website": "https://www.qbittorrent.org",
+      "wingetId": "qBittorrent.qBittorrent",
+      "downloadUrl": "",
+      "fileName": "",
+      "detectPaths": [
+        "%ProgramFiles%\\qBittorrent\\qbittorrent.exe"
+      ],
+      "detectRegistryNames": [
+        "qBittorrent"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "notepadpp",
+      "name": "Notepad++",
+      "icon": "📝",
+      "category": "Utilitários",
+      "description": "Editor de texto/código leve.",
+      "website": "https://notepad-plus-plus.org",
+      "wingetId": "Notepad++.Notepad++",
+      "downloadUrl": "",
+      "fileName": "",
+      "detectPaths": [
+        "%ProgramFiles%\\Notepad++\\notepad++.exe"
+      ],
+      "detectRegistryNames": [
+        "Notepad++"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "sharex",
+      "name": "ShareX",
+      "icon": "📸",
+      "category": "Utilitários",
+      "description": "Capturas de ecrã e gravação avançadas.",
+      "website": "https://getsharex.com",
+      "wingetId": "ShareX.ShareX",
+      "downloadUrl": "",
+      "fileName": "",
+      "detectPaths": [
+        "%ProgramFiles%\\ShareX\\ShareX.exe"
+      ],
+      "detectRegistryNames": [
+        "ShareX"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "lightshot",
+      "name": "Lightshot",
+      "icon": "💡",
+      "category": "Utilitários",
+      "description": "Capturas de ecrã rápidas (print screen).",
+      "website": "https://app.prntscr.com",
+      "wingetId": "Skillbrains.Lightshot",
+      "downloadUrl": "https://app.prntscr.com/build/setup-lightshot.exe",
+      "fileName": "setup-lightshot.exe",
+      "detectPaths": [
+        "%ProgramFiles(x86)%\\Skillbrains\\lightshot\\Lightshot.exe"
+      ],
+      "detectRegistryNames": [
+        "Lightshot"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "powertoys",
+      "name": "PowerToys",
+      "icon": "🔧",
+      "category": "Utilitários",
+      "description": "Utilitários avançados da Microsoft para Windows.",
+      "website": "https://learn.microsoft.com/windows/powertoys/",
+      "wingetId": "Microsoft.PowerToys",
+      "downloadUrl": "",
+      "fileName": "",
+      "detectPaths": [
+        "%ProgramFiles%\\PowerToys\\PowerToys.exe",
+        "%LOCALAPPDATA%\\PowerToys\\PowerToys.exe"
+      ],
+      "detectRegistryNames": [
+        "PowerToys"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "gdrive",
+      "name": "Google Drive",
+      "icon": "📁",
+      "category": "Utilitários",
+      "description": "Sincronização de ficheiros na cloud.",
+      "website": "https://www.google.com/drive/download/",
+      "wingetId": "Google.GoogleDrive",
+      "downloadUrl": "https://dl.google.com/drive-file-stream/GoogleDriveSetup.exe",
+      "fileName": "GoogleDriveSetup.exe",
+      "detectPaths": [
+        "%ProgramFiles%\\Google\\Drive File Stream"
+      ],
+      "detectRegistryNames": [
+        "Google Drive"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "bcu",
+      "name": "Bulk Crap Uninstaller",
+      "icon": "🗑️",
+      "category": "Utilitários",
+      "description": "Desinstala programas em massa, remove restos.",
+      "website": "https://www.bcuninstaller.com",
+      "wingetId": "Klocman.BulkCrapUninstaller",
+      "downloadUrl": "",
+      "fileName": "",
+      "detectPaths": [
+        "%ProgramFiles%\\BCUninstaller\\BCUninstaller.exe"
+      ],
+      "detectRegistryNames": [
+        "Bulk Crap Uninstaller",
+        "BCUninstaller"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "malwarebytes",
+      "name": "Malwarebytes",
+      "icon": "🛡️",
+      "category": "Utilitários",
+      "description": "Anti-malware para limpezas ao PC.",
+      "website": "https://www.malwarebytes.com",
+      "wingetId": "Malwarebytes.Malwarebytes",
+      "downloadUrl": "https://downloads.malwarebytes.com/file/mb-windows",
+      "fileName": "MBSetup.exe",
+      "detectPaths": [
+        "%ProgramFiles%\\Malwarebytes\\Anti-Malware\\mbam.exe"
+      ],
+      "detectRegistryNames": [
+        "Malwarebytes"
+      ]
+    },
+    {
+      "version": "latest",
+      "id": "warp",
+      "name": "Cloudflare WARP",
+      "icon": "☁️",
+      "category": "Utilitários",
+      "description": "DNS 1.1.1.1 + VPN grátis da Cloudflare.",
+      "website": "https://one.one.one.one",
+      "wingetId": "Cloudflare.Warp",
+      "downloadUrl": "https://1111-releases.cloudflareclient.com/win/latest",
+      "fileName": "Cloudflare_WARP.msi",
+      "detectPaths": [
+        "%ProgramFiles%\\Cloudflare\\Cloudflare WARP\\Cloudflare WARP.exe"
+      ],
+      "detectRegistryNames": [
+        "Cloudflare WARP"
+      ]
+    },
+    {
+      "id": "winrar",
+      "name": "WinRAR",
+      "icon": "📚",
+      "description": "Compressão/extração RAR/ZIP.",
+      "version": "latest",
+      "website": "https://www.win-rar.com",
+      "downloadUrl": "https://www.win-rar.com/download.html",
+      "fileName": "",
+      "detectPaths": [
+        "%ProgramFiles%\\WinRAR\\WinRAR.exe"
+      ],
+      "detectRegistryNames": [
+        "WinRAR"
+      ],
+      "wingetId": "RARLab.WinRAR",
+      "category": "Utilitários"
+    },
+    {
+      "version": "latest",
+      "downloadUrl": "",
+      "fileName": "",
+      "id": "hwinfo",
+      "name": "HWiNFO",
+      "icon": "📊",
+      "category": "Hardware & Diagnóstico",
+      "description": "Monitorização completa de hardware (temperaturas, sensores).",
+      "website": "https://www.hwinfo.com",
+      "wingetId": "REALiX.HWiNFO",
+      "detectPaths": [
+        "%ProgramFiles%\\HWiNFO64\\HWiNFO64.exe"
+      ],
+      "detectRegistryNames": [
+        "HWiNFO"
+      ]
+    },
+    {
+      "version": "latest",
+      "downloadUrl": "",
+      "fileName": "",
+      "id": "cpuz",
+      "name": "CPU-Z",
+      "icon": "🧠",
+      "category": "Hardware & Diagnóstico",
+      "description": "Informação detalhada do CPU, RAM e motherboard.",
+      "website": "https://www.cpuid.com/softwares/cpu-z.html",
+      "wingetId": "CPUID.CPU-Z",
+      "detectPaths": [
+        "%ProgramFiles%\\CPUID\\CPU-Z\\cpuz.exe"
+      ],
+      "detectRegistryNames": [
+        "CPU-Z"
+      ]
+    },
+    {
+      "version": "latest",
+      "downloadUrl": "",
+      "fileName": "",
+      "id": "gpuz",
+      "name": "GPU-Z",
+      "icon": "🎞️",
+      "category": "Hardware & Diagnóstico",
+      "description": "Informação detalhada da placa gráfica.",
+      "website": "https://www.techpowerup.com/gpuz/",
+      "wingetId": "TechPowerUp.GPU-Z",
+      "detectPaths": [
+        "%ProgramFiles(x86)%\\GPU-Z\\GPU-Z.exe"
+      ],
+      "detectRegistryNames": [
+        "GPU-Z"
+      ]
+    },
+    {
+      "version": "latest",
+      "downloadUrl": "",
+      "fileName": "",
+      "id": "occt",
+      "name": "OCCT",
+      "icon": "🔥",
+      "category": "Hardware & Diagnóstico",
+      "description": "Testes de stress e estabilidade (CPU/GPU/RAM/PSU).",
+      "website": "https://www.ocbase.com",
+      "wingetId": "OCBASE.OCCT",
+      "detectPaths": [],
+      "detectRegistryNames": [
+        "OCCT"
+      ]
+    },
+    {
+      "version": "latest",
+      "downloadUrl": "",
+      "fileName": "",
+      "id": "amdchipset",
+      "name": "AMD Chipset Software",
+      "icon": "🔴",
+      "category": "Hardware & Diagnóstico",
+      "description": "Drivers de chipset para motherboards AMD. O site dá sempre a versão mais recente.",
+      "website": "https://www.amd.com/en/support/download/drivers.html",
+      "wingetId": "",
+      "detectPaths": [],
+      "detectRegistryNames": [
+        "AMD Chipset Software"
+      ]
+    },
+    {
+      "version": "latest",
+      "downloadUrl": "",
+      "fileName": "",
+      "id": "ryzenmaster",
+      "name": "AMD Ryzen Master",
+      "icon": "⚡",
+      "category": "Hardware & Diagnóstico",
+      "description": "Overclock e monitorização de CPUs Ryzen.",
+      "website": "https://www.amd.com/en/products/software/ryzen-master.html",
+      "wingetId": "AMD.RyzenMaster",
+      "detectPaths": [
+        "%ProgramFiles%\\AMD\\RyzenMaster\\bin\\AMD Ryzen Master.exe"
+      ],
+      "detectRegistryNames": [
+        "AMD Ryzen Master"
+      ]
+    },
+    {
+      "id": "nvidia",
+      "name": "NVIDIA App",
+      "icon": "🟢",
+      "category": "Drivers",
+      "version": "latest",
+      "description": "Drivers GeForce + otimização (substitui o GeForce Experience). O site dá sempre a versão mais recente.",
+      "website": "https://www.nvidia.com/en-us/software/nvidia-app/",
+      "wingetId": "",
+      "downloadUrl": "",
+      "fileName": "",
+      "detectPaths": [
+        "%ProgramFiles%\\NVIDIA Corporation\\NVIDIA app\\CEF\\NVIDIA app.exe"
+      ],
+      "detectRegistryNames": [
+        "NVIDIA app",
+        "NVIDIA App"
+      ]
+    },
+    {
+      "id": "amd",
+      "name": "AMD Software Adrenalin",
+      "icon": "🔴",
+      "category": "Drivers",
+      "version": "latest",
+      "description": "Drivers Radeon + painel Adrenalin. O site deteta a tua GPU e dá o driver mais recente.",
+      "website": "https://www.amd.com/en/support/download/drivers.html",
+      "wingetId": "",
+      "downloadUrl": "",
+      "fileName": "",
+      "detectPaths": [
+        "%ProgramFiles%\\AMD\\CNext\\CNext\\RadeonSoftware.exe"
+      ],
+      "detectRegistryNames": [
+        "AMD Software"
+      ]
+    },
+    {
+      "id": "driverbooster",
+      "name": "Driver Booster",
+      "icon": "🚀",
+      "category": "Drivers",
+      "version": "latest",
+      "description": "Atualiza drivers antigos automaticamente (IObit).",
+      "website": "https://www.iobit.com/en/driver-booster.php",
+      "wingetId": "IObit.DriverBooster",
+      "downloadUrl": "https://cdn.iobit.com/dl/driver_booster_setup.exe",
+      "fileName": "driver_booster_setup.exe",
+      "detectPaths": [],
+      "detectRegistryNames": [
+        "Driver Booster"
+      ]
+    },
+    {
+      "id": "fivem",
+      "name": "FiveM",
+      "icon": "🎮",
+      "description": "Cliente multiplayer GTA V (Cfx.re).",
+      "version": "latest",
+      "website": "https://fivem.net",
+      "downloadUrl": "https://runtime.fivem.net/client/FiveM.exe",
+      "fileName": "FiveM.exe",
+      "detectPaths": [
+        "%LOCALAPPDATA%\\FiveM\\FiveM.exe"
+      ],
+      "detectRegistryNames": [
+        "FiveM"
+      ],
+      "wingetId": "",
+      "category": "FiveM"
+    }
+  ],
+  "fivemLinks": [
+    {
+      "name": "Cfx.re",
+      "url": "https://cfx.re",
+      "icon": "🌐",
+      "description": "Site oficial Cfx.re"
+    },
+    {
+      "name": "Fórum Cfx.re",
+      "url": "https://forum.cfx.re",
+      "icon": "💬",
+      "description": "Fórum oficial da comunidade"
+    },
+    {
+      "name": "Estado dos servidores",
+      "url": "https://status.cfx.re",
+      "icon": "📡",
+      "description": "Status da plataforma Cfx.re"
+    }
+  ],
+  "fivemGuides": [],
+  "resourceHub": [
+    {
+      "category": "Ferramentas",
+      "items": [
+        {
+          "name": "CodeWalker",
+          "url": "https://github.com/dexyfex/CodeWalker",
+          "icon": "🗺️",
+          "description": "Explorador/editor de mapas GTA V"
+        },
+        {
+          "name": "OpenIV",
+          "url": "https://openiv.com",
+          "icon": "📂",
+          "description": "Editor de ficheiros do jogo"
+        }
+      ]
+    },
+    {
+      "category": "Comunidades",
+      "items": [
+        {
+          "name": "Cfx.re Discord",
+          "url": "https://discord.gg/fivem",
+          "icon": "💬",
+          "description": "Discord oficial FiveM"
+        }
+      ]
+    },
+    {
+      "category": "Criadores",
+      "items": [
+        {
+          "name": "Exemplo Criador",
+          "url": "https://example.com",
+          "icon": "🎨",
+          "description": "Substitui pelos teus criadores favoritos"
+        }
+      ]
+    }
+  ],
+  "reshadeZipUrl": "https://adams-62-238-22-77.sslip.io/files/reshade-westrp.zip"
+}

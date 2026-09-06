@@ -1,0 +1,588 @@
+<UserControl x:Class="AdamsToolkit.Views.OptimizerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+
+        <!-- expander pequeno em texto (▸ Ver ajustes…) para listas longas dentro dos cards -->
+        <Style x:Key="MiniExpander" TargetType="ToggleButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <StackPanel Orientation="Horizontal" Background="Transparent">
+                            <TextBlock x:Name="chev" Text="❯" FontSize="10.5" FontWeight="Bold"
+                                       Foreground="{DynamicResource BrAccent}" VerticalAlignment="Center"
+                                       RenderTransformOrigin="0.5,0.5" Margin="0,0,7,0">
+                                <TextBlock.RenderTransform>
+                                    <RotateTransform Angle="0"/>
+                                </TextBlock.RenderTransform>
+                            </TextBlock>
+                            <ContentPresenter x:Name="cp" VerticalAlignment="Center"
+                                              TextElement.Foreground="{DynamicResource BrAccent}"
+                                              TextElement.FontSize="12" TextElement.FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="chev" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="90"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="cp" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- linha de tweak (interruptor + nome + estado) — partilhada pelas 4 listas -->
+        <DataTemplate x:Key="TweakTemplate">
+            <Border Background="{DynamicResource BrCard}" BorderBrush="{DynamicResource BrBorder}"
+                    BorderThickness="1" CornerRadius="10" Padding="14,11" Margin="0,0,0,7">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                              IsEnabled="{Binding CanEdit}" VerticalAlignment="Center"
+                              Style="{StaticResource ToggleSwitch}" Margin="0,0,14,0"/>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" Style="{StaticResource Body}" FontWeight="SemiBold"/>
+                            <Border Background="#26A855F7" CornerRadius="6" Padding="7,1"
+                                    Margin="8,0,0,0" VerticalAlignment="Center"
+                                    Visibility="{Binding BetaVis}">
+                                <TextBlock Text="🧪 BETA" FontSize="10" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource BrAccent}"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="{Binding Description}" Style="{StaticResource Muted}"
+                                   FontSize="11.5" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" Text="{Binding StatusText}"
+                               Foreground="{Binding StatusBrush}" FontSize="11.5"
+                               VerticalAlignment="Center" Margin="12,0,0,0"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <!-- cabeçalho de secção: rótulo pequeno em maiúsculas com linha separadora -->
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrAccent}"/>
+            <Setter Property="Margin" Value="2,20,0,10"/>
+        </Style>
+
+        <!-- botão grande de toggle do boost: glow + escala no hover/press, ícone muda -->
+        <Style x:Key="BoostToggle" TargetType="ToggleButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid x:Name="root" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </Grid.RenderTransform>
+                            <Border x:Name="bd" Background="{DynamicResource BrAccentGradient}"
+                                    CornerRadius="12" Padding="28,14">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="20" ShadowDepth="0"
+                                                      Opacity="0.4" Color="#A855F7"/>
+                                </Border.Effect>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock x:Name="icon" Text="⚡" FontSize="17" Margin="0,0,10,0"
+                                               VerticalAlignment="Center"/>
+                                    <ContentPresenter VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrSuccess}"/>
+                                <Setter TargetName="icon" Property="Text" Value="✓"/>
+                                <Setter Property="Foreground" Value="#06281B"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="bd"
+                                                            Storyboard.TargetProperty="Effect.Color"
+                                                            To="#34D399" Duration="0:0:0.15"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="bd"
+                                                            Storyboard.TargetProperty="Effect.Color"
+                                                            To="#A855F7" Duration="0:0:0.15"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="root"
+                                                             Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)"
+                                                             To="1.03" Duration="0:0:0.12"/>
+                                            <DoubleAnimation Storyboard.TargetName="root"
+                                                             Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)"
+                                                             To="1.03" Duration="0:0:0.12"/>
+                                            <DoubleAnimation Storyboard.TargetName="bd"
+                                                             Storyboard.TargetProperty="Effect.Opacity"
+                                                             To="0.75" Duration="0:0:0.12"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="root"
+                                                             Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)"
+                                                             To="1" Duration="0:0:0.12"/>
+                                            <DoubleAnimation Storyboard.TargetName="root"
+                                                             Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)"
+                                                             To="1" Duration="0:0:0.12"/>
+                                            <DoubleAnimation Storyboard.TargetName="bd"
+                                                             Storyboard.TargetProperty="Effect.Opacity"
+                                                             To="0.4" Duration="0:0:0.12"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="root"
+                                                             Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)"
+                                                             To="0.96" Duration="0:0:0.08"/>
+                                            <DoubleAnimation Storyboard.TargetName="root"
+                                                             Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)"
+                                                             To="0.96" Duration="0:0:0.08"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="root"
+                                                             Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)"
+                                                             To="1" Duration="0:0:0.12"/>
+                                            <DoubleAnimation Storyboard.TargetName="root"
+                                                             Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)"
+                                                             To="1" Duration="0:0:0.12"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrBorder}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="bd"
+                                                             Storyboard.TargetProperty="Effect.Opacity"
+                                                             To="0" Duration="0:0:0"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="bd"
+                                                             Storyboard.TargetProperty="Effect.Opacity"
+                                                             To="0.4" Duration="0:0:0"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- separador segmentado (igual ao Desinstalador) -->
+        <Style x:Key="SegBtn" TargetType="RadioButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="9" Padding="16,8" Margin="3">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrCardHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrAccentGradient}"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <!-- cabeçalho -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+            <TextBlock Text="Otimizador" Style="{StaticResource H1}"/>
+            <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,0"
+                       Text="Ping, FPS, teclado e limpeza — tudo reversível. Os boosts desligam-se sozinhos quando reinicias o PC: ativa antes de jogar."/>
+        </StackPanel>
+
+        <!-- aviso admin -->
+        <Border Grid.Row="1" x:Name="AdminBanner" Style="{StaticResource Card}"
+                Padding="14,10" Margin="0,0,0,12" Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource Muted}" VerticalAlignment="Center"
+                           Text="⚠️ A maioria dos tweaks precisa de admin. Sem isso vão falhar."/>
+                <Button Grid.Column="1" Style="{StaticResource GhostButton}" Content="🛡  Reiniciar como admin"
+                        Click="RestartAdmin_Click"/>
+            </Grid>
+        </Border>
+
+        <!-- ===== separadores: uma "janela" por área (v1.70, antes acordeão numa página só) ===== -->
+        <Border Grid.Row="2" Style="{StaticResource Card}" Padding="10" Margin="0,0,0,12">
+            <Border Background="{DynamicResource BrSurface}" CornerRadius="11" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton x:Name="SecGame" Style="{StaticResource SegBtn}" Content="🎮  Boost de Jogo" IsChecked="True"/>
+                    <RadioButton x:Name="SecMaint" Style="{StaticResource SegBtn}" Content="🧰  Manutenção"/>
+                    <RadioButton x:Name="SecStartup" Style="{StaticResource SegBtn}" Content="🚀  Arranque do Windows"/>
+                </StackPanel>
+            </Border>
+        </Border>
+
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- ===== secção: 🎮  Boost de Jogo ===== -->
+                <StackPanel Margin="0,0,0,10"
+                            Visibility="{Binding IsChecked, ElementName=SecGame, Converter={StaticResource BoolToVis}}">
+                <!-- toggle principal + ping -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel VerticalAlignment="Center" Margin="0,0,24,0">
+                            <ToggleButton x:Name="BoostBtn" Style="{StaticResource BoostToggle}"
+                                          Content="Ativar boost" Checked="Boost_On" Unchecked="Boost_Off"/>
+                            <TextBlock x:Name="BoostState" Style="{StaticResource Muted}" FontSize="11.5"
+                                       Margin="0,8,0,0" HorizontalAlignment="Center" Text="Boost desligado"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <Grid>
+                                <TextBlock Text="📶 Boost de ping (rede)" Style="{StaticResource H2}" FontSize="14"/>
+                                <Button Style="{StaticResource GhostButton}" Content="📶  Testar agora"
+                                        HorizontalAlignment="Right" Padding="10,5" Click="TestPing_Click"/>
+                            </Grid>
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Antes" Style="{StaticResource Muted}" FontSize="11"/>
+                                    <TextBlock x:Name="PingBefore" Text="—" Style="{StaticResource Body}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Depois" Style="{StaticResource Muted}" FontSize="11"/>
+                                    <TextBlock x:Name="PingAfter" Text="—" Style="{StaticResource Body}"/>
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock x:Name="PingHint" Style="{StaticResource Muted}" FontSize="11"
+                                       Margin="0,6,0,0" Text=""/>
+                        </StackPanel>
+                    </Grid>
+                        <!-- ajustes de rede (o que o boost aplica) — escondidos atrás de um expander -->
+                        <ToggleButton x:Name="NetMore" Style="{StaticResource MiniExpander}" Margin="0,14,0,0"
+                                      Content="Ver e escolher os ajustes de rede aplicados pelo boost"/>
+                        <StackPanel Margin="0,10,0,0"
+                                    Visibility="{Binding IsChecked, ElementName=NetMore, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="Seguros" Style="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="2,0,0,6"/>
+                            <ItemsControl x:Name="SafeList" Margin="0,0,0,10"
+                                          ItemTemplate="{StaticResource TweakTemplate}"/>
+                            <TextBlock Text="Agressivos" Style="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="2,0,0,2"/>
+                            <TextBlock Style="{StaticResource Muted}" FontSize="11" Margin="2,0,0,6" TextWrapping="Wrap"
+                                       Text="Ganho pequeno ou nulo na maioria dos PCs. O interrupt moderation reinicia a placa de rede ao aplicar (net cai 1–2 s)."/>
+                            <ItemsControl x:Name="AggroList" ItemTemplate="{StaticResource TweakTemplate}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- boost de FPS (check-safe) -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
+                                <TextBlock Text="🎯 Boost de FPS (FiveM)" Style="{StaticResource H2}" FontSize="14"/>
+                                <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"
+                                           Text="Ajustes de desempenho do Windows e do FiveM. Não apaga nada do PC — o histórico, o Prefetch e os registos do Windows ficam intactos, por isso é seguro em verificações de PC. Tudo reversível e desliga-se sozinho quando reinicias o Windows."/>
+                                <TextBlock x:Name="FpsState" Style="{StaticResource Muted}" FontSize="11.5"
+                                           Margin="0,8,0,0" TextWrapping="Wrap" Text="Boost de FPS desligado"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1" x:Name="FpsBtn" Style="{StaticResource BoostToggle}"
+                                          VerticalAlignment="Center" Content="Ativar FPS"
+                                          Checked="Fps_On" Unchecked="Fps_Off"/>
+                        </Grid>
+
+                        <ToggleButton x:Name="FpsMore" Style="{StaticResource MiniExpander}" Margin="0,12,0,0"
+                                      Content="Ver e escolher os ajustes incluídos"/>
+                        <ItemsControl x:Name="FpsList" Margin="0,10,0,0"
+                                      ItemTemplate="{StaticResource TweakTemplate}"
+                                      Visibility="{Binding IsChecked, ElementName=FpsMore, Converter={StaticResource BoolToVis}}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- efeitos visuais do Windows (SystemPropertiesPerformance) -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="🖼 Efeitos visuais do Windows" Style="{StaticResource H2}" FontSize="14"/>
+                        <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"
+                                   Text="Abre a janela do Windows (Win+R → SystemPropertiesPerformance) onde escolhes animações, sombras, transparências e miniaturas. Atenção: o preset «Melhor desempenho» pode deixar a caixa de pesquisa do Windows 11 toda preta — se isso te acontecer, volta a «O Windows decide» ou liga «Animar controlos e elementos dentro das janelas»."/>
+                        <TextBlock x:Name="VfxState" Style="{StaticResource Muted}" FontSize="11.5"
+                                   Margin="0,8,0,0" TextWrapping="Wrap" Text=""/>
+                        <Button x:Name="VfxOpen" Style="{StaticResource GhostButton}" Content="🖼 Abrir efeitos visuais do Windows"
+                                HorizontalAlignment="Left" Padding="14,10" Margin="0,12,0,0" Click="VfxOpen_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- processos desnecessários (fecho de fundo, não permanente) -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="🧯 Processos desnecessários" Style="{StaticResource H2}" FontSize="14"/>
+                                <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"
+                                           Text="Fecha o que não faz falta para jogar: nuvem, updaters, Adobe, Teams, Widgets, Xbox, launchers de outros jogos, overlays; outros programas de fundo sem janela (vêm desligados — liga os que não reconheces); e para serviços do Windows dispensáveis só nesta sessão. Nunca toca em Discord, Steam, browsers, voz, periféricos, FiveM nem nos serviços que o servidor exige. Não é permanente — volta tudo no próximo arranque."/>
+                                <TextBlock x:Name="TrimState" Style="{StaticResource Muted}" FontSize="11.5"
+                                           Margin="0,8,0,0" TextWrapping="Wrap" Text=""/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                                <Button x:Name="TrimSelectAllBtn" Style="{StaticResource GhostButton}"
+                                        Content="Selecionar tudo" Padding="14,10" Margin="0,0,8,0"
+                                        Visibility="Collapsed" Click="TrimSelectAll_Click"/>
+                                <Button x:Name="TrimScanBtn" Style="{StaticResource GhostButton}"
+                                        Content="🔍  Analisar" Padding="14,10" Click="TrimScan_Click"/>
+                                <Button x:Name="TrimKillBtn" Style="{StaticResource PrimaryButton}"
+                                        Content="Fechar" Padding="16,10" Margin="8,0,0,0"
+                                        Visibility="Collapsed" Click="TrimKill_Click"/>
+                            </StackPanel>
+                        </Grid>
+                        <!-- juntar svchost: a maior fatia do total de processos -->
+                        <Border BorderBrush="{DynamicResource BrBorder}" BorderThickness="0,1,0,0" Margin="0,12,0,0" Padding="0,12,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <CheckBox x:Name="SvcHostToggle" Style="{StaticResource ToggleSwitch}"
+                                          VerticalAlignment="Center" Margin="0,0,14,0"
+                                          Checked="SvcHost_Changed" Unchecked="SvcHost_Changed"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="Juntar serviços do Windows em menos processos (svchost)" Style="{StaticResource Body}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="O Windows espalha os serviços por dezenas de svchost.exe — é a maior fatia do total. Isto volta a agrupá-los (−30 a −50 processos, sem perder nada). Precisa reiniciar o PC; reversível a qualquer altura."
+                                               Style="{StaticResource Muted}" FontSize="11.5" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="SvcHostState" Style="{StaticResource Muted}" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap" Text=""/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <ItemsControl x:Name="TrimList" Margin="0,12,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource BrSurface}" CornerRadius="8"
+                                            Padding="12,7" Margin="0,0,0,6">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <CheckBox Style="{StaticResource ToggleSwitch}" VerticalAlignment="Center"
+                                                      IsChecked="{Binding Selected, Mode=TwoWay}" Margin="0,0,12,0"/>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Title}" Style="{StaticResource Body}"
+                                                           FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding Detail}" Style="{StaticResource Muted}"
+                                                           FontSize="11.5" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding Mb}" Style="{StaticResource Muted}"
+                                                       FontSize="11.5" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+                </StackPanel>
+
+                <!-- ===== secção: 🧹  Manutenção &amp; Limpeza ===== -->
+                <StackPanel Margin="0,0,0,10"
+                            Visibility="{Binding IsChecked, ElementName=SecMaint, Converter={StaticResource BoolToVis}}">
+                <!-- limpeza de temporários -->
+                <!-- wrp: DESATIVADO 2026-08-26 — jogador banido num PC check ("limpeza de logs") após usar isto.
+                     Card fica VISÍVEL mas bloqueado, p/ o jogador perceber o risco. ScheduledCleanup.IsEnabled=false fixo.
+                     Não reativar sem decisão do dono. -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12" BorderBrush="#66EF4444" BorderThickness="1">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🧹 Limpeza do PC" Style="{StaticResource H2}" FontSize="14" VerticalAlignment="Center"/>
+                                    <Border Background="#33EF4444" CornerRadius="6" Padding="8,3" Margin="10,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="DESATIVADA" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource BrDanger}"/>
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"
+                                           Text="Apagava ficheiros temporários (utilizador e Windows), relatórios de erros antigos e esvaziava a Reciclagem — o mesmo que a Limpeza de Disco do Windows. Nunca tocou no Prefetch nem em logs."/>
+                                <TextBlock x:Name="CleanState" Style="{StaticResource Muted}" FontSize="11.5" Margin="0,8,0,0" TextWrapping="Wrap" Text="" Visibility="Collapsed"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <Button x:Name="CleanBtn" Style="{StaticResource GhostButton}" Content="🔒  Desativada" Padding="16,10"
+                                        IsEnabled="False" Opacity="0.5" Click="Clean_Click"/>
+                                <CheckBox x:Name="SchedCheck" Style="{StaticResource ToggleSwitch}" IsEnabled="False" Visibility="Collapsed"
+                                          Checked="Sched_Changed" Unchecked="Sched_Changed"/>
+                            </StackPanel>
+                        </Grid>
+                        <Border Background="#1AEF4444" BorderBrush="#33EF4444" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,12,0,0">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Body}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource BrDanger}"
+                                           Text="⚠️ Porque está desativada — lê isto antes de usares QUALQUER limpador (CCleaner, Limpeza de Disco, etc.)"/>
+                                <TextBlock Style="{StaticResource Body}" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap"
+                                           Text="Um jogador foi BANIDO num PC check de um servidor por &quot;limpeza de logs&quot; depois de usar esta função. A staff de muitos servidores vê a pasta Temp e a Reciclagem vazias e assume que limpaste rasto antes da verificação — mesmo que não tenhas apagado nada relevante."/>
+                                <TextBlock Style="{StaticResource Body}" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap"
+                                           Text="Regra simples: se jogas em servidores com PC check, NÃO uses limpadores de ficheiros temporários nem esvazies a Reciclagem nos dias antes de jogar. Se precisas de espaço, usa o separador Armazenamento do Desinstalador e apaga só o que sabes o que é."/>
+                                <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap"
+                                           Text="Estamos a tratar do caso com a staff do servidor em questão. A limpeza automática semanal também foi desligada em todos os PCs."/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- ponto de restauro -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="⛑ Ponto de restauro" Style="{StaticResource H2}" FontSize="14"/>
+                            <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"
+                                       Text="Cria um ponto de Restauro do Sistema — se alguma coisa correr mal (drivers, tweaks, programas), voltas atrás em minutos. A app também cria um automaticamente antes de instalar drivers."/>
+                            <TextBlock x:Name="RestoreState" Style="{StaticResource Muted}" FontSize="11.5"
+                                       Margin="0,8,0,0" TextWrapping="Wrap" Text=""/>
+                        </StackPanel>
+                        <Button Grid.Column="1" x:Name="RestoreBtn" Style="{StaticResource GhostButton}"
+                                Content="⛑  Criar agora" Padding="16,10" VerticalAlignment="Center"
+                                Margin="16,0,0,0" Click="Restore_Click"/>
+                    </Grid>
+                </Border>
+                </StackPanel>
+
+                <!-- ===== secção: 🚀  Arranque do Windows ===== -->
+                <StackPanel Margin="0,0,0,0"
+                            Visibility="{Binding IsChecked, ElementName=SecStartup, Converter={StaticResource BoolToVis}}">
+                <!-- programas no arranque do Windows -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,4">
+                            <StackPanel>
+                                <TextBlock Text="🚀 Programas no arranque do Windows" Style="{StaticResource H2}" FontSize="14"/>
+                                <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"
+                                           Text="Menos programas a arrancar = Windows mais rápido e mais FPS em PCs fracos. Desligar não desinstala nada — é o mesmo interruptor do Gestor de Tarefas e podes voltar a ligar quando quiseres."/>
+                            </StackPanel>
+                            <Button Style="{StaticResource GhostButton}" Content="🔄" Padding="10,6"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                                    Click="StartupRefresh_Click"/>
+                        </Grid>
+                        <TextBlock x:Name="StartupHint" Style="{StaticResource Muted}" FontSize="11"
+                                   Margin="0,0,0,6" TextWrapping="Wrap" Visibility="Collapsed"
+                                   Text="⚠️ As entradas marcadas com 'Sistema' precisam de admin para mudar."/>
+                        <ItemsControl x:Name="StartupList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource BrSurface}" CornerRadius="8"
+                                            Padding="12,8" Margin="0,0,0,6">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                      IsEnabled="{Binding CanEdit}" VerticalAlignment="Center"
+                                                      Style="{StaticResource ToggleSwitch}" Margin="0,0,12,0"/>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}" Style="{StaticResource Body}"
+                                                           FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding Command}" Style="{StaticResource Muted}"
+                                                           FontSize="10.5" Margin="0,1,0,0" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding SourceText}"
+                                                       Style="{StaticResource Muted}" FontSize="11"
+                                                       VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock x:Name="StartupEmpty" Style="{StaticResource Muted}" FontSize="11.5"
+                                   Visibility="Collapsed" Text="Sem programas de arranque para mostrar."/>
+                    </StackPanel>
+                </Border>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

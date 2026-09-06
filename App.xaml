@@ -1,0 +1,515 @@
+<Application x:Class="AdamsToolkit.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnExplicitShutdown">
+    <Application.Resources>
+
+        <!-- ============ PALETA (violeta neon sobre navy) ============ -->
+        <Color x:Key="ColBg">#0A0917</Color>
+        <Color x:Key="ColSurface">#0F0D20</Color>
+        <Color x:Key="ColCard">#14122B</Color>
+        <Color x:Key="ColCardHover">#1C1839</Color>
+        <Color x:Key="ColBorder">#2A2450</Color>
+        <Color x:Key="ColAccent">#A855F7</Color>
+        <Color x:Key="ColAccent2">#7C3AED</Color>
+        <Color x:Key="ColText">#EAE7F7</Color>
+        <Color x:Key="ColMuted">#8B86AE</Color>
+        <Color x:Key="ColSuccess">#34D399</Color>
+        <Color x:Key="ColDanger">#F87171</Color>
+        <!-- cores de acento por métrica (gauges/sparklines do dashboard) -->
+        <Color x:Key="ColInfo">#38BDF8</Color>
+        <Color x:Key="ColWarn">#FBBF24</Color>
+        <SolidColorBrush x:Key="BrInfo" Color="{StaticResource ColInfo}"/>
+        <SolidColorBrush x:Key="BrWarn" Color="{StaticResource ColWarn}"/>
+
+        <SolidColorBrush x:Key="BrBg" Color="{StaticResource ColBg}"/>
+        <SolidColorBrush x:Key="BrSurface" Color="{StaticResource ColSurface}"/>
+        <SolidColorBrush x:Key="BrCard" Color="{StaticResource ColCard}"/>
+        <SolidColorBrush x:Key="BrCardHover" Color="{StaticResource ColCardHover}"/>
+        <SolidColorBrush x:Key="BrBorder" Color="{StaticResource ColBorder}"/>
+        <SolidColorBrush x:Key="BrAccent" Color="{StaticResource ColAccent}"/>
+        <SolidColorBrush x:Key="BrAccent2" Color="{StaticResource ColAccent2}"/>
+        <SolidColorBrush x:Key="BrText" Color="{StaticResource ColText}"/>
+        <SolidColorBrush x:Key="BrMuted" Color="{StaticResource ColMuted}"/>
+        <SolidColorBrush x:Key="BrSuccess" Color="{StaticResource ColSuccess}"/>
+        <SolidColorBrush x:Key="BrDanger" Color="{StaticResource ColDanger}"/>
+
+        <LinearGradientBrush x:Key="BrAccentGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="{StaticResource ColAccent}" Offset="0"/>
+            <GradientStop Color="{StaticResource ColAccent2}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Banner do dashboard: navy → violeta, com brilho radial por cima -->
+        <LinearGradientBrush x:Key="BrHero" StartPoint="0,0" EndPoint="1,0.6">
+            <GradientStop Color="#171238" Offset="0"/>
+            <GradientStop Color="#2A1A5E" Offset="0.55"/>
+            <GradientStop Color="#4C1D95" Offset="1"/>
+        </LinearGradientBrush>
+        <RadialGradientBrush x:Key="BrHeroGlow" Center="0.78,0.45" GradientOrigin="0.78,0.45"
+                             RadiusX="0.42" RadiusY="0.95">
+            <GradientStop Color="#99A855F7" Offset="0"/>
+            <GradientStop Color="#00A855F7" Offset="1"/>
+        </RadialGradientBrush>
+        <LinearGradientBrush x:Key="BrWindows" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0EA5E9" Offset="0"/>
+            <GradientStop Color="#1D4ED8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ============ ÍCONES (vetor, 24x24 — sem dependência de fontes) ============ -->
+        <PathGeometry x:Key="IcoHome" Figures="M3,10 L12,3 L21,10 L21,21 L3,21 Z M9.5,21 L9.5,14 L14.5,14 L14.5,21"/>
+        <PathGeometry x:Key="IcoMonitor" Figures="M3,4 L21,4 L21,16 L3,16 Z M9,20 L15,20 M12,16 L12,20"/>
+        <PathGeometry x:Key="IcoDownload" Figures="M12,3 L12,14 M7.5,10 L12,14.5 L16.5,10 M4,19.5 L20,19.5"/>
+        <PathGeometry x:Key="IcoGame" Figures="M8,8 L16,8 L16,17 L8,17 Z M6.5,10.5 L6.5,14.5 M17.5,10.5 L17.5,14.5 M10.5,12 L13.5,12 M12,10.5 L12,13.5"/>
+        <PathGeometry x:Key="IcoBolt" Figures="M13,2.5 L4.5,13.5 L11,13.5 L10,21.5 L19,10 L12.5,10 Z"/>
+        <PathGeometry x:Key="IcoScissors" Figures="M6,9 A3,3 0 1 1 6.01,3 A3,3 0 0 1 6,9 Z M6,21 A3,3 0 1 1 6.01,15 A3,3 0 0 1 6,21 Z M20,4 L8.1,15.9 M14.5,14.5 L20,20 M8.1,8.1 L12,12"/>
+        <PathGeometry x:Key="IcoTrash" Figures="M4,7 L20,7 M10,7 L10,4 L14,4 L14,7 M6.5,7 L7.5,21 L16.5,21 L17.5,7 M10,11 L10,17 M14,11 L14,17"/>
+        <PathGeometry x:Key="IcoSync" Figures="M20,12 A8,8 0 1 1 17.6,6.4 M20.5,3 L20.5,7.5 L16,7.5"/>
+        <PathGeometry x:Key="IcoTimer" Figures="M12,21 A8,8 0 1 1 12.01,5 A8,8 0 0 1 12,21 Z M12,13.5 L12,9 M9.5,2.5 L14.5,2.5"/>
+        <PathGeometry x:Key="IcoStar" Figures="M12,3 L14.6,9.2 L21,9.8 L16.2,14.1 L17.6,20.4 L12,17.1 L6.4,20.4 L7.8,14.1 L3,9.8 L9.4,9.2 Z"/>
+        <PathGeometry x:Key="IcoUsers" Figures="M9,11 A3.2,3.2 0 1 1 9.01,4.6 A3.2,3.2 0 0 1 9,11 Z M3,20 A6,6 0 0 1 15,20 M16,5.2 A3,3 0 0 1 16,11 M17,13.4 A6,6 0 0 1 21,19.5"/>
+        <PathGeometry x:Key="IcoGrid" Figures="M4,4 L10,4 L10,10 L4,10 Z M14,4 L20,4 L20,10 L14,10 Z M4,14 L10,14 L10,20 L4,20 Z M14,14 L20,14 L20,20 L14,20 Z"/>
+        <PathGeometry x:Key="IcoGlobe" Figures="M12,21 A9,9 0 1 1 12.01,3 A9,9 0 0 1 12,21 Z M3,12 L21,12 M12,3 C15,6.5 15,17.5 12,21 C9,17.5 9,6.5 12,3 Z"/>
+        <PathGeometry x:Key="IcoThermo" Figures="M12,14.5 L12,4.5 M12,17.5 A2.6,2.6 0 1 1 12.01,12.3 A2.6,2.6 0 0 1 12,17.5 Z"/>
+        <PathGeometry x:Key="IcoWindows" Figures="M3.5,5.6 L11,4.6 L11,11.3 L3.5,11.3 Z M12.6,4.4 L21,3.2 L21,11.3 L12.6,11.3 Z M3.5,12.7 L11,12.7 L11,19.4 L3.5,18.4 Z M12.6,12.7 L21,12.7 L21,20.8 L12.6,19.6 Z"/>
+        <PathGeometry x:Key="IcoBroom" Figures="M14,3.5 L20.5,10 M12.5,7.5 L16.5,11.5 L9,19 A3,3 0 0 1 4.5,19 A3,3 0 0 1 5,14.5 Z M7,12 L12,17"/>
+        <PathGeometry x:Key="IcoShield" Figures="M12,3 L20,6 L20,12 C20,17 16.5,20 12,21.5 C7.5,20 4,17 4,12 L4,6 Z"/>
+        <PathGeometry x:Key="IcoChevron" Figures="M9,5.5 L15.5,12 L9,18.5"/>
+
+        <!-- ============ TIPOGRAFIA ============ -->
+        <Style x:Key="H1" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="26"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
+        </Style>
+        <Style x:Key="H2" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
+        </Style>
+        <Style x:Key="Body" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style x:Key="Muted" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- ============ CABEÇALHO DE SECÇÃO (acordeão) ============
+             Flat, distinto dos cards: título · linha divisória · chevron em badge.
+             Aberto = linha e badge em acento. Usado no Install Center e Otimizador. -->
+        <Style x:Key="CategoryHeader" TargetType="ToggleButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="10" Padding="10,9">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                                <Rectangle x:Name="line" Grid.Column="1" Height="1" Margin="16,1,14,0"
+                                           VerticalAlignment="Center" Fill="{DynamicResource BrBorder}"/>
+                                <Border x:Name="badge" Grid.Column="2" Width="26" Height="26" CornerRadius="13"
+                                        Background="{DynamicResource BrCard}"
+                                        BorderBrush="{DynamicResource BrBorder}" BorderThickness="1">
+                                    <TextBlock x:Name="chev" Text="❯" FontSize="11" FontWeight="Bold"
+                                               Foreground="{DynamicResource BrMuted}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Margin="1,0,0,0" RenderTransformOrigin="0.5,0.5">
+                                        <TextBlock.RenderTransform>
+                                            <RotateTransform Angle="0"/>
+                                        </TextBlock.RenderTransform>
+                                    </TextBlock>
+                                </Border>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrCardHover}"/>
+                                <Setter TargetName="badge" Property="BorderBrush" Value="{DynamicResource BrAccent}"/>
+                                <Setter TargetName="chev" Property="Foreground" Value="{DynamicResource BrText}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="line" Property="Fill" Value="{DynamicResource BrAccentGradient}"/>
+                                <Setter TargetName="line" Property="Opacity" Value="0.55"/>
+                                <Setter TargetName="badge" Property="Background" Value="{DynamicResource BrAccentGradient}"/>
+                                <Setter TargetName="badge" Property="BorderBrush" Value="{DynamicResource BrAccent}"/>
+                                <Setter TargetName="chev" Property="Foreground" Value="White"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="chev"
+                                                             Storyboard.TargetProperty="RenderTransform.Angle"
+                                                             To="90" Duration="0:0:0.18">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <QuadraticEase EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="chev"
+                                                             Storyboard.TargetProperty="RenderTransform.Angle"
+                                                             To="0" Duration="0:0:0.18"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ============ CARD (hover elevação suave) ============ -->
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource BrCard}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <TranslateTransform Y="0"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource BrCardHover}"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Y"
+                                                 To="-2" Duration="0:0:0.15">
+                                    <DoubleAnimation.EasingFunction>
+                                        <QuadraticEase EasingMode="EaseOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Y"
+                                                 To="0" Duration="0:0:0.15"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ============ BOTÃO PRIMÁRIO (gradiente) ============ -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="18,9"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="{DynamicResource BrAccentGradient}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                CornerRadius="9" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.72"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrBorder}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ============ BOTÃO SECUNDÁRIO (ghost) ============ -->
+        <Style x:Key="GhostButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="Transparent"
+                                BorderBrush="{DynamicResource BrBorder}" BorderThickness="1"
+                                CornerRadius="9" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrCardHover}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrAccent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ============ NAV (sidebar) ============ -->
+        <!-- Ícone vem do Tag (Geometry Ico*); ativo = pill com gradiente violeta. -->
+        <Style x:Key="NavButton" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="11"
+                                BorderBrush="Transparent" BorderThickness="1"
+                                Padding="13,9" Margin="12,3">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Path x:Name="ico" Width="18" Height="18" Stretch="Uniform"
+                                      Data="{TemplateBinding Tag}"
+                                      Stroke="{TemplateBinding Foreground}" StrokeThickness="1.5"
+                                      StrokeLineJoin="Round" StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round" Margin="0,0,12,0"
+                                      VerticalAlignment="Center"/>
+                                <ContentPresenter Grid.Column="1" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrCardHover}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrAccentGradient}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#66FFFFFF"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter TargetName="bd" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="16" ShadowDepth="0"
+                                                          Opacity="0.55" Color="#A855F7"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ============ DASHBOARD: peças reutilizáveis ============ -->
+
+        <!-- rótulo de secção em maiúsculas (MONITOR DE DESEMPENHO, SISTEMA, …) -->
+        <Style x:Key="SectionLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
+        </Style>
+
+        <!-- tile interior (dentro de um Card) -->
+        <Style x:Key="Tile" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource BrSurface}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="14,12"/>
+        </Style>
+
+        <!-- botão das Ações Rápidas: ícone em pastilha + título + subtítulo + chevron -->
+        <Style x:Key="QuickAction" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{DynamicResource BrSurface}"
+                                BorderBrush="{DynamicResource BrBorder}" BorderThickness="1"
+                                CornerRadius="12" Padding="12,11">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Width="34" Height="34" CornerRadius="10"
+                                        Background="#26A855F7" Margin="0,0,11,0">
+                                    <Path Width="17" Height="17" Stretch="Uniform"
+                                          Data="{TemplateBinding Tag}"
+                                          Stroke="{DynamicResource BrAccent}" StrokeThickness="1.6"
+                                          StrokeLineJoin="Round" StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round"/>
+                                </Border>
+                                <ContentPresenter Grid.Column="1" VerticalAlignment="Center"/>
+                                <Path Grid.Column="2" Width="13" Height="13" Stretch="Uniform"
+                                      Data="{DynamicResource IcoChevron}"
+                                      Stroke="{DynamicResource BrMuted}" StrokeThickness="1.6"
+                                      StrokeLineJoin="Round" StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrCardHover}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrAccent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- botão de chrome (titlebar): quadrado, só ícone -->
+        <Style x:Key="ChromeButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="9">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrCardHover}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ============ PROGRESS BAR ============ -->
+        <Style x:Key="DlProgress" TargetType="ProgressBar">
+            <Setter Property="Height" Value="6"/>
+            <Setter Property="Background" Value="{DynamicResource BrBorder}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrAccentGradient}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                            <Grid x:Name="PART_Track" ClipToBounds="True">
+                                <Border x:Name="PART_Indicator" HorizontalAlignment="Left"
+                                        Background="{TemplateBinding Foreground}" CornerRadius="3"/>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ============ TOGGLE SWITCH (pill iOS) ============ -->
+        <Style x:Key="ToggleSwitch" TargetType="CheckBox">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid Width="46" Height="26">
+                            <!-- trilho off -->
+                            <Border x:Name="trackOff" CornerRadius="13"
+                                    Background="{DynamicResource BrSurface}"
+                                    BorderBrush="{DynamicResource BrBorder}" BorderThickness="1"/>
+                            <!-- trilho on (fade por cima) -->
+                            <Border x:Name="trackOn" CornerRadius="13" Opacity="0"
+                                    Background="{DynamicResource BrAccentGradient}"/>
+                            <!-- bola -->
+                            <Ellipse x:Name="thumb" Width="20" Height="20"
+                                     HorizontalAlignment="Left" Margin="3,0,0,0"
+                                     Fill="{DynamicResource BrMuted}">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform x:Name="thumbT" X="0"/>
+                                </Ellipse.RenderTransform>
+                                <Ellipse.Effect>
+                                    <DropShadowEffect BlurRadius="6" ShadowDepth="1"
+                                                      Opacity="0.35" Color="#000000"/>
+                                </Ellipse.Effect>
+                            </Ellipse>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="thumb" Property="Fill" Value="#FFFFFF"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="thumbT"
+                                                             Storyboard.TargetProperty="X"
+                                                             To="20" Duration="0:0:0.18">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <QuadraticEase EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="trackOn"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             To="1" Duration="0:0:0.18"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="thumbT"
+                                                             Storyboard.TargetProperty="X"
+                                                             To="0" Duration="0:0:0.18">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <QuadraticEase EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="trackOn"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             To="0" Duration="0:0:0.18"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="trackOff" Property="BorderBrush"
+                                        Value="{DynamicResource BrAccent}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Fade-in usado pelas views ao entrar -->
+        <Storyboard x:Key="ViewFadeIn">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25"/>
+            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(TranslateTransform.Y)"
+                             From="10" To="0" Duration="0:0:0.25">
+                <DoubleAnimation.EasingFunction>
+                    <QuadraticEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+
+    </Application.Resources>
+</Application>

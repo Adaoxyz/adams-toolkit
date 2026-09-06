@@ -17,6 +17,13 @@ public partial class ChangelogView : UserControl
 {
     private static readonly List<Release> Releases = new()
     {
+        new("v1.95", "6 set 2026", "O código da app passou a ser público",
+        new()
+        {
+            "Nova secção «Código Aberto» na barra lateral: o código completo do Adams Toolkit está publicado no GitHub e podes abri-lo com um clique.",
+            "Serve para as verificações de PC. Em vez de discutir, mostras a secção: quem está a verificar clica, lê o código e vê o que a app faz e não faz — não lê a memória de outros programas, não injeta nada no jogo, não instala drivers e não apaga rasto nenhum do teu PC.",
+            "A mesma secção mostra, ao vivo, se tens o Snap Tap e a repetição de teclado ligados ou desligados, e abre a pasta dos ficheiros que guardam esse estado, para a staff confirmar sem ter de acreditar na app.",
+        }),
         new("v1.94", "6 set 2026", "O «Reparar» do PC check repara mesmo",
         new()
         {

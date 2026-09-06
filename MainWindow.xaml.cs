@@ -23,6 +23,7 @@ public partial class MainWindow : Window
     private TimerResolutionView? _timerRes;
     private PcSpecsView? _pcSpecs;
     private ChangelogView? _changelog;
+    private OpenSourceView? _openSource;
 
     public static DiscordUser? CurrentUser { get; private set; }
 
@@ -380,6 +381,7 @@ public partial class MainWindow : Window
             _ when ReferenceEquals(sender, NavTimer) => _timerRes ??= new TimerResolutionView(),
             _ when ReferenceEquals(sender, NavPc) => _pcSpecs ??= new PcSpecsView(),
             _ when ReferenceEquals(sender, NavChangelog) => _changelog ??= new ChangelogView(),
+            _ when ReferenceEquals(sender, NavOpenSource) => _openSource ??= new OpenSourceView(),
             _ => GetDashboard(),
         };
         ShowView(view);
@@ -395,6 +397,7 @@ public partial class MainWindow : Window
             case "fivem": NavFiveM.IsChecked = true; break;
             case "install": NavInstall.IsChecked = true; break;
             case "pc": NavPc.IsChecked = true; break;
+            case "opensource": NavOpenSource.IsChecked = true; break;
             case "editor": EditorWindow.Open(); break;
         }
     }

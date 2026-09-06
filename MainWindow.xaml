@@ -136,6 +136,10 @@
                             <RadioButton x:Name="NavChangelog" Style="{StaticResource NavButton}"
                                          Tag="{StaticResource IcoStar}"
                                          Content="Novidades" Checked="Nav_Checked"/>
+                            <RadioButton x:Name="NavOpenSource" Style="{StaticResource NavButton}"
+                                         Tag="{StaticResource IcoShield}"
+                                         Content="Código Aberto" Checked="Nav_Checked"
+                                         ToolTip="O código desta app é público — para quem quiser verificar o que ela faz"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>

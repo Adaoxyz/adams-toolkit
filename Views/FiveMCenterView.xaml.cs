@@ -30,64 +30,11 @@ public partial class FiveMCenterView : UserControl
                 ? $"Instalado ✓  ·  {FiveMExe}" : "Não encontrado — instala no Install Center";
             RefreshReshadeState();
             RefreshCl2State();
-            SyncSnapFromState();
             SyncKr();
             if (AppState.IsVisible) _cl2Timer.Start();
             AppState.Changed += OnVisibility;
         };
         Unloaded += (_, _) => { AppState.Changed -= OnVisibility; _cl2Timer.Stop(); };
-    }
-
-    // ---------- Snap Tap ----------
-
-    private bool _suppressSnap;
-
-    private void SyncSnapFromState()
-    {
-        var c = SnapTap.Cfg;
-        _suppressSnap = true;
-        SnapAD.IsChecked = c.AD; SnapWS.IsChecked = c.WS; SnapOnlyFiveM.IsChecked = c.OnlyFiveM;
-        _suppressSnap = false;
-        SnapBtn.Content = SnapTap.IsActive ? "Desativar Snap Tap" : "Ativar Snap Tap";
-        SnapBtn.Style = (Style)FindResource(SnapTap.IsActive ? "GhostButton" : "PrimaryButton");
-        SnapState.Text = SnapTap.IsActive ? SnapActiveText() : "Snap Tap desligado";
-    }
-
-    private static string SnapActiveText()
-    {
-        var c = SnapTap.Cfg;
-        var pares = (c.AD ? "A/D" : "") + (c.AD && c.WS ? " + " : "") + (c.WS ? "W/S" : "");
-        return $"Snap Tap ATIVO em {pares}" + (c.OnlyFiveM ? " · só com o FiveM em foco" : " · em todo o lado") +
-               " · fica ligado enquanto a app estiver aberta (bandeja conta)";
-    }
-
-    private void Snap_OptChanged(object sender, RoutedEventArgs e)
-    {
-        if (_suppressSnap) return;
-        var c = SnapTap.Cfg;
-        c.AD = SnapAD.IsChecked == true; c.WS = SnapWS.IsChecked == true; c.OnlyFiveM = SnapOnlyFiveM.IsChecked == true;
-        if (!c.AD && !c.WS)
-        {
-            _suppressSnap = true; SnapAD.IsChecked = true; _suppressSnap = false; c.AD = true;
-        }
-        SnapTap.Save();
-        if (SnapTap.IsActive) SnapState.Text = SnapActiveText();
-    }
-
-    private void Snap_Toggle(object sender, RoutedEventArgs e)
-    {
-        if (SnapTap.IsActive)
-        {
-            SnapTap.Stop();
-            SnapTap.Cfg.Enabled = false; SnapTap.Save();
-        }
-        else
-        {
-            var err = SnapTap.Start();
-            if (err != null) { SnapState.Text = "✗ " + err; return; }
-            SnapTap.Cfg.Enabled = true; SnapTap.Save();
-        }
-        SyncSnapFromState();
     }
 
     // ---------- repetição do teclado ----------

@@ -17,6 +17,13 @@ public partial class ChangelogView : UserControl
 {
     private static readonly List<Release> Releases = new()
     {
+        new("v1.96", "7 set 2026", "Snap Tap removido de vez",
+        new()
+        {
+            "O Snap Tap (strafe) saiu da app. Deixou de existir o card no FiveM Center, o programa já não instala o atalho de teclado que essa função usava e, ao abrir esta versão, apaga sozinho o ficheiro onde a tua escolha estava guardada (snaptap.json).",
+            "Se o tinhas ligado, fica desligado a partir de agora sem teres de fazer nada — nem sequer é preciso ir a lado nenhum.",
+            "A secção «Código Aberto» passa a mostrar só a repetição de teclado, que é o que resta a mexer no input. O resto da app fica igual.",
+        }),
         new("v1.95", "6 set 2026", "O código da app passou a ser público",
         new()
         {

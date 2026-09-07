@@ -11,7 +11,7 @@ namespace AdamsToolkit.Views;
 ///
 /// Existe porque jogadores já levaram ban por a app aparecer como "editor
 /// desconhecido" num scanner. Quem está a verificar o PC abre este separador, clica
-/// e lê o código — em vez de banir por dúvida. O estado do Snap Tap / repetição de
+/// e lê o código — em vez de banir por dúvida. O estado da repetição de
 /// teclado é lido ao vivo da configuração, e os ficheiros que o guardam são texto
 /// simples, para o staff poder confirmar sem confiar no que a app mostra.
 /// </summary>
@@ -41,10 +41,9 @@ public partial class OpenSourceView : UserControl
         RefreshInputState();
     }
 
-    /// <summary>Estado atual do Snap Tap e da repetição de teclado, com cor.</summary>
+    /// <summary>Estado atual da repetição de teclado, com cor.</summary>
     private void RefreshInputState()
     {
-        Paint(SnapTapState, SnapTap.Cfg.Enabled);
         Paint(KeyRepeatState, KeyboardRepeat.Cfg.Enabled);
 
         void Paint(System.Windows.Controls.TextBlock tb, bool on)

@@ -215,7 +215,17 @@ public partial class MainWindow : Window
         _ = Task.Run(ScheduledCleanup.Sync); // re-escreve a tarefa semanal se estiver ligada (caminho do exe)
         NetworkOptimizer.BeginStartupCheck(); // boost é por sessão: PC reiniciou → reverte sozinho
         GameBoost.BeginStartupCheck();        // idem para o boost de FPS
-        SnapTap.RestoreOnBoot();              // Snap Tap persiste (hook LL na UI thread)
+        // 2026-09-07 (dono: "retira o Snap Tap do aplicativo, desativa de vez"):
+        // a funcionalidade saiu da app. Nao ha nada para restaurar no arranque e
+        // apaga-se o ficheiro de estado que ficou nos PCs que a chegaram a ligar,
+        // para nao restar nada no disco nem num screenshare.
+        try
+        {
+            var snapCfg = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                                       "AdamsToolkit", "snaptap.json");
+            if (File.Exists(snapCfg)) File.Delete(snapCfg);
+        }
+        catch { /* em uso ou sem permissoes: nao vale a pena chatear o utilizador */ }
         KeyboardRepeat.RestoreOnBoot();       // FilterKeys WASD idem
         TimerResolutionService.SetMaximum(); // pedido do dono: timer 0.5 ms sempre que a app está aberta (filho morre com a app)
 

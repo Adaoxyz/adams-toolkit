@@ -201,42 +201,6 @@
                         </Grid>
                     </Border>
 
-                    <!-- Snap Tap (strafe): SOCD last-input-wins em A/D e W/S -->
-                    <Border Style="{StaticResource Card}" Margin="0,0,0,12">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource ToolIcon}">
-                                <TextBlock Text="⌨️" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Snap Tap (strafe)" Style="{StaticResource H2}"/>
-                                <TextBlock Text="Quando carregas D com A ainda premida, o A solta-se no mesmo instante (e volta quando largas D). Mudança de direção sem o micro-travão. Não mexe no jogo nem em ficheiros. Atenção: noutros servidores/jogos pode ser proibido."
-                                           Style="{StaticResource Muted}" Margin="0,4,0,0" TextWrapping="Wrap"/>
-                                <Border Background="#1AF59E0B" BorderBrush="#33F59E0B" BorderThickness="1" CornerRadius="8" Padding="10,7" Margin="0,8,0,0">
-                                    <TextBlock Style="{StaticResource Body}" FontSize="11.5" TextWrapping="Wrap"
-                                               Text="⚠️ Nem todos os servidores permitem Snap Tap/SOCD — confirma nas regras do servidor onde jogas ANTES de ativar; se não permitem, não uses. A responsabilidade é tua."/>
-                                </Border>
-                                <TextBlock x:Name="SnapState" Style="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0"
-                                           TextWrapping="Wrap" Text="Snap Tap desligado"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                    <CheckBox x:Name="SnapAD" Style="{StaticResource ToggleSwitch}" IsChecked="True" Click="Snap_OptChanged"/>
-                                    <TextBlock Text="A / D" Style="{StaticResource Body}" FontSize="12.5" VerticalAlignment="Center" Margin="8,0,22,0"/>
-                                    <CheckBox x:Name="SnapWS" Style="{StaticResource ToggleSwitch}" Click="Snap_OptChanged"/>
-                                    <TextBlock Text="W / S" Style="{StaticResource Body}" FontSize="12.5" VerticalAlignment="Center" Margin="8,0,22,0"/>
-                                    <CheckBox x:Name="SnapOnlyFiveM" Style="{StaticResource ToggleSwitch}" IsChecked="True" Click="Snap_OptChanged"/>
-                                    <TextBlock Text="Só com o FiveM em foco" Style="{StaticResource Body}" FontSize="12.5" VerticalAlignment="Center" Margin="8,0,0,0"/>
-                                </StackPanel>
-                            </StackPanel>
-                            <Button x:Name="SnapBtn" Grid.Column="2" Content="Ativar Snap Tap"
-                                    Style="{StaticResource PrimaryButton}" VerticalAlignment="Center"
-                                    Margin="16,0,0,0" Click="Snap_Toggle"/>
-                        </Grid>
-                    </Border>
-
                     <!-- repetição do teclado em ms só WASD (hook LL, mínimo 10 ms) -->
                     <Border Style="{StaticResource Card}" Margin="0,0,0,12">
                         <Grid>

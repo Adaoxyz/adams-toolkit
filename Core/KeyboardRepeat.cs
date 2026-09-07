@@ -8,7 +8,7 @@ namespace AdamsToolkit.Core;
 /// "FilterKeys" — repetição do teclado em ms SÓ para W/A/S/D.
 ///
 /// O FilterKeys do Windows é global (não dá para limitar a teclas), por isso isto é um
-/// hook WH_KEYBOARD_LL próprio, igual ao <see cref="SnapTap"/>: o 1º KEYDOWN físico passa,
+/// hook WH_KEYBOARD_LL próprio: o 1º KEYDOWN físico passa,
 /// os auto-repeats do Windows dessa tecla são ENGOLIDOS e um timer nosso injeta KEYDOWNs
 /// (SendInput, scancode, marker) ao atraso/intervalo escolhidos até ao KEYUP. Resto do
 /// teclado intacto; nada é escrito no Windows — desligar = o PC fica exatamente como estava.
@@ -156,8 +156,6 @@ public static class KeyboardRepeat
                     lock (_lock)
                     {
                         if (!_timers.TryGetValue(key, out var cur) || !ReferenceEquals(cur, self)) return;
-                        // não re-premir uma tecla que o Snap Tap tem virtualmente solta (A/D, W/S)
-                        if (SnapTap.IsActive && SnapTap.IsVirtuallyUp(key)) return;
                         SendDown(key);
                     }
                 }, null, Cfg.DelayMs, Cfg.RepeatMs);

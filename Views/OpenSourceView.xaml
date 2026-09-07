@@ -85,34 +85,19 @@
                     <StackPanel>
                         <TextBlock Text="Verificação de PC — funcionalidades de teclado" Style="{StaticResource H2}"/>
                         <TextBlock Style="{StaticResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap"
-                                   Text="O Snap Tap e a repetição de teclado alteram o input do jogo. Vêm desligados e só funcionam se o jogador os ligar à mão. Muitos servidores proíbem-nos — este é o estado neste PC, agora:"/>
+                                   Text="A repetição de teclado altera o input do jogo. Vem desligada e só funciona se o jogador a ligar à mão. Muitos servidores proíbem-na — este é o estado neste PC, agora. O Snap Tap foi retirado da app: já não existe no programa nem no teu PC."/>
 
-                        <Grid Margin="0,12,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="12"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-
-                            <Border Grid.Column="0" Background="{DynamicResource BrSurface}" CornerRadius="9" Padding="14,11">
-                                <StackPanel>
-                                    <TextBlock Text="Snap Tap" FontWeight="SemiBold" FontSize="12.5"
-                                               Foreground="{DynamicResource BrText}"/>
-                                    <TextBlock x:Name="SnapTapState" FontSize="15" FontWeight="Bold" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Grid.Column="2" Background="{DynamicResource BrSurface}" CornerRadius="9" Padding="14,11">
-                                <StackPanel>
-                                    <TextBlock Text="Repetição de teclado" FontWeight="SemiBold" FontSize="12.5"
-                                               Foreground="{DynamicResource BrText}"/>
-                                    <TextBlock x:Name="KeyRepeatState" FontSize="15" FontWeight="Bold" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
+                        <Border Margin="0,12,0,0" Background="{DynamicResource BrSurface}" CornerRadius="9" Padding="14,11"
+                                HorizontalAlignment="Left" MinWidth="240">
+                            <StackPanel>
+                                <TextBlock Text="Repetição de teclado" FontWeight="SemiBold" FontSize="12.5"
+                                           Foreground="{DynamicResource BrText}"/>
+                                <TextBlock x:Name="KeyRepeatState" FontSize="15" FontWeight="Bold" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
 
                         <TextBlock Style="{StaticResource Muted}" Margin="0,12,0,0" TextWrapping="Wrap"
-                                   Text="Estes estados estão guardados em ficheiros de texto simples (snaptap.json e keyrepeat.json), que qualquer staff pode abrir num screenshare sem confiar no que a app diz."/>
+                                   Text="Este estado está guardado num ficheiro de texto simples (keyrepeat.json), que qualquer staff pode abrir num screenshare sem confiar no que a app diz."/>
 
                         <Button x:Name="BtnOpenData" Style="{StaticResource GhostButton}" Margin="0,12,0,0"
                                 HorizontalAlignment="Left" Content="Abrir a pasta destes ficheiros"

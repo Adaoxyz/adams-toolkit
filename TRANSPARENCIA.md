@@ -50,7 +50,7 @@ original em `%AppData%\AdamsToolkit\`.
 
 | O quê | Onde | Precisa de UAC | Notas |
 |---|---|---|---|
-| Hook de teclado `WH_KEYBOARD_LL` | `Core/SnapTap.cs:149`, `Core/KeyboardRepeat.cs:92` | Não | **Ler a secção abaixo — é a única funcionalidade com risco real de ban** |
+| Hook de teclado `WH_KEYBOARD_LL` | `Core/KeyboardRepeat.cs:92` | Não | **Ler a secção abaixo — é a única funcionalidade com risco real de ban** |
 | Parar processos de fundo | `Core/ProcessTrimmer.cs` | Só para serviços | Lista fechada; `IsProcessCritical` antes de cada `Kill`; nunca mata FiveM, Rockstar, Steam, Discord, browsers, antivírus |
 | Parar serviços opcionais (esta sessão) | `Core/ProcessTrimmer.cs:370` | Sim | Só `Stop`, nunca `Disable`, nunca drivers |
 | Tweaks de rede/latência | `Core/NetworkOptimizer.cs` | Sim | Backup JSON do valor original; a maioria reverte-se sozinha ao reiniciar |
@@ -62,28 +62,33 @@ original em `%AppData%\AdamsToolkit\`.
 | Arranque com o Windows | `Core/StartupManager.cs` | Não | Atalho `.lnk` na pasta Arranque (deixou de usar a chave `Run` em v1.89.0) |
 | Auto-atualização | `Core/SelfUpdater.cs` | Não | Descarrega a versão nova do host oficial e substitui-se |
 
-## Snap Tap e Repetição de teclado — leiam isto
+## Repetição de teclado — leiam isto
 
-`Core/SnapTap.cs` e `Core/KeyboardRepeat.cs` instalam um hook de teclado de baixo
-nível, engolem as teclas físicas WASD e re-injetam-nas com `SendInput`. É o
-equivalente em software do Razer Snap Tap / Wooting Rappy Snappy.
+`Core/KeyboardRepeat.cs` instala um hook de teclado de baixo nível, engole as
+teclas físicas WASD e re-injeta-as com `SendInput` ao ritmo escolhido.
 
 **Isto é, tecnicamente, um macro de input.** Não escondemos isso: está escrito no
-cabeçalho dos dois ficheiros e a interface avisa o jogador antes de ativar.
+cabeçalho do ficheiro e a interface avisa o jogador antes de ativar.
+
+> **O Snap Tap (SOCD / null-bind) foi removido na v1.96.0.** `Core/SnapTap.cs` já
+> não existe neste repositório, a aplicação não instala esse hook e apaga o
+> ficheiro de estado `snaptap.json` de quem o tinha ligado, na primeira
+> abertura da versão nova. Em versões anteriores à 1.96.0 a funcionalidade existia
+> e podia estar ligada; nesse caso o ficheiro de estado ainda pode aparecer num PC
+> que não tenha atualizado.
 
 Três factos que interessam a uma verificação:
 
 1. **Vem desligado e nunca se liga sozinho.** O hook só é instalado se o jogador
    tiver ligado a opção à mão: `RestoreOnBoot() => Cfg.Enabled ? Start() : null`
-   (`SnapTap.cs:171`, `KeyboardRepeat.cs:87`). Num PC onde nunca foi ligado, não
-   existe hook nenhum.
+   (`KeyboardRepeat.cs:87`). Num PC onde nunca foi ligado, não existe hook nenhum.
 2. **Só age com o FiveM em primeiro plano** (`FiveMForeground()`), e só nas teclas
-   A/D (opcionalmente W/S). Fora do jogo o teclado passa intocado.
+   WASD. Fora do jogo o teclado passa intocado.
 3. **Estado guardado em ficheiro** — dá para verificar num screenshare sem confiar
-   na palavra de ninguém: `%AppData%\AdamsToolkit\snaptap.json` e `keyrepeat.json`.
+   na palavra de ninguém: `%AppData%\AdamsToolkit\keyrepeat.json`.
    `"Enabled": false` = a funcionalidade nunca correu.
 
-Se o teu servidor proíbe SOCD/null-bind — e é legítimo que proíba — o que deves
+Se o teu servidor proíbe macros de input — e é legítimo que proíba — o que deves
 verificar é esse ficheiro, não a mera presença da aplicação.
 
 ## Compilar e comparar

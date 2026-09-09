@@ -17,6 +17,12 @@ public partial class ChangelogView : UserControl
 {
     private static readonly List<Release> Releases = new()
     {
+        new("v1.97", "9 set 2026", "Editor de Clips sem lag em ecrã inteiro",
+        new()
+        {
+            "O vídeo do editor deixou de engasgar quando a janela está maximizada. A janela do editor era desenhada de uma forma que obrigava o Windows a copiar a imagem toda a cada frame; agora o vídeo vai direto para a placa gráfica.",
+            "Os cantos redondos e o redimensionar da janela continuam iguais (no Windows 10 os cantos ficam direitos, só isso).",
+        }),
         new("v1.96", "7 set 2026", "Snap Tap removido de vez",
         new()
         {

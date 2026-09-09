@@ -4,7 +4,14 @@
         xmlns:v="clr-namespace:AdamsToolkit.Views"
         Title="Editor de Clips — Adams Toolkit" Height="760" Width="1240" MinHeight="600" MinWidth="980"
         WindowStartupLocation="CenterScreen" Icon="/Assets/app.ico"
-        Background="Transparent" WindowStyle="None" AllowsTransparency="True" ResizeMode="CanResizeWithGrip">
+        Background="{DynamicResource BrBg}" WindowStyle="None" ResizeMode="CanResize">
+    <!-- v1.97: janela OPACA. AllowsTransparency=True (janela "layered") obriga o WPF a copiar a
+         janela inteira para a CPU a cada frame — com o vídeo a 60 fps em ecrã inteiro (1080p/1440p)
+         isso é o "lag" no fullscreen. Sem transparência o MediaElement fica na GPU. Cantos redondos
+         passam a vir do DWM (Win11) em vez do Clip; resize/mover pelo WindowChrome. -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
     <Border x:Name="RootBorder" CornerRadius="14" Background="{DynamicResource BrBg}"
             BorderBrush="{DynamicResource BrAccentGradient}" BorderThickness="1" ClipToBounds="True">
         <Grid>

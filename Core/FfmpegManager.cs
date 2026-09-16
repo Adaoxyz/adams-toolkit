@@ -13,7 +13,7 @@ namespace AdamsToolkit.Core;
 /// </summary>
 public static class FfmpegManager
 {
-    public const string ZipUrl = "https://adams-62-238-22-77.sslip.io/files/ffmpeg7-win64.zip"; // v1.79: build shared 7.1 (DLLs p/ o leitor FFME + ffmpeg.exe)
+    public const string ZipUrl = "https://adams-176-111-109-91.sslip.io/files/ffmpeg7-win64.zip"; // v1.79: build shared 7.1 (DLLs p/ o leitor FFME + ffmpeg.exe)
     public const string ZipSha256 = "4acb8e2bfa52f6906c73bce33b0b10bfd26a3299a9fe33dc0e13aa41158f3e5d";
 
     public static string Dir => Path.Combine(EditorPaths.LocalDir, "ffmpeg7");

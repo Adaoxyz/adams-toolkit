@@ -39,8 +39,8 @@ public record PingResult(int Sent, int Received, long Min, double Avg, long Max,
 /// </summary>
 public static class NetworkOptimizer
 {
-    // IP público do servidor WestRP (Hetzner) — alvo do teste de ping
-    public const string ServerHost = "62.238.22.77";
+    // IP público do servidor (PTisp, desde v1.99) — alvo do teste de ping e da regra QoS
+    public const string ServerHost = "176.111.109.91";
 
     private const string HighPerfGuid = "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c";
     private static readonly string StateFile = Path.Combine(

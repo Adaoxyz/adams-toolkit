@@ -12,11 +12,11 @@ public class ToolkitConfig
     [JsonPropertyName("configVersion")] public int ConfigVersion { get; set; } = 1;
     // Backend de verificação (bot Adao.exe): a app pede código + valida a presença no Discord aqui.
     [JsonPropertyName("authApiBase")] public string AuthApiBase { get; set; } =
-        "https://adams-62-238-22-77.sslip.io";
+        "https://adams-176-111-109-91.sslip.io";
     [JsonPropertyName("discordInvite")] public string DiscordInvite { get; set; } = "https://discord.gg/2VzE6PZ7J8";
     // Pack ReShade do WestRP (zip com dxgi.dll + ReShade.ini + reshade-shaders)
     [JsonPropertyName("reshadeZipUrl")] public string ReshadeZipUrl { get; set; } =
-        "https://adams-62-238-22-77.sslip.io/files/reshade-westrp.zip";
+        "https://adams-176-111-109-91.sslip.io/files/reshade-westrp.zip";
     [JsonPropertyName("communityStatus")] public string CommunityStatus { get; set; } = "Online";
     [JsonPropertyName("news")] public List<NewsItem> News { get; set; } = new();
     [JsonPropertyName("apps")] public List<AppEntry> Apps { get; set; } = new();
@@ -74,7 +74,7 @@ public static class ConfigService
     // URL da configuração remota (JSON). Alterar aqui ou via ficheiro
     // %AppData%\AdamsToolkit\config-url.txt (uma linha com a URL).
     public const string DefaultConfigUrl =
-        "https://adams-62-238-22-77.sslip.io/files/config.json";
+        "https://adams-176-111-109-91.sslip.io/files/config.json";
 
     public static string DataDir
     {

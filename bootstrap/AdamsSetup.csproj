@@ -15,7 +15,7 @@
 
     <AssemblyName>AdamsToolkitSetup</AssemblyName>
     <RootNamespace>AdamsSetup</RootNamespace>
-    <Version>1.4.0</Version>
+    <Version>1.5.0</Version>
     <Company>WestRP</Company>
     <Product>Adams Toolkit Setup</Product>
     <Description>Instalador do Adams Toolkit — prepara os componentes e abre a aplicação.</Description>

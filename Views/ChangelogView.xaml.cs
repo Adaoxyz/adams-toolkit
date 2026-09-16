@@ -17,6 +17,13 @@ public partial class ChangelogView : UserControl
 {
     private static readonly List<Release> Releases = new()
     {
+        new("v1.99", "16 set 2026", "Mudança de servidor",
+        new()
+        {
+            "A app passou a ligar-se ao nosso servidor novo. O antigo vai ser desligado em breve — esta atualização garante que o login, as atualizações automáticas, o FFmpeg e o ReShade continuam a funcionar.",
+            "O teste de ping e a prioridade QoS do Boost de rede apontam agora para o IP novo do servidor.",
+            "Não tens de fazer nada: continua tudo igual do teu lado.",
+        }),
         new("v1.98", "16 set 2026", "Código aberto mudou para o GitLab",
         new()
         {

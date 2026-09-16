@@ -17,6 +17,12 @@ public partial class ChangelogView : UserControl
 {
     private static readonly List<Release> Releases = new()
     {
+        new("v1.98", "16 set 2026", "Código aberto mudou para o GitLab",
+        new()
+        {
+            "O botão «Abrir no GitLab» na secção Código Aberto leva agora para gitlab.com/adamstoolkit-group/adams-toolkit — o link antigo do GitHub deixou de funcionar.",
+            "Continua tudo público: qualquer pessoa pode ler o código e comparar com o programa que está a correr.",
+        }),
         new("v1.97", "9 set 2026", "Editor de Clips sem lag em ecrã inteiro",
         new()
         {

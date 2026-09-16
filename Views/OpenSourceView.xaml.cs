@@ -17,7 +17,7 @@ namespace AdamsToolkit.Views;
 /// </summary>
 public partial class OpenSourceView : UserControl
 {
-    public const string RepoUrl = "https://github.com/Adaoxyz/adams-toolkit";
+    public const string RepoUrl = "https://gitlab.com/adamstoolkit-group/adams-toolkit"; // 2026-09-16: GitHub (conta filtrada) -> GitLab
 
     private static readonly string[] Claims =
     {

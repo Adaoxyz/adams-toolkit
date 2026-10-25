@@ -130,7 +130,7 @@ public static class DiscordAuth
             File.WriteAllText(OfflinePath, JsonSerializer.Serialize(
                 new OfflineSnapshot { User = user, LastOkUtc = DateTime.UtcNow }));
         }
-        catch { }
+        catch (Exception ex) { Log.Error("gravar sessão offline falhou (app pede login se o backend estiver em baixo)", ex); }
     }
 
     /// <summary>User do último login validado há &lt;7 dias; null se não houver ou já expirou.</summary>
@@ -149,14 +149,15 @@ public static class DiscordAuth
 
     public static void ClearOfflineSnapshot()
     {
-        try { File.Delete(OfflinePath); } catch { }
+        try { File.Delete(OfflinePath); } catch (Exception ex) { Log.Swallow("apagar sessão offline", ex); }
     }
 
     // ---- sessão persistida (auto-login no próximo arranque) ----
 
     public static void SaveSession(string token)
     {
-        try { File.WriteAllText(SessionPath, token); } catch { }
+        try { File.WriteAllText(SessionPath, token); }
+        catch (Exception ex) { Log.Error("gravar sessão falhou (vai pedir login outra vez no próximo arranque)", ex); }
     }
 
     public static string? LoadSession()
@@ -172,6 +173,6 @@ public static class DiscordAuth
 
     public static void ClearSession()
     {
-        try { File.Delete(SessionPath); } catch { }
+        try { File.Delete(SessionPath); } catch (Exception ex) { Log.Swallow("apagar sessão", ex); }
     }
 }

@@ -32,6 +32,6 @@ public static class StartMode
             Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
             File.WriteAllText(FilePath, mode);
         }
-        catch { }
+        catch (Exception ex) { Log.Swallow("gravar modo de arranque", ex); }
     }
 }

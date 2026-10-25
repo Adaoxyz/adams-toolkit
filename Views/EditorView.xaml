@@ -1,7 +1,7 @@
 <UserControl x:Class="AdamsToolkit.Views.EditorView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Background="{DynamicResource BrBg}"
+        Background="Transparent"
         AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver" DragEnter="Window_DragOver" KeyDown="Window_KeyDown" Focusable="True" Loaded="View_Loaded">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -168,6 +168,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <Button x:Name="StartBtn" Style="{StaticResource Big}" Click="SetA_Click" ToolTip="tecla A — marca o início do troço (podes marcar o Fim primeiro; o início tem de ficar antes do fim)"><StackPanel><TextBlock x:Name="StartIcon" Text="[" Style="{StaticResource BigIcon}" Foreground="{DynamicResource BrAccent}"/><TextBlock x:Name="StartLbl" Text="Início (A)" Style="{StaticResource BigLbl}"/></StackPanel></Button>
                                 <Button x:Name="EndBtn" Style="{StaticResource Big}" Click="SetB_Click" ToolTip="tecla B — marca o fim do troço (também podes marcar o Fim primeiro e o Início depois)"><StackPanel><TextBlock x:Name="EndIcon" Text="]" Style="{StaticResource BigIcon}" Foreground="{DynamicResource BrAccent}"/><TextBlock x:Name="EndLbl" Text="Fim (B)" Style="{StaticResource BigLbl}"/></StackPanel></Button>
+                                <Button Style="{StaticResource Big}" Click="LastMinute_Click" ToolTip="o clip fica só com o último minuto até à linha onde estás (manter troço)"><StackPanel><TextBlock Text="⏪" Style="{StaticResource BigIcon}" Foreground="{DynamicResource BrAccent}"/><TextBlock Text="Último 1 min" Style="{StaticResource BigLbl}"/></StackPanel></Button>
                             </StackPanel>
                         </StackPanel>
                         <Border Width="1" Background="{DynamicResource BrBorder}" Margin="0,4,14,4"/>

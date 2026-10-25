@@ -68,9 +68,7 @@ public partial class LoginView : UserControl
         StopPolling();
         _code = null;
         _authUrl = null;
-        CodeText.Text = "🔒";
         AuthBtn.IsEnabled = false;
-        CopyBtn.IsEnabled = false;
         NewCodeBtn.Visibility = Visibility.Collapsed;
         RetryBtn.Visibility = Visibility.Visible;
         StatusText.Text = message;
@@ -81,8 +79,6 @@ public partial class LoginView : UserControl
         StopPolling();
         NewCodeBtn.Visibility = Visibility.Collapsed;
         AuthBtn.IsEnabled = false;
-        CopyBtn.IsEnabled = false;
-        CodeText.Text = "· · · · · ·";
         StatusText.Text = "A ligar ao servidor…";
 
         var start = await DiscordAuth.StartPairingAsync();
@@ -90,15 +86,12 @@ public partial class LoginView : UserControl
         _authUrl = start?.AuthUrl;
         if (_code == null)
         {
-            CodeText.Text = "——————";
             StatusText.Text = "Servidor de verificação inacessível.\nVerifica a tua internet e tenta de novo.";
             NewCodeBtn.Visibility = Visibility.Visible;
             return;
         }
 
-        CodeText.Text = string.Join(" ", _code.ToCharArray());
         AuthBtn.IsEnabled = _authUrl != null;
-        CopyBtn.IsEnabled = true;
         StatusText.Text = "Clica em Entrar com Discord — 1 clique no browser e entras.";
 
         _pollTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2.5) };
@@ -133,7 +126,6 @@ public partial class LoginView : UserControl
                     StopPolling();
                     StatusText.Text = "Pedido expirado (10 min). Tenta de novo.";
                     AuthBtn.IsEnabled = false;
-                    CopyBtn.IsEnabled = false;
                     NewCodeBtn.Visibility = Visibility.Visible;
                     break;
                 // pending/error: continua a tentar em silêncio
@@ -146,17 +138,6 @@ public partial class LoginView : UserControl
     {
         _pollTimer?.Stop();
         _pollTimer = null;
-    }
-
-    private void Copy_Click(object sender, RoutedEventArgs e)
-    {
-        if (_code == null) return;
-        try
-        {
-            Clipboard.SetText(_code);
-            StatusText.Text = "Código copiado! Alternativa: /toolkit no Discord Shame & Adão.";
-        }
-        catch { }
     }
 
     private async void NewCode_Click(object sender, RoutedEventArgs e) => await StartPairingAsync();

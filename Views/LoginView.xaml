@@ -5,7 +5,7 @@
         <Border Style="{StaticResource Card}" Width="420" Padding="34,34"
                 HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel>
-                <Image Source="/Assets/logo.png" Height="118" HorizontalAlignment="Center"
+                <Image Source="{DynamicResource ImgLogo}" Height="118" HorizontalAlignment="Center"
                        RenderOptions.BitmapScalingMode="HighQuality"/>
                 <TextBlock Text="ADAMS TOOLKIT" FontSize="23" FontWeight="Bold"
                            HorizontalAlignment="Center" Margin="0,12,0,4"
@@ -27,21 +27,6 @@
                 <Button x:Name="NewCodeBtn" Style="{StaticResource GhostButton}"
                         Content="🔄  Tentar novamente" Margin="0,10,0,0"
                         Visibility="Collapsed" Click="NewCode_Click"/>
-
-                <!-- Fallback sem browser: código + /toolkit no Discord -->
-                <Border Background="{DynamicResource BrSurface}" CornerRadius="10"
-                        BorderBrush="{DynamicResource BrBorder}" BorderThickness="1"
-                        Padding="0,10" Margin="0,14,0,6">
-                    <TextBlock x:Name="CodeText" Text="· · · · · ·" FontSize="20" FontWeight="Bold"
-                               FontFamily="Consolas" HorizontalAlignment="Center"
-                               Foreground="{DynamicResource BrText}"/>
-                </Border>
-                <TextBlock Style="{StaticResource Muted}" TextAlignment="Center" FontSize="11.5">
-                    <Run Text="Sem browser? Escreve"/> <Run Text="/toolkit" FontWeight="SemiBold" Foreground="{DynamicResource BrAccent}"/> <Run Text="com este código no Discord"/>
-                </TextBlock>
-                <Button x:Name="CopyBtn" Style="{StaticResource GhostButton}"
-                        Content="📋  Copiar código" Margin="0,8,0,0"
-                        Click="Copy_Click" IsEnabled="False"/>
 
                 <Button x:Name="RetryBtn" Style="{StaticResource GhostButton}"
                         Content="🔄  Tentar novamente" Margin="0,10,0,0"

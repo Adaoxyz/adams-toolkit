@@ -61,7 +61,8 @@ public static class SelfUpdater
         try
         {
             status($"Nova versão {ver} — a descarregar…");
-            var bytes = await Http.GetByteArrayAsync(zipUrl);
+            var bytes = await Endpoints.FirstOkAsync(Endpoints.WithFallbacks(zipUrl), u => Http.GetByteArrayAsync(u));
+            if (bytes == null) { Log.Error($"download do zip falhou em todos os hosts ({zipUrl})"); return false; }
 
             if (!string.IsNullOrEmpty(sha))
             {
@@ -134,8 +135,13 @@ public static class SelfUpdater
     {
         try
         {
-            var baseUrl = ConfigService.Current.AuthApiBase.TrimEnd('/');
-            var json = await Http.GetStringAsync($"{baseUrl}/files/version.json");
+            // version.json: primeiro onde a config remota manda, depois os hosts
+            // conhecidos — um host morto não pode voltar a deixar toda a gente presa
+            // numa versão antiga (01-09 e 15-09-2026).
+            var json = await Endpoints.FirstOkAsync(
+                Endpoints.All("/files/version.json", ConfigService.Current.AuthApiBase),
+                u => Http.GetStringAsync(u));
+            if (json == null) { Log.Warn("sem version.json em nenhum host — update adiado"); return false; }
             var doc = JsonDocument.Parse(json).RootElement;
 
             var remote = Version.Parse(doc.GetProperty("version").GetString()!);
@@ -156,7 +162,8 @@ public static class SelfUpdater
             var sha = doc.TryGetProperty("sha256", out var s) ? s.GetString() : null;
 
             status($"Nova versão {remote.ToString(3)} — a descarregar…");
-            var bytes = await Http.GetByteArrayAsync(url);
+            var bytes = await Endpoints.FirstOkAsync(Endpoints.WithFallbacks(url), u => Http.GetByteArrayAsync(u));
+            if (bytes == null) { Log.Error($"download do exe falhou em todos os hosts ({url})"); return false; }
 
             if (!string.IsNullOrEmpty(sha))
             {

@@ -41,16 +41,64 @@ public partial class FiveMCenterView : UserControl
 
     private bool _krInit;
 
+    /// <summary>Uma linha do modo por tecla (W/A/S/D) — ligada aos sliders por binding.</summary>
+    public class KeyRow : System.ComponentModel.INotifyPropertyChanged
+    {
+        private bool _on = true; private double _delay = 500, _repeat = 33;
+        public string Name { get; init; } = "";
+        public bool On { get => _on; set { _on = value; Raise(nameof(On)); } }
+        public double Delay { get => _delay; set { _delay = value; Raise(nameof(Delay)); Raise(nameof(DelayText)); } }
+        public double Repeat { get => _repeat; set { _repeat = value; Raise(nameof(Repeat)); Raise(nameof(RepeatText)); } }
+        public string DelayText => $"{(int)Delay} ms";
+        public string RepeatText => $"{(int)Repeat} ms";
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+        private void Raise(string p) => PropertyChanged?.Invoke(this, new(p));
+    }
+
+    private readonly List<KeyRow> _krRows = new();
+
     private void SyncKr()
     {
         var (d, r) = KeyboardRepeat.Current();
+        var cfg = KeyboardRepeat.Cfg;
         _krInit = true;
         KrDelay.Value = d; KrRepeat.Value = r;
+        _krRows.Clear();
+        foreach (var name in KeyboardRepeat.KeyNames)
+        {
+            var k = KeyboardRepeat.For(name);
+            // modo geral guardado: as linhas começam com os valores gerais, prontas a afinar
+            _krRows.Add(new KeyRow { Name = name, On = cfg.PerKey ? k.On : true,
+                                     Delay = cfg.PerKey ? k.DelayMs : d, Repeat = cfg.PerKey ? k.RepeatMs : r });
+        }
+        KrKeysList.ItemsSource = null;
+        KrKeysList.ItemsSource = _krRows;
+        KrPerKey.IsChecked = cfg.PerKey;
         _krInit = false;
+        KrPerKey_Changed(null!, null!);
         Kr_Changed(null!, null!);
-        KrState.Text = KeyboardRepeat.IsActive
-            ? $"Repetição ATIVA em W/A/S/D — atraso {d} ms · repete a cada {r} ms ({(r > 0 ? 1000 / r : 0)}/s) · só com o FiveM em foco · fica ligado com a app aberta (bandeja conta)"
-            : "Desligado — teclado 100% original do PC (padrão do Windows: 500 ms de atraso, ~33 ms de repetição)";
+
+        KrOn.IsChecked = KeyboardRepeat.IsActive;
+        KrOnText.Text = KeyboardRepeat.IsActive ? "ON" : "OFF";
+
+        if (!KeyboardRepeat.IsActive)
+            KrState.Text = "Desligado — teclado 100% original do PC (padrão do Windows: 500 ms de atraso, ~33 ms de repetição)";
+        else if (cfg.PerKey)
+            KrState.Text = "Repetição ATIVA por tecla — " + string.Join(" · ", KeyboardRepeat.KeyNames.Select(n =>
+            {
+                var k = KeyboardRepeat.For(n);
+                return k.On ? $"{n} {k.DelayMs}/{k.RepeatMs} ms" : $"{n} normal";
+            })) + " · só com o FiveM em foco";
+        else
+            KrState.Text = $"Repetição ATIVA em W/A/S/D — atraso {d} ms · repete a cada {r} ms ({(r > 0 ? 1000 / r : 0)}/s) · só com o FiveM em foco · fica ligado com a app aberta (bandeja conta)";
+    }
+
+    private void KrPerKey_Changed(object sender, RoutedEventArgs e)
+    {
+        if (KrKeysList == null || KrGlobalGrid == null) return;
+        var per = KrPerKey.IsChecked == true;
+        KrKeysList.Visibility = per ? Visibility.Visible : Visibility.Collapsed;
+        KrGlobalGrid.Visibility = per ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private void Kr_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -63,10 +111,21 @@ public partial class FiveMCenterView : UserControl
 
     private void Kr_Apply(object sender, RoutedEventArgs e)
     {
-        var err = KeyboardRepeat.Apply((int)KrDelay.Value, (int)KrRepeat.Value);
+        var err = KrPerKey.IsChecked == true
+            ? KeyboardRepeat.ApplyPerKey(
+                _krRows.ToDictionary(r => r.Name, r => new KeyboardRepeat.KeyCfg { On = r.On, DelayMs = (int)r.Delay, RepeatMs = (int)r.Repeat }),
+                (int)KrDelay.Value, (int)KrRepeat.Value)
+            : KeyboardRepeat.Apply((int)KrDelay.Value, (int)KrRepeat.Value);
         if (err != null) { KrState.Text = "✗ " + err; return; }
         SyncKr();
         KrState.Text += " ✓";
+    }
+
+    private void Kr_Toggle(object sender, RoutedEventArgs e)
+    {
+        if (KrOn.IsChecked == true) { Kr_Apply(sender, e); return; }
+        KeyboardRepeat.TurnOff();
+        SyncKr();
     }
 
     private void Kr_Reset(object sender, RoutedEventArgs e)

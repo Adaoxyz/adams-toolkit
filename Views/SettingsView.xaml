@@ -1,0 +1,76 @@
+<UserControl x:Class="AdamsToolkit.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+        <StackPanel>
+            <TextBlock Text="Definições" Style="{StaticResource H1}"/>
+            <TextBlock Text="Idioma, aparência e preferências da app." Style="{StaticResource Muted}" Margin="0,4,0,14"/>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                <StackPanel>
+                    <TextBlock Text="Idioma" Style="{StaticResource Body}" FontWeight="SemiBold"/>
+                    <TextBlock Text="Muda na hora, sem reiniciar a app." Style="{StaticResource Muted}" FontSize="11.5" Margin="0,2,0,10"/>
+                    <Border Background="{DynamicResource BrSurface}" CornerRadius="11" HorizontalAlignment="Left">
+                        <StackPanel x:Name="LangGrid" Orientation="Horizontal"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                <StackPanel>
+                    <TextBlock Text="Tema" Style="{StaticResource Body}" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                    <Border Background="{DynamicResource BrSurface}" CornerRadius="11" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="ThemeDark" GroupName="theme" Style="{StaticResource SegBtn}" Content="🌙  Escuro" Checked="Theme_Checked"/>
+                            <RadioButton x:Name="ThemeLight" GroupName="theme" Style="{StaticResource SegBtn}" Content="☀️  Claro" Checked="Theme_Checked"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                <Grid>
+                    <StackPanel Margin="60,0,0,0">
+                        <TextBlock Text="Animação de fundo" Style="{StaticResource Body}" FontWeight="SemiBold"/>
+                        <TextBlock Text="As bolinhas a deslizar no fundo. Desliga se o teu PC for muito fraco." Style="{StaticResource Muted}" FontSize="11.5" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <CheckBox x:Name="AnimToggle" Style="{StaticResource ToggleSwitch}" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Anim_Click"/>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                <Grid>
+                    <StackPanel Margin="60,0,0,0">
+                        <TextBlock Text="Iniciar com o Windows" Style="{StaticResource Body}" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="StartupNote" Style="{StaticResource Muted}" FontSize="11.5" Margin="0,2,0,0" TextWrapping="Wrap"
+                                   Text="Abre o Adams Toolkit na bandeja quando ligas o PC."/>
+                    </StackPanel>
+                    <CheckBox x:Name="StartupToggle" Style="{StaticResource ToggleSwitch}" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Startup_Click"/>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                <Grid>
+                    <StackPanel Margin="0,0,200,0">
+                        <TextBlock Text="Restaurar todos os ajustes" Style="{StaticResource Body}" FontWeight="SemiBold"/>
+                        <TextBlock Text="Reverte tudo o que a app mudou no Windows (Otimizar e Boost) para o valor original." Style="{StaticResource Muted}" FontSize="11.5" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <Button x:Name="RestoreAllBtn" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Content="↺  Restaurar tudo" Click="RestoreAll_Click"/>
+                </Grid>
+            </Border>
+
+
+            <Border Style="{StaticResource Card}">
+                <Grid>
+                    <StackPanel Margin="0,0,200,0">
+                        <TextBlock Text="Comunidade no Discord" Style="{StaticResource Body}" FontWeight="SemiBold"/>
+                        <TextBlock Text="Novidades, ajuda e suporte." Style="{StaticResource Muted}" FontSize="11.5" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Content="Abrir Discord ↗" Click="Discord_Click"/>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

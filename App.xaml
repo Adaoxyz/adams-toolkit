@@ -4,25 +4,38 @@
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
 
-        <!-- ============ PALETA (violeta neon sobre navy) ============ -->
-        <Color x:Key="ColBg">#0A0917</Color>
-        <Color x:Key="ColSurface">#0F0D20</Color>
-        <Color x:Key="ColCard">#14122B</Color>
-        <Color x:Key="ColCardHover">#1C1839</Color>
-        <Color x:Key="ColBorder">#2A2450</Color>
-        <Color x:Key="ColAccent">#A855F7</Color>
+        <!-- ============ PALETA "Voltagem" (v1.99): violeta elétrico sobre quase-preto ============ -->
+        <Color x:Key="ColBg">#08070C</Color>
+        <Color x:Key="ColSurface">#0B0911</Color>
+        <Color x:Key="ColCard">#100D17</Color>
+        <Color x:Key="ColCardHover">#171222</Color>
+        <Color x:Key="ColBorder">#1F1930</Color>
+        <Color x:Key="ColAccent">#A66BFF</Color>
         <Color x:Key="ColAccent2">#7C3AED</Color>
-        <Color x:Key="ColText">#EAE7F7</Color>
-        <Color x:Key="ColMuted">#8B86AE</Color>
-        <Color x:Key="ColSuccess">#34D399</Color>
-        <Color x:Key="ColDanger">#F87171</Color>
+        <Color x:Key="ColText">#F1ECFA</Color>
+        <Color x:Key="ColMuted">#A89FBA</Color>
+        <Color x:Key="ColSuccess">#3DDC97</Color>
+        <Color x:Key="ColDanger">#FF5C7A</Color>
         <!-- cores de acento por métrica (gauges/sparklines do dashboard) -->
-        <Color x:Key="ColInfo">#38BDF8</Color>
-        <Color x:Key="ColWarn">#FBBF24</Color>
+        <Color x:Key="ColInfo">#6EA8FF</Color>
+        <Color x:Key="ColWarn">#FFB547</Color>
+
+        <!-- tipografia: Bahnschrift (títulos e números) vem com o Windows 10/11 -->
+        <FontFamily x:Key="FontDisplay">Bahnschrift SemiBold, Segoe UI Semibold, Segoe UI</FontFamily>
+        <FontFamily x:Key="FontNum">Bahnschrift, Segoe UI</FontFamily>
+        <FontFamily x:Key="FontMono">Cascadia Mono, Consolas</FontFamily>
+
+        <!-- item ativo da sidebar / separadores: fundo discreto em vez de pill gradiente -->
+        <SolidColorBrush x:Key="BrActive" Color="#1C1430"/>
+        <SolidColorBrush x:Key="BrActiveBorder" Color="#33264D"/>
+        <SolidColorBrush x:Key="BrHeroBorder" Color="#2A2040"/>
         <SolidColorBrush x:Key="BrInfo" Color="{StaticResource ColInfo}"/>
         <SolidColorBrush x:Key="BrWarn" Color="{StaticResource ColWarn}"/>
 
         <SolidColorBrush x:Key="BrBg" Color="{StaticResource ColBg}"/>
+        <!-- logo: escuro = arte completa num quadrado escuro; claro = só o "A" (ThemeManager troca) -->
+        <SolidColorBrush x:Key="BrLogoBg" Color="#150F22"/>
+        <BitmapImage x:Key="ImgLogo" UriSource="/Assets/logo.png"/>
         <SolidColorBrush x:Key="BrSurface" Color="{StaticResource ColSurface}"/>
         <SolidColorBrush x:Key="BrCard" Color="{StaticResource ColCard}"/>
         <SolidColorBrush x:Key="BrCardHover" Color="{StaticResource ColCardHover}"/>
@@ -34,22 +47,29 @@
         <SolidColorBrush x:Key="BrSuccess" Color="{StaticResource ColSuccess}"/>
         <SolidColorBrush x:Key="BrDanger" Color="{StaticResource ColDanger}"/>
 
-        <LinearGradientBrush x:Key="BrAccentGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="{StaticResource ColAccent}" Offset="0"/>
+        <LinearGradientBrush x:Key="BrAccentGradient" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#8B4DFF" Offset="0"/>
             <GradientStop Color="{StaticResource ColAccent2}" Offset="1"/>
         </LinearGradientBrush>
 
-        <!-- Banner do dashboard: navy → violeta, com brilho radial por cima -->
-        <LinearGradientBrush x:Key="BrHero" StartPoint="0,0" EndPoint="1,0.6">
-            <GradientStop Color="#171238" Offset="0"/>
-            <GradientStop Color="#2A1A5E" Offset="0.55"/>
-            <GradientStop Color="#4C1D95" Offset="1"/>
+        <!-- Banner do dashboard: quase-preto violeta, o brilho vem só do logo -->
+        <LinearGradientBrush x:Key="BrHero" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#0F0B18" Offset="0"/>
+            <GradientStop Color="#0F0B18" Offset="0.5"/>
+            <GradientStop Color="#150E26" Offset="1"/>
         </LinearGradientBrush>
-        <RadialGradientBrush x:Key="BrHeroGlow" Center="0.78,0.45" GradientOrigin="0.78,0.45"
-                             RadiusX="0.42" RadiusY="0.95">
-            <GradientStop Color="#99A855F7" Offset="0"/>
-            <GradientStop Color="#00A855F7" Offset="1"/>
+        <RadialGradientBrush x:Key="BrHeroGlow" Center="0.84,0.3" GradientOrigin="0.84,0.3"
+                             RadiusX="0.34" RadiusY="1.1">
+            <GradientStop Color="#6B8C46FF" Offset="0"/>
+            <GradientStop Color="#1F8C46FF" Offset="0.55"/>
+            <GradientStop Color="#008C46FF" Offset="1"/>
         </RadialGradientBrush>
+        <!-- linha de luz na base do banner -->
+        <LinearGradientBrush x:Key="BrHeroEdge" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#00A66BFF" Offset="0"/>
+            <GradientStop Color="#B3A66BFF" Offset="0.72"/>
+            <GradientStop Color="#00A66BFF" Offset="1"/>
+        </LinearGradientBrush>
         <LinearGradientBrush x:Key="BrWindows" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#0EA5E9" Offset="0"/>
             <GradientStop Color="#1D4ED8" Offset="1"/>
@@ -73,18 +93,34 @@
         <PathGeometry x:Key="IcoWindows" Figures="M3.5,5.6 L11,4.6 L11,11.3 L3.5,11.3 Z M12.6,4.4 L21,3.2 L21,11.3 L12.6,11.3 Z M3.5,12.7 L11,12.7 L11,19.4 L3.5,18.4 Z M12.6,12.7 L21,12.7 L21,20.8 L12.6,19.6 Z"/>
         <PathGeometry x:Key="IcoBroom" Figures="M14,3.5 L20.5,10 M12.5,7.5 L16.5,11.5 L9,19 A3,3 0 0 1 4.5,19 A3,3 0 0 1 5,14.5 Z M7,12 L12,17"/>
         <PathGeometry x:Key="IcoShield" Figures="M12,3 L20,6 L20,12 C20,17 16.5,20 12,21.5 C7.5,20 4,17 4,12 L4,6 Z"/>
+        <PathGeometry x:Key="IcoSliders" Figures="M4,6 L20,6 M4,12 L20,12 M4,18 L20,18 M8,4 L8,8 M15,10 L15,14 M10,16 L10,20"/>
+        <PathGeometry x:Key="IcoWifi" Figures="M2.5,9 A14,14 0 0 1 21.5,9 M5.5,12.5 A9.5,9.5 0 0 1 18.5,12.5 M8.5,16 A5,5 0 0 1 15.5,16 M12,19.5 L12.01,19.5"/>
+        <PathGeometry x:Key="IcoLayers" Figures="M12,3 L21,8 L12,13 L3,8 Z M3,12.5 L12,17.5 L21,12.5 M3,16.5 L12,21.5 L21,16.5"/>
+        <PathGeometry x:Key="IcoSearch" Figures="M10.5,17.5 A7,7 0 1 1 10.51,3.5 A7,7 0 0 1 10.5,17.5 Z M15.5,15.5 L21,21"/>
+        <PathGeometry x:Key="IcoPlay" Figures="M12,21 A9,9 0 1 1 12.01,3 A9,9 0 0 1 12,21 Z M10,8.5 L15.5,12 L10,15.5 Z"/>
+        <PathGeometry x:Key="IcoGear" Figures="M12,15.5 A3.5,3.5 0 1 1 12.01,8.5 A3.5,3.5 0 0 1 12,15.5 Z M12,2.5 L12,5 M12,19 L12,21.5 M2.5,12 L5,12 M19,12 L21.5,12 M5.3,5.3 L7.1,7.1 M16.9,16.9 L18.7,18.7 M5.3,18.7 L7.1,16.9 M16.9,7.1 L18.7,5.3"/>
+        <PathGeometry x:Key="IcoInfo" Figures="M12,21 A9,9 0 1 1 12.01,3 A9,9 0 0 1 12,21 Z M12,11 L12,16.5 M12,7.5 L12.01,7.5"/>
+        <PathGeometry x:Key="IcoRocket" Figures="M12,2.5 C16,5 17,9.5 15.5,14.5 L8.5,14.5 C7,9.5 8,5 12,2.5 Z M12,8 A1.6,1.6 0 1 1 12.01,8 M8.5,14.5 L6,18 L9.5,17 M15.5,14.5 L18,18 L14.5,17 M10.5,17.5 L12,21 L13.5,17.5"/>
         <PathGeometry x:Key="IcoChevron" Figures="M9,5.5 L15.5,12 L9,18.5"/>
 
         <!-- ============ TIPOGRAFIA ============ -->
         <Style x:Key="H1" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource FontDisplay}"/>
             <Setter Property="FontSize" Value="26"/>
-            <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
+            <!-- folga em cima: o ScrollViewer das views corta o topo das letras logo abaixo dos separadores -->
+            <Setter Property="Padding" Value="0,4,0,0"/>
         </Style>
         <Style x:Key="H2" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="17"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="{StaticResource FontDisplay}"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
+        </Style>
+        <!-- número grande (métricas): Bahnschrift, algarismos largos -->
+        <Style x:Key="BigNum" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource FontDisplay}"/>
+            <Setter Property="FontSize" Value="34"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
         </Style>
         <Style x:Key="Body" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13"/>
@@ -176,8 +212,8 @@
             <Setter Property="Background" Value="{DynamicResource BrCard}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BrBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="16"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="18,16"/>
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
             <Setter Property="RenderTransform">
                 <Setter.Value>
@@ -223,18 +259,30 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd" Background="{TemplateBinding Background}"
-                                CornerRadius="9" Padding="{TemplateBinding Padding}">
+                                BorderBrush="#2EFFFFFF" BorderThickness="0,1,0,0"
+                                CornerRadius="10" Padding="{TemplateBinding Padding}">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="18" ShadowDepth="3" Direction="270"
+                                                  Opacity="0.45" Color="#7C3AED"/>
+                            </Border.Effect>
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
+                                <Setter TargetName="bd" Property="Opacity" Value="0.94"/>
+                                <Setter TargetName="bd" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="24" ShadowDepth="3" Direction="270"
+                                                          Opacity="0.75" Color="#8B4DFF"/>
+                                    </Setter.Value>
+                                </Setter>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="bd" Property="Opacity" Value="0.72"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrBorder}"/>
+                                <Setter TargetName="bd" Property="Effect" Value="{x:Null}"/>
                                 <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -253,8 +301,8 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd" Background="Transparent"
-                                BorderBrush="{DynamicResource BrBorder}" BorderThickness="1"
-                                CornerRadius="9" Padding="{TemplateBinding Padding}">
+                                BorderBrush="{DynamicResource BrActiveBorder}" BorderThickness="1"
+                                CornerRadius="10" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -269,26 +317,26 @@
         </Style>
 
         <!-- ============ NAV (sidebar) ============ -->
-        <!-- Ícone vem do Tag (Geometry Ico*); ativo = pill com gradiente violeta. -->
+        <!-- Ícone vem do Tag (Geometry Ico*); ativo = fundo violeta escuro + ícone aceso. -->
         <Style x:Key="NavButton" TargetType="RadioButton">
             <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="bd" Background="Transparent" CornerRadius="11"
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="9"
                                 BorderBrush="Transparent" BorderThickness="1"
-                                Padding="13,9" Margin="12,3">
+                                Padding="12,9" Margin="12,1">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition/>
                                 </Grid.ColumnDefinitions>
-                                <Path x:Name="ico" Width="18" Height="18" Stretch="Uniform"
+                                <Path x:Name="ico" Width="17" Height="17" Stretch="Uniform"
                                       Data="{TemplateBinding Tag}"
-                                      Stroke="{TemplateBinding Foreground}" StrokeThickness="1.5"
+                                      Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6"
                                       StrokeLineJoin="Round" StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" Margin="0,0,12,0"
                                       VerticalAlignment="Center"/>
@@ -301,14 +349,14 @@
                                 <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrAccentGradient}"/>
-                                <Setter TargetName="bd" Property="BorderBrush" Value="#66FFFFFF"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                                <Setter Property="FontWeight" Value="SemiBold"/>
-                                <Setter TargetName="bd" Property="Effect">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrActive}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrActiveBorder}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
+                                <Setter TargetName="ico" Property="Stroke" Value="{DynamicResource BrAccent}"/>
+                                <Setter TargetName="ico" Property="Effect">
                                     <Setter.Value>
-                                        <DropShadowEffect BlurRadius="16" ShadowDepth="0"
-                                                          Opacity="0.55" Color="#A855F7"/>
+                                        <DropShadowEffect BlurRadius="10" ShadowDepth="0"
+                                                          Opacity="0.8" Color="#A66BFF"/>
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
@@ -322,18 +370,27 @@
 
         <!-- rótulo de secção em maiúsculas (MONITOR DE DESEMPENHO, SISTEMA, …) -->
         <Style x:Key="SectionLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="FontFamily" Value="{StaticResource FontNum}"/>
+            <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
         </Style>
 
         <!-- tile interior (dentro de um Card) -->
         <Style x:Key="Tile" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource BrSurface}"/>
+            <Setter Property="Background" Value="{DynamicResource BrCard}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BrBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="16,14"/>
+        </Style>
+
+        <!-- pastilha de estado (verde/laranja/vermelho): fundo translúcido + texto -->
+        <Style x:Key="StatusPill" TargetType="Border">
+            <Setter Property="CornerRadius" Value="11"/>
+            <Setter Property="Padding" Value="9,3"/>
+            <Setter Property="Background" Value="#1F3DDC97"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
         <!-- botão das Ações Rápidas: ícone em pastilha + título + subtítulo + chevron -->
@@ -345,7 +402,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd" Background="{DynamicResource BrSurface}"
                                 BorderBrush="{DynamicResource BrBorder}" BorderThickness="1"
-                                CornerRadius="12" Padding="12,11">
+                                CornerRadius="11" Padding="12,11">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -353,7 +410,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Border Width="34" Height="34" CornerRadius="10"
-                                        Background="#26A855F7" Margin="0,0,11,0">
+                                        Background="{DynamicResource BrActive}" Margin="0,0,11,0">
                                     <Path Width="17" Height="17" Stretch="Uniform"
                                           Data="{TemplateBinding Tag}"
                                           Stroke="{DynamicResource BrAccent}" StrokeThickness="1.6"
@@ -493,6 +550,170 @@
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.45"/>
                                 <Setter Property="Cursor" Value="Arrow"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Caixa de pesquisa (placeholder no Tag) e separadores segmentados — globais
+             para as views novas; Desinstalador/Otimizador têm cópia local, que ganha. -->
+        <Style x:Key="SearchBox" TargetType="TextBox">
+            <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource BrText}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Padding" Value="34,8,12,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="bd" Background="{DynamicResource BrSurface}"
+                                BorderBrush="{DynamicResource BrBorder}" BorderThickness="1" CornerRadius="10">
+                            <Grid>
+                                <TextBlock Text="🔍" FontSize="12" Opacity="0.6" Margin="12,0,0,0"
+                                           VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                <TextBlock x:Name="ph" Text="{TemplateBinding Tag}" Style="{StaticResource Muted}"
+                                           FontSize="12.5" Margin="34,0,0,0" VerticalAlignment="Center"
+                                           IsHitTestVisible="False" Visibility="Collapsed"/>
+                                <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Text" Value="">
+                                <Setter TargetName="ph" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrAccent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SegBtn" TargetType="RadioButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="9" Padding="14,7" Margin="3">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrCardHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrAccentGradient}"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Barra lateral estreita (estilo rail): ícone por cima, rótulo pequeno em
+             maiúsculas por baixo; ativo = quadrado roxo com risca à esquerda. -->
+        <Style x:Key="RailButton" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Grid Margin="8,3" Height="56">
+                            <Border x:Name="bd" CornerRadius="12" Background="Transparent"
+                                    BorderBrush="Transparent" BorderThickness="1"/>
+                            <Border x:Name="bar" Width="3" Height="22" CornerRadius="2" HorizontalAlignment="Left"
+                                    Margin="-8,0,0,0" Background="{DynamicResource BrAccent}" Opacity="0"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <Path x:Name="ico" Width="19" Height="19" Stretch="Uniform" HorizontalAlignment="Center"
+                                      Data="{TemplateBinding Tag}" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6"
+                                      StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                <TextBlock x:Name="lbl" Text="{TemplateBinding Content}" FontSize="9" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center" Margin="0,5,0,0" Foreground="{TemplateBinding Foreground}"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrCardHover}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrActive}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrActiveBorder}"/>
+                                <Setter TargetName="bar" Property="Opacity" Value="1"/>
+                                <Setter TargetName="ico" Property="Stroke" Value="{DynamicResource BrAccent}"/>
+                                <Setter TargetName="lbl" Property="Foreground" Value="{DynamicResource BrAccent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RailLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="8.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#6E6680"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,10,0,3"/>
+        </Style>
+
+        <!-- Cabeçalho de acordeão (Rede): título + subtítulo no Tag, chevron a rodar -->
+        <Style x:Key="AccHeader" TargetType="ToggleButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid Background="Transparent">
+                            <StackPanel Margin="0,0,30,0">
+                                <TextBlock Text="{TemplateBinding Content}" Style="{StaticResource H2}"/>
+                                <TextBlock x:Name="sub" Text="{TemplateBinding Tag}" Style="{StaticResource Muted}"
+                                           FontSize="11.5" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Path x:Name="chev" Data="{StaticResource IcoChevron}" Width="12" Height="12" Stretch="Uniform"
+                                  Stroke="{DynamicResource BrMuted}" StrokeThickness="2" HorizontalAlignment="Right"
+                                  VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                <Path.RenderTransform><RotateTransform Angle="0"/></Path.RenderTransform>
+                            </Path>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="chev" Property="RenderTransform">
+                                    <Setter.Value><RotateTransform Angle="90"/></Setter.Value>
+                                </Setter>
+                                <Setter TargetName="chev" Property="Stroke" Value="{DynamicResource BrAccent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Botão de texto (Aplicar / Reverter nas linhas de ajustes) -->
+        <Style x:Key="TextButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource BrMuted}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="8" Padding="10,6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrCardHover}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BrText}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

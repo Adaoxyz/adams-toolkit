@@ -38,7 +38,6 @@ public partial class EditorView : UserControl
     }
     private bool _playing, _seeking, _updating;
     private double _overlayFrom = -1; private DateTime _overlayUntil;
-    private DateTime _overlayStart; private bool _overlayRunning; private double _overlayShown = -1;
     private readonly System.Windows.Threading.DispatcherTimer _tick = new() { Interval = TimeSpan.FromMilliseconds(16) };
     private CancellationTokenSource? _exportCts;
     private bool _hasNvenc;
@@ -55,14 +54,11 @@ public partial class EditorView : UserControl
             {
                 if (_playing)
                 {
-                    // ponte: enquanto o MediaElement arranca (seek+buffer), a imagem "toca" a partir
-                    // da cache em tempo real; some quando o player apanha a posição da ponte
-                    var bridgeT = _overlayFrom + (DateTime.UtcNow - _overlayStart).TotalSeconds;
-                    var caught = Pos > _overlayFrom + 0.03 && Pos >= bridgeT - 0.05;
-                    if (caught || DateTime.UtcNow > _overlayUntil) { HideOverlay(); _overlayFrom = -1; _overlayRunning = false; }
-                    else ShowBridgeFrame(bridgeT);
+                    // v2.1.7: sem ponte animada (trocava de resolução e durava sempre 1,5 s) — a imagem
+                    // do arrasto fica parada só até o player andar e sai logo
+                    if (Pos > _overlayFrom + 0.03 || DateTime.UtcNow > _overlayUntil) { HideOverlay(); _overlayFrom = -1; }
                 }
-                else if (DateTime.UtcNow > _overlayUntil) { HideOverlay(); _overlayFrom = -1; _overlayRunning = false; }
+                else if (DateTime.UtcNow > _overlayUntil) { HideOverlay(); _overlayFrom = -1; }
             }
         };
         Loaded += async (_, _) => { if (!_hasNvenc && FfmpegManager.IsReady) _hasNvenc = (await FfmpegManager.ListEncodersAsync()).Contains("h264_nvenc"); };
@@ -251,14 +247,8 @@ public partial class EditorView : UserControl
         if (_playing) { Player.Pause(); _playing = false; SetPlayUi(false); }
         else
         {
-            var from = Pos;
+            // v2.1.7: Play direto no player, sem imagem da cache por cima
             Player.Play(); _playing = true; SetPlayUi(true);
-            // Play a partir de pausa: ponte pela cache até o player andar (evita a "paragem")
-            if (!_scrubbing && _scrub != null && _scrub.Get(from) != null)
-            {
-                _overlayFrom = from; _overlayStart = DateTime.UtcNow; _overlayUntil = DateTime.UtcNow.AddMilliseconds(1500);
-                ShowBridgeFrame(from);
-            }
         }
     }
 
@@ -275,40 +265,6 @@ public partial class EditorView : UserControl
         ScrubImage.Opacity = 1; ScrubImage.Visibility = Visibility.Visible;
     }
 
-    private async void ShowBridgeFrame(double t)
-    {
-        if (_overlayRunning || _scrub == null) return;
-        if (Math.Abs(t - _overlayShown) < 1.0 / ScrubCache.Fps) return;
-        _overlayRunning = true;
-        try
-        {
-            var cache = _scrub;
-            var frame = await Task.Run<(byte[] px, int cw, int chh)?>(() =>
-            {
-                var jpg = cache.Get(t); if (jpg == null) return null;
-                var bi = new System.Windows.Media.Imaging.BitmapImage();
-                bi.BeginInit(); bi.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
-                bi.StreamSource = new MemoryStream(jpg); bi.EndInit(); bi.Freeze();
-                var conv = new System.Windows.Media.Imaging.FormatConvertedBitmap(bi, PixelFormats.Bgra32, null, 0); conv.Freeze();
-                var px = new byte[conv.PixelWidth * conv.PixelHeight * 4]; conv.CopyPixels(px, conv.PixelWidth * 4, 0);
-                return (px, conv.PixelWidth, conv.PixelHeight);
-            });
-            if (frame is { } f && _overlayFrom >= 0)
-            {
-                if (_scrubBmp == null || _scrubW != f.cw || _scrubH != f.chh)
-                {
-                    _scrubBmp = new System.Windows.Media.Imaging.WriteableBitmap(f.cw, f.chh, 96, 96, PixelFormats.Bgra32, null);
-                    _scrubW = f.cw; _scrubH = f.chh;
-                }
-                _scrubBmp.WritePixels(new Int32Rect(0, 0, f.cw, f.chh), f.px, f.cw * 4, 0);
-                if (!ReferenceEquals(ScrubImage.Source, _scrubBmp)) ScrubImage.Source = _scrubBmp;
-                ShowOverlay();
-                _overlayShown = t;
-            }
-        }
-        catch { }
-        finally { _overlayRunning = false; }
-    }
     private void SetPlayUi(bool playing) { PlayIcon.Text = playing ? "⏸" : "▶"; PlayLbl.Text = playing ? "Pausa" : "Play"; ApplyMute(); }
     private void Play_Click(object s, RoutedEventArgs e) => UserTogglePlay();
     private void Start_Click(object s, RoutedEventArgs e) => SeekTo(0);
@@ -387,7 +343,7 @@ public partial class EditorView : UserControl
         if (_scrubWasPlaying) TogglePlay();
         // a imagem do ffmpeg fica a tapar até o vídeo mostrar mesmo o ponto novo:
         // a tocar → some assim que a posição avança; em pausa → 350 ms (tempo do seek)
-        _overlayFrom = t; _overlayStart = DateTime.UtcNow; _overlayUntil = DateTime.UtcNow.AddMilliseconds(_scrubWasPlaying ? 1500 : 350);
+        _overlayFrom = t; _overlayUntil = DateTime.UtcNow.AddMilliseconds(_scrubWasPlaying ? 1500 : 350);
     }
 
     // ---- frame server: um ffmpeg de cada vez, sempre o alvo mais recente ----
@@ -539,6 +495,19 @@ public partial class EditorView : UserControl
         StartLbl.Text = $"Início ({Letters(n).Split('→')[0]})"; EndLbl.Text = $"Fim ({Letters(n).Split('→')[1]})";
         StartIcon.Foreground = EndIcon.Foreground = new SolidColorBrush(ColorOf(n));
         UpdateRanges(); RedrawTrack();
+    }
+    // corta já: o clip passa a ser só o minuto antes da linha (troços anteriores substituídos; Ctrl+Z desfaz)
+    private void LastMinute_Click(object s, RoutedEventArgs e)
+    {
+        if (_file == null) return;
+        var b = Pos; var a = Math.Max(0, b - 60);
+        if (b - a < 0.05) { Status("anda com a linha para a frente primeiro"); return; }
+        _undo.Push(_segments);
+        _segments = new List<Range> { new(a, b) };
+        _pendingA = -1; _pendingB = -1;
+        ModeKeep.IsChecked = true;
+        UpdateRanges(); RedrawTrack();
+        Status($"clip cortado: último minuto {Fmt(a)} → {Fmt(b)} — é só exportar");
     }
     private void RemoveLast_Click(object s, RoutedEventArgs e)
     {

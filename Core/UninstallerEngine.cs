@@ -500,7 +500,8 @@ public static class UninstallerEngine
                     if (!IsPathSafe(item.Path)) return (false, "caminho protegido");
                     if (File.Exists(item.Path))
                     {
-                        try { File.SetAttributes(item.Path, FileAttributes.Normal); } catch { }
+                        try { File.SetAttributes(item.Path, FileAttributes.Normal); }
+                        catch (Exception ex) { Log.Swallow($"tirar só-leitura a {item.Path}", ex); }
                         File.Delete(item.Path);
                     }
                     return (true, "");
@@ -535,9 +536,9 @@ public static class UninstallerEngine
         try
         {
             foreach (var f in Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories))
-                try { File.SetAttributes(f, FileAttributes.Normal); } catch { }
+                try { File.SetAttributes(f, FileAttributes.Normal); } catch { /* ficheiro a ficheiro: não vale um log por cada */ }
         }
-        catch { }
+        catch (Exception ex) { Log.Swallow($"tirar só-leitura a {dir}", ex); }
     }
 
     private static (RegistryKey? hive, string sub) SplitRegPath(string full)
@@ -773,6 +774,6 @@ public static class UninstallerEngine
             k.SetValue("LastKey", normalized);
             Process.Start(new ProcessStartInfo("regedit.exe") { UseShellExecute = true });
         }
-        catch { }
+        catch (Exception ex) { Log.Error("abrir o regedit falhou", ex); }
     }
 }

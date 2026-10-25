@@ -1,0 +1,156 @@
+<UserControl x:Class="AdamsToolkit.Views.AjustesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolVis"/>
+        <Style x:Key="Tag" TargetType="Border">
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="7,2"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Background" Value="{DynamicResource BrSurface}"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <!-- cabeçalho -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Text="Otimização" Style="{StaticResource H1}"/>
+                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,0"
+                           Text="Cada ajuste mostra o nível de risco e pode ser revertido a qualquer momento."/>
+            </StackPanel>
+            <Button x:Name="RecBtn" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                    Content="⚡  Aplicar recomendados" Click="Recommended_Click"/>
+        </Grid>
+
+        <!-- sem admin -->
+        <Border Grid.Row="1" x:Name="AdminBanner" Style="{StaticResource Card}" Padding="14,10" Margin="0,0,0,12"
+                BorderBrush="{DynamicResource BrWarn}" Visibility="Collapsed">
+            <Grid>
+                <TextBlock Style="{StaticResource Body}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,170,0"
+                           Text="⚠  Alguns ajustes mexem em definições do sistema e precisam de administrador."/>
+                <Button Style="{StaticResource GhostButton}" HorizontalAlignment="Right" Content="🛡  Reiniciar como admin"
+                        Click="Admin_Click"/>
+            </Grid>
+        </Border>
+
+        <!-- filtros -->
+        <Grid Grid.Row="2" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="200"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="SearchInput" Style="{StaticResource SearchBox}" Tag="Pesquisar ajustes…"
+                     VerticalAlignment="Center" TextChanged="Filter_Changed"/>
+            <Border Grid.Column="1" Background="{DynamicResource BrSurface}" CornerRadius="11" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton GroupName="cat" Style="{StaticResource SegBtn}" Content="Todos" Tag="" IsChecked="True" Checked="Filter_Changed"/>
+                    <RadioButton GroupName="cat" Style="{StaticResource SegBtn}" Content="Desempenho" Tag="Desempenho" Checked="Filter_Changed"/>
+                    <RadioButton GroupName="cat" Style="{StaticResource SegBtn}" Content="Rede" Tag="Rede" Checked="Filter_Changed"/>
+                    <RadioButton GroupName="cat" Style="{StaticResource SegBtn}" Content="Sistema" Tag="Sistema" Checked="Filter_Changed"/>
+                    <RadioButton GroupName="cat" Style="{StaticResource SegBtn}" Content="Entrada" Tag="Entrada" Checked="Filter_Changed"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Background="{DynamicResource BrSurface}" CornerRadius="11" Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton GroupName="risk" Style="{StaticResource SegBtn}" Content="Qualquer risco" Tag="" IsChecked="True" Checked="Filter_Changed"/>
+                    <RadioButton GroupName="risk" Style="{StaticResource SegBtn}" Content="Baixo" Tag="low" Checked="Filter_Changed"/>
+                    <RadioButton GroupName="risk" Style="{StaticResource SegBtn}" Content="Médio" Tag="mid" Checked="Filter_Changed"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <TextBlock Grid.Row="3" x:Name="CountText" Style="{StaticResource Muted}" FontSize="11.5" Margin="2,0,0,8" TextWrapping="Wrap"/>
+
+        <!-- lista -->
+        <ScrollViewer Grid.Row="4" VerticalScrollBarVisibility="Hidden">
+            <ItemsControl x:Name="List">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource Card}" Padding="16,12" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Active, Mode=OneWay}"
+                                          IsEnabled="{Binding Idle}" VerticalAlignment="Center" Click="Toggle_Click"/>
+                                <StackPanel Grid.Column="1" Margin="14,0,12,0">
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource Body}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Description}" Style="{StaticResource Muted}" FontSize="11.5"
+                                               TextWrapping="Wrap" Margin="0,3,0,6"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Style="{StaticResource Tag}">
+                                            <TextBlock FontSize="10.5" FontWeight="SemiBold" Text="{Binding RiskText}" Foreground="{Binding RiskBrush}"/>
+                                        </Border>
+                                        <Border Style="{StaticResource Tag}">
+                                            <TextBlock FontSize="10.5" Text="{Binding Category}" Foreground="{DynamicResource BrMuted}"/>
+                                        </Border>
+                                        <Border Style="{StaticResource Tag}" Visibility="{Binding Recommended, Converter={StaticResource BoolVis}}">
+                                            <TextBlock FontSize="10.5" Text="★ recomendado" Foreground="{DynamicResource BrAccent}"/>
+                                        </Border>
+                                        <Border Style="{StaticResource Tag}" Visibility="{Binding HasNote, Converter={StaticResource BoolVis}}">
+                                            <TextBlock FontSize="10.5" Text="{Binding Note}" Foreground="{DynamicResource BrMuted}"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding Status}" FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource BrDanger}"
+                                               Visibility="{Binding HasStatus, Converter={StaticResource BoolVis}}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Style="{StaticResource Tag}" Margin="0,0,8,0" MinWidth="70">
+                                        <TextBlock FontSize="11" FontWeight="SemiBold" Text="{Binding StateText}" Foreground="{Binding StateBrush}"
+                                                   HorizontalAlignment="Center"/>
+                                    </Border>
+                                    <Button Style="{StaticResource TextButton}" Content="Aplicar" Click="Apply_Click" IsEnabled="{Binding CanApply}"/>
+                                    <Button Style="{StaticResource TextButton}" Content="Reverter" Click="Revert_Click" IsEnabled="{Binding CanRevert}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- confirmação dos recomendados -->
+        <Grid Grid.RowSpan="5" x:Name="ConfirmLayer" Visibility="Collapsed" Background="#B0050408">
+            <Border Style="{StaticResource Card}" Background="{DynamicResource BrBg}" Width="520" MaxHeight="520" VerticalAlignment="Center" Padding="22,18">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Aplicar ajustes recomendados" Style="{StaticResource H2}"/>
+                    <TextBlock DockPanel.Dock="Top" x:Name="ConfirmIntro" Style="{StaticResource Muted}" Margin="0,6,0,10" TextWrapping="Wrap"/>
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
+                        <CheckBox x:Name="RestoreCheck" IsChecked="True" Foreground="{DynamicResource BrText}" FontSize="12.5"
+                                  Content="Criar ponto de restauro do Windows antes (pede admin)"/>
+                        <TextBlock x:Name="ConfirmStatus" Style="{StaticResource Muted}" FontSize="11.5" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                            <Button x:Name="ConfirmCancel" Style="{StaticResource GhostButton}" Content="Cancelar" Click="ConfirmCancel_Click" Margin="0,0,10,0"/>
+                            <Button x:Name="ConfirmOk" Style="{StaticResource PrimaryButton}" Content="Aplicar" Click="ConfirmOk_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="ConfirmList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Style="{StaticResource Body}" FontSize="12.5" Margin="0,2" TextWrapping="Wrap">
+                                        <Run Text="•"/> <Run Text="{Binding Name, Mode=OneWay}"/>
+                                        <Run Text="{Binding RiskSuffix, Mode=OneWay}" Foreground="{Binding RiskBrush, Mode=OneWay}"/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -5,7 +5,7 @@ using System.Net.Http;
 namespace AdamsToolkit.Core;
 
 /// <summary>
-/// Instala o pack ReShade do WestRP na pasta de plugins do FiveM
+/// Instala o pack ReShade do ATL PVP na pasta de plugins do FiveM
 /// (FiveM Application Data). Substitui qualquer ReShade existente:
 /// os ficheiros antigos saem e este fica no lugar.
 /// </summary>
@@ -39,12 +39,12 @@ public static class ReshadeInstaller
         if (pluginsDir == null)
             return (false, "Pasta do FiveM não encontrada — instala e abre o FiveM primeiro.");
 
-        var tmp = Path.Combine(ConfigService.DataDir, "reshade-westrp.zip");
+        var tmp = Path.Combine(ConfigService.DataDir, "reshade-atl.zip");
         try
         {
             // download com progresso
-            using (var res = await Http.GetAsync(ConfigService.Current.ReshadeZipUrl,
-                       HttpCompletionOption.ResponseHeadersRead, ct))
+            using (var res = await Endpoints.GetFirstOkAsync(
+                       Http, Endpoints.WithFallbacks(ConfigService.Current.ReshadeZipUrl), ct))
             {
                 res.EnsureSuccessStatusCode();
                 var total = res.Content.Headers.ContentLength ?? -1L;

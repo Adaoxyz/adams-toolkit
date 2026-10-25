@@ -164,6 +164,7 @@ public partial class OptimizerView : UserControl
             SyncFpsFromState();
             SyncVfx();
             SyncSvcHost();
+            SyncShell();
             if (fpsReverted)
                 FpsState.Text = "O PC foi reiniciado — o boost de FPS desligou-se. Ativa outra vez quando fores jogar.";
         };
@@ -465,6 +466,84 @@ public partial class OptimizerView : UserControl
         FpsState.Text = errors.Count == 0
             ? "Boost de FPS desligado — tudo restaurado."
             : $"Boost de FPS desligado — {errors.Count} itens falharam a restaurar.";
+    }
+
+    // ---------- interface do Windows (explorer.exe) ----------
+
+    /// <summary>Reflete o estado real da shell (pode ter sido fechada/aberta por fora).</summary>
+    private void SyncShell()
+    {
+        var off = ExplorerControl.TurnedOffByUs;
+        ShellOffBtn.IsEnabled = !off;
+        ShellOnBtn.IsEnabled = off;
+        ShellState.Text = off
+            ? $"Interface do Windows DESLIGADA — {MainWindow.PanicHotkeyName} traz esta janela de volta. Fica assim até carregares em «Repor interface»."
+            : "Interface do Windows ligada";
+    }
+
+    private async void ShellOff_Click(object sender, RoutedEventArgs e)
+    {
+        if (_busy) return;
+
+        // O atalho de emergência tem de ficar de pé ANTES de matar a shell: sem
+        // barra de tarefas e sem Alt+Tab (que morre com o explorer.exe), é a única
+        // forma de voltar a esta janela.
+        var hotkeyOk = MainWindow.SetPanicHotkey(true);
+
+        var msg = "Fechar a interface do Windows?\n\n" +
+                  "Vão desaparecer o ambiente de trabalho, a barra de tarefas e a bandeja. " +
+                  "As janelas do Explorador de Ficheiros abertas fecham-se — grava o que tiveres a meio.\n\n";
+        msg += hotkeyOk
+            ? $"PARA VOLTAR A ESTA JANELA: {MainWindow.PanicHotkeyName}.\n" +
+              "Funciona mesmo com o jogo em ecrã inteiro. Atenção: sem a interface do Windows o Alt+Tab também deixa de funcionar, por isso decora este atalho.\n\n" +
+              "O botão «Repor interface» traz tudo de volta. Fechar o Adams Toolkit ou reiniciar o PC também repõe."
+            : $"⚠ NÃO consegui registar o atalho {MainWindow.PanicHotkeyName} — outra app já o está a usar.\n\n" +
+              "Sem ele e sem barra de tarefas podes ficar sem forma de voltar a esta janela (o Alt+Tab também morre com a interface). " +
+              "Fecha a app que está a usar esse atalho e tenta outra vez, ou avança sabendo que para recuperar terás de usar o Gestor de Tarefas (Ctrl+Shift+Esc).";
+
+        var icon = hotkeyOk ? MessageBoxImage.Warning : MessageBoxImage.Exclamation;
+        if (MessageBox.Show(msg, "Desligar a interface do Windows",
+                MessageBoxButton.YesNo, icon) != MessageBoxResult.Yes)
+        {
+            if (hotkeyOk) MainWindow.SetPanicHotkey(false);
+            return;
+        }
+
+        _busy = true;
+        ShellOffBtn.IsEnabled = false;
+        ShellOnBtn.IsEnabled = false;
+        ShellState.Text = "A fechar a interface…";
+
+        var err = await ExplorerControl.TurnOffAsync();
+
+        SyncShell();
+        if (err != null)
+        {
+            ShellState.Text = "✗ " + err;
+            MainWindow.SetPanicHotkey(false); // não ficou desligada — não segurar o atalho
+        }
+        else if (hotkeyOk)
+        {
+            ShellState.Text = $"Interface DESLIGADA — {MainWindow.PanicHotkeyName} traz esta janela de volta.";
+        }
+        _busy = false;
+    }
+
+    private async void ShellOn_Click(object sender, RoutedEventArgs e)
+    {
+        if (_busy) return;
+
+        _busy = true;
+        ShellOffBtn.IsEnabled = false;
+        ShellOnBtn.IsEnabled = false;
+        ShellState.Text = "A repor a interface… (a barra de tarefas demora 1–3 segundos)";
+
+        var err = await ExplorerControl.TurnOnAsync();
+        if (err == null) MainWindow.SetPanicHotkey(false); // interface de volta: liberta Ctrl+Alt+A
+
+        SyncShell();
+        if (err != null) ShellState.Text = "✗ " + err;
+        _busy = false;
     }
 
     // ---------- diagnóstico ----------

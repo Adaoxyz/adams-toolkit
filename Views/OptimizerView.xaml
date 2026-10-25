@@ -254,7 +254,7 @@
 
         <!-- cabeçalho -->
         <StackPanel Grid.Row="0" Margin="0,0,0,14">
-            <TextBlock Text="Otimizador" Style="{StaticResource H1}"/>
+            <TextBlock Text="Boost" Style="{StaticResource H1}"/>
             <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,0"
                        Text="Ping, FPS, teclado e limpeza — tudo reversível. Os boosts desligam-se sozinhos quando reinicias o PC: ativa antes de jogar."/>
         </StackPanel>
@@ -372,6 +372,35 @@
                                       ItemTemplate="{StaticResource TweakTemplate}"
                                       Visibility="{Binding IsChecked, ElementName=FpsMore, Converter={StaticResource BoolToVis}}"/>
                     </StackPanel>
+                </Border>
+
+                <!-- interface do Windows desligada (explorer.exe) -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
+                            <TextBlock Text="🖥 Desligar a interface do Windows" Style="{StaticResource H2}" FontSize="14"/>
+                            <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,4,0,0" TextWrapping="Wrap"
+                                       Text="Fecha o explorer.exe: desaparecem o ambiente de trabalho, a barra de tarefas, a bandeja e as janelas do Explorador. O jogo, o Discord e esta app continuam na mesma. Liberta RAM e tira trabalho ao compositor — em PCs fracos dá alguns FPS e, sobretudo, menos picos de tempo de frame. Não mexe no registo nem apaga nada."/>
+                            <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap"
+                                       Text="Para voltar a esta janela: Ctrl+Alt+A. Funciona com o jogo em ecrã inteiro. Decora o atalho — sem a interface do Windows o Alt+Tab também deixa de funcionar, porque quem o desenha é o próprio explorer.exe."/>
+                            <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,6,0,0" TextWrapping="Wrap"
+                                       Text="Grava o que tiveres aberto no Explorador antes de desligar — essas janelas fecham-se. A interface volta sozinha quando fechares o Adams Toolkit ou reiniciares o PC."/>
+                            <TextBlock x:Name="ShellState" Style="{StaticResource Muted}" FontSize="11.5"
+                                       Margin="0,8,0,0" TextWrapping="Wrap" Text="Interface do Windows ligada"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <Button x:Name="ShellOffBtn" Style="{StaticResource PrimaryButton}"
+                                    Content="🖥 Desligar interface" Padding="16,11" MinWidth="190"
+                                    Click="ShellOff_Click"/>
+                            <Button x:Name="ShellOnBtn" Style="{StaticResource GhostButton}"
+                                    Content="↩ Repor interface" Padding="16,11" MinWidth="190"
+                                    Margin="0,8,0,0" Click="ShellOn_Click"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
 
                 <!-- efeitos visuais do Windows (SystemPropertiesPerformance) -->

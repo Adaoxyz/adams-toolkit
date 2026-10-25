@@ -63,7 +63,7 @@ public static class NetworkOptimizer
             if (File.Exists(StateFile))
                 return JsonSerializer.Deserialize<OptState>(File.ReadAllText(StateFile)) ?? new OptState();
         }
-        catch { }
+        catch (Exception ex) { Log.Swallow("ler estado do boost de rede", ex); }
         return new OptState();
     }
 
@@ -74,7 +74,8 @@ public static class NetworkOptimizer
             Directory.CreateDirectory(Path.GetDirectoryName(StateFile)!);
             File.WriteAllText(StateFile, JsonSerializer.Serialize(_state));
         }
-        catch { }
+        // idem: o backup dos valores originais vive aqui dentro
+        catch (Exception ex) { Log.Error("gravar estado do boost de rede falhou (reverter pode não repor tudo)", ex); }
     }
 
     public static bool IsApplied(string id) => _state.Applied.Contains(id);
@@ -235,8 +236,8 @@ public static class NetworkOptimizer
 
         new()
         {
-            Id = "qos", Name = "Prioridade QoS para o WestRP", Beta = true,
-            Description = "Marca os pacotes para o servidor WestRP como prioritários (DSCP 46). Se o teu router respeitar QoS, o jogo passa à frente de downloads/streaming de quem partilha a net contigo. Em routers que ignoram a marca não muda nada — testa e diz-nos.",
+            Id = "qos", Name = "Prioridade QoS para o ATL PVP", Beta = true,
+            Description = "Marca os pacotes para o servidor ATL PVP como prioritários (DSCP 46). Se o teu router respeitar QoS, o jogo passa à frente de downloads/streaming de quem partilha a net contigo. Em routers que ignoram a marca não muda nada — testa e diz-nos.",
             Apply = async () =>
             {
                 var err = SetQosPolicy(on: true);
@@ -435,7 +436,10 @@ public static class NetworkOptimizer
     // Política QoS de máquina (mesmo formato que o gpedit exporta): marca DSCP 46 (EF)
     // em todo o tráfego para o IP do servidor. "Do not use NLA" faz o Windows aplicar
     // a marca também fora de redes de domínio (casa de toda a gente).
-    private const string QosPolicyPath = @"SOFTWARE\Policies\Microsoft\Windows\QoS\WestRP FiveM";
+    private const string QosPolicyPath = @"SOFTWARE\Policies\Microsoft\Windows\QoS\ATL PVP FiveM";
+    /// <summary>Nome antigo da política (até v2.0.3). Quem aplicou o tweak nessa altura tem
+    /// esta chave no registo; o revert tem de a apagar também, senão fica lá órfã para sempre.</summary>
+    private const string QosPolicyPathLegacy = @"SOFTWARE\Policies\Microsoft\Windows\QoS\WestRP FiveM";
     private const string QosTcpipPath = @"SYSTEM\CurrentControlSet\Services\Tcpip\QoS";
 
     private static string? SetQosPolicy(bool on)
@@ -444,6 +448,11 @@ public static class NetworkOptimizer
         {
             if (on)
             {
+                // quem vem de <= 2.0.3 tem a política com o nome antigo — fora, senão
+                // ficam duas regras a marcar o mesmo tráfego
+                try { Registry.LocalMachine.DeleteSubKey(QosPolicyPathLegacy, throwOnMissingSubKey: false); }
+                catch (Exception ex) { Log.Swallow("apagar política QoS antiga", ex); }
+
                 using (var k = Registry.LocalMachine.CreateSubKey(QosPolicyPath))
                 {
                     k.SetValue("Version", "1.0");
@@ -467,6 +476,7 @@ public static class NetworkOptimizer
             else
             {
                 Registry.LocalMachine.DeleteSubKey(QosPolicyPath, throwOnMissingSubKey: false);
+                Registry.LocalMachine.DeleteSubKey(QosPolicyPathLegacy, throwOnMissingSubKey: false);
                 using var k = Registry.LocalMachine.OpenSubKey(QosTcpipPath, writable: true);
                 if (k != null)
                 {

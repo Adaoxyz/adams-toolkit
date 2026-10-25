@@ -34,7 +34,7 @@ public static class PcCheck
             else list.Add(new(Level.Ok, "Prefetch ativo", files > 0 ? $"{files} registos (.pf) presentes." : "ligado (pasta só legível como admin).", false));
             if (sf == 0) list.Add(new(Level.Warn, "Superfetch desligado no registry", "EnableSuperfetch=0.", true));
         }
-        catch { }
+        catch (Exception ex) { Log.Error("verificação do Prefetch falhou — não aparece no relatório", ex); }
 
         // --- serviços que o servidor/staff exigem ---
         var build = Environment.OSVersion.Version.Build;
@@ -88,7 +88,7 @@ public static class PcCheck
             if (k == null) list.Add(new(Level.Bad, "BAM sem registos", "chave bam\\State\\UserSettings não existe — foi apagada ou o driver bam está desativado.", false));
             else list.Add(new(Level.Ok, "BAM ativo", $"{n} utilizador(es) com registos.", false));
         }
-        catch { }
+        catch (Exception ex) { Log.Error("verificação do BAM falhou — não aparece no relatório", ex); }
 
         // --- Recentes / Timeline / PowerShell ---
         try
@@ -96,7 +96,7 @@ public static class PcCheck
             var recent = Directory.EnumerateFileSystemEntries(Environment.GetFolderPath(Environment.SpecialFolder.Recent)).Count();
             list.Add(new(recent > 0 ? Level.Ok : Level.Warn, recent > 0 ? "Itens recentes presentes" : "Itens recentes vazios", recent > 0 ? $"{recent} entradas." : "pasta Recent vazia — parece limpa.", false));
         }
-        catch { }
+        catch (Exception ex) { Log.Error("verificação dos Itens recentes falhou — não aparece no relatório", ex); }
         try
         {
             using var k = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Policies\Microsoft\Windows\System");
@@ -104,7 +104,7 @@ public static class PcCheck
             if (pua == 0) list.Add(new(Level.Warn, "Histórico de atividade desligado por política", "PublishUserActivities=0.", true));
             else list.Add(new(Level.Ok, "Histórico de atividade ativo", "sem política a bloquear.", false));
         }
-        catch { }
+        catch (Exception ex) { Log.Error("verificação do histórico de atividade falhou — não aparece no relatório", ex); }
 
         // --- USN journal (só admin) ---
         if (admin)
@@ -139,7 +139,7 @@ public static class PcCheck
             if (found.Count > 0) list.Add(new(Level.Warn, "Ferramentas de limpeza instaladas", string.Join(", ", found) + " — a staff pergunta porquê. Desinstala antes do check e não limpes nada.", false));
             else list.Add(new(Level.Ok, "Sem ferramentas de limpeza", "nenhum limpador conhecido instalado.", false));
         }
-        catch { }
+        catch (Exception ex) { Log.Error("procura de ferramentas de limpeza falhou — não aparece no relatório", ex); }
 
         return list;
     }
@@ -152,7 +152,7 @@ public static class PcCheck
     /// <summary>Apaga o relatório antigo (antes de uma nova reparação).</summary>
     public static void ClearFixReport()
     {
-        try { File.Delete(FixLogPath); } catch { }
+        try { File.Delete(FixLogPath); } catch (Exception ex) { Log.Swallow("apagar relatório do Reparar", ex); }
     }
 
     /// <summary>Lê o relatório da última reparação (vazio se nunca correu).</summary>
@@ -251,6 +251,7 @@ public static class PcCheck
 
         ServiceChecker.RunHeadless(new[] { "--fix-services" });
 
-        try { File.WriteAllLines(FixLogPath, log); } catch { }
+        try { File.WriteAllLines(FixLogPath, log); }
+        catch (Exception ex) { Log.Error("gravar relatório do Reparar falhou", ex); }
     }
 }

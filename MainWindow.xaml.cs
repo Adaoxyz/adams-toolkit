@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
@@ -15,27 +16,24 @@ namespace AdamsToolkit;
 
 public partial class MainWindow : Window
 {
-    private DashboardView? _dashboard;
-    private InstallCenterView? _install;
-    private FiveMCenterView? _fivem;
-    private UninstallerView? _uninstaller;
-    private OptimizerView? _optimizer;
-    private TimerResolutionView? _timerRes;
-    private PcSpecsView? _pcSpecs;
-    private ChangelogView? _changelog;
-    private OpenSourceView? _openSource;
+    // 5 páginas na barra lateral; o resto vive dentro delas como separadores (TabHostView)
+    private TabHostView? _home, _optimize, _game, _tools, _settingsPage;
 
     public static DiscordUser? CurrentUser { get; private set; }
 
     private System.Windows.Forms.NotifyIcon? _tray;
     private bool _reallyExiting;
 
+    /// <summary>A janela viva (só há uma). Serve o atalho de emergência.</summary>
+    private static MainWindow? _instance;
+
     public MainWindow()
     {
+        _instance = this;
         InitializeComponent();
         ThemeManager.Load();
-        ThemeBtn.Content = ThemeManager.IsLight ? "🌙" : "☀️";
         Loaded += async (_, _) => await BootAsync();
+        SourceInitialized += (_, _) => WindowChromeHelper.Apply(this);
         // Jogo à frente = app suspensa (ver AppState): os monitores desligam-se
         // enquanto a janela não estiver em primeiro plano.
         Activated += (_, _) => { AppState.SetActive(true); SetPriority(false); };
@@ -89,19 +87,20 @@ public partial class MainWindow : Window
             using (var s = res?.Stream) { icon = s != null ? new System.Drawing.Icon(s) : System.Drawing.SystemIcons.Application; }
 
             var menu = new System.Windows.Forms.ContextMenuStrip();
-            menu.Items.Add("Abrir Adams Toolkit", null, (_, _) => RestoreFromTray());
+            var openItem = menu.Items.Add(Lang.T("Abrir Adams Toolkit"), null, (_, _) => RestoreFromTray());
 
-            var startupItem = new System.Windows.Forms.ToolStripMenuItem("Iniciar com o Windows")
+            var startupItem = new System.Windows.Forms.ToolStripMenuItem(Lang.T("Iniciar com o Windows"))
             {
                 CheckOnClick = true,
                 Checked = StartupManager.IsEnabled,
             };
             startupItem.CheckedChanged += (_, _) => StartupManager.SetEnabled(startupItem.Checked);
-            // preferência pode mudar no dashboard entretanto — refrescar ao abrir o menu
+            // preferência pode mudar nas Definições entretanto — refrescar ao abrir o menu
             menu.Opening += (_, _) => startupItem.Checked = StartupManager.IsEnabled;
             menu.Items.Add(startupItem);
-
-            menu.Items.Add("Sair", null, (_, _) => ExitApp());
+            var exitItem = menu.Items.Add(Lang.T("Sair"), null, (_, _) => ExitApp());
+            // bandeja é WinForms (não passa pelo gancho dos TextBlocks): troca à mão
+            Lang.Changed += () => { openItem.Text = Lang.T("Abrir Adams Toolkit"); startupItem.Text = Lang.T("Iniciar com o Windows"); exitItem.Text = Lang.T("Sair"); };
 
             _tray = new System.Windows.Forms.NotifyIcon
             {
@@ -115,6 +114,84 @@ public partial class MainWindow : Window
         catch { _tray = null; }
     }
 
+    // ---------- atalho de emergência (Ctrl+Alt+A) ----------
+    //
+    // Com a interface do Windows desligada não há barra de tarefas NEM Alt+Tab: o
+    // seletor de janelas do Windows 10/11 é desenhado pelo próprio explorer.exe e
+    // morre com ele. Sem isto, quem minimizasse a janela ficava sem forma nenhuma
+    // de lá voltar (relato do dono, 20-09-2026).
+    //
+    // O atalho é registado SÓ enquanto a interface está desligada — fora disso não
+    // rouba Ctrl+Alt+A a mais ninguém.
+
+    private const int WmHotkey = 0x0312;
+    private const int HotkeyId = 0x0A11;
+    private const uint ModAlt = 0x0001, ModControl = 0x0002, ModNoRepeat = 0x4000;
+    private const uint VkA = 0x41;
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+    private HwndSource? _hotkeyHook;
+
+    /// <summary>Nome do atalho, para as mensagens na UI ficarem sempre coerentes.</summary>
+    public const string PanicHotkeyName = "Ctrl+Alt+A";
+
+    /// <summary>
+    /// Liga/desliga o atalho de emergência. Devolve false se o Windows recusou
+    /// (outra app já tem Ctrl+Alt+A) — quem chama TEM de avisar antes de desligar
+    /// a interface, senão o utilizador fica sem saída.
+    /// </summary>
+    public static bool SetPanicHotkey(bool on) => _instance?.SetPanicHotkeyCore(on) ?? false;
+
+    private bool SetPanicHotkeyCore(bool on)
+    {
+        try
+        {
+            var helper = new WindowInteropHelper(this);
+            if (helper.Handle == IntPtr.Zero) helper.EnsureHandle();
+            var hwnd = helper.Handle;
+
+            if (!on)
+            {
+                if (_hotkeyHook != null)
+                {
+                    UnregisterHotKey(hwnd, HotkeyId);
+                    _hotkeyHook.RemoveHook(HotkeyProc);
+                    _hotkeyHook = null;
+                }
+                return true;
+            }
+
+            if (_hotkeyHook != null) return true; // já ligado
+            if (!RegisterHotKey(hwnd, HotkeyId, ModControl | ModAlt | ModNoRepeat, VkA))
+            {
+                Log.Warn($"não consegui registar {PanicHotkeyName} (outra app já o usa?)");
+                return false;
+            }
+            _hotkeyHook = HwndSource.FromHwnd(hwnd);
+            _hotkeyHook?.AddHook(HotkeyProc);
+            Log.Info($"atalho de emergência {PanicHotkeyName} ligado", "explorer");
+            return _hotkeyHook != null;
+        }
+        catch (Exception ex)
+        {
+            Log.Error("atalho de emergência falhou", ex);
+            return false;
+        }
+    }
+
+    private IntPtr HotkeyProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg != WmHotkey || wParam.ToInt32() != HotkeyId) return IntPtr.Zero;
+        handled = true;
+        try { RestoreFromTray(); } catch (Exception ex) { Log.Swallow("atalho de emergência", ex); }
+        return IntPtr.Zero;
+    }
+
     // Na bandeja a app tem de ser uma pena: retirar a view do ContentHost dispara
     // o Unloaded dela → todos os timers/sensores/gráficos param (cada view já se
     // desliga no Unloaded). Ao restaurar, a view volta e o Loaded religa tudo.
@@ -122,6 +199,14 @@ public partial class MainWindow : Window
 
     private void HideToTray()
     {
+        // Interface do Windows desligada por nós = não há bandeja onde pousar. Esconder
+        // aqui deixava a janela sem ícone nenhum para voltar; minimiza-se apenas, que o
+        // Alt+Tab continua a chegar-lhe.
+        if (Core.ExplorerControl.TurnedOffByUs)
+        {
+            WindowState = WindowState.Minimized;
+            return;
+        }
         if (_tray == null) { ExitApp(); return; } // sem bandeja não há para onde esconder
         if (ContentHost?.Content is UserControl v)
         {
@@ -141,11 +226,13 @@ public partial class MainWindow : Window
 
     public void RestoreFromTray()
     {
+        Crash.Silent = false; // a partir de agora há alguém a olhar para o ecrã
         AppState.SetShown(true);
         SetIdlePolling(false);
         SetIdleFootprint(false);
         if (_hiddenView != null)
         {
+            _firstView = true; // voltar da bandeja não é "mudar de página": sem transição
             ShowView(_hiddenView);
             _hiddenView = null;
         }
@@ -191,14 +278,10 @@ public partial class MainWindow : Window
     private void ExitApp()
     {
         _reallyExiting = true;
+        OverlayService.Shutdown();
+        GameMode.Disable("(app a fechar)"); // nada fica pausado depois de sair
         if (_tray != null) { _tray.Visible = false; _tray.Dispose(); _tray = null; }
         System.Windows.Application.Current.Shutdown();
-    }
-
-    private void Theme_Click(object sender, RoutedEventArgs e)
-    {
-        ThemeManager.Toggle();
-        ThemeBtn.Content = ThemeManager.IsLight ? "🌙" : "☀️";
     }
 
     private bool _booted;
@@ -215,6 +298,7 @@ public partial class MainWindow : Window
         _ = Task.Run(ScheduledCleanup.Sync); // re-escreve a tarefa semanal se estiver ligada (caminho do exe)
         NetworkOptimizer.BeginStartupCheck(); // boost é por sessão: PC reiniciou → reverte sozinho
         GameBoost.BeginStartupCheck();        // idem para o boost de FPS
+        GameMode.RestoreLeftovers();          // app rebentou com o Modo Jogo ligado? retoma o que ficou pausado
         // 2026-09-07 (dono: "retira o Snap Tap do aplicativo, desativa de vez"):
         // a funcionalidade saiu da app. Nao ha nada para restaurar no arranque e
         // apaga-se o ficheiro de estado que ficou nos PCs que a chegaram a ligar,
@@ -269,10 +353,12 @@ public partial class MainWindow : Window
             // versão nova (ou 1ª instalação): mostra as Novidades uma vez,
             // para o jogador ver o que mudou em linguagem simples
             MarkChangelogSeen();
-            NavChangelog.IsChecked = true;
+            ShowAbout(changelog: true);
         }
-        else ShowView(GetDashboard());
+        else ShowView(Page(NavDashboard), NavDashboard);
+        Toast($"Bem-vindo, {user.DisplayName}");
         StartRevalidation();
+        OverlayService.Apply(); // overlay ligado da última vez volta sozinho
     }
 
     // ---- Novidades: engrenagem no topo + abertura automática pós-update ----
@@ -297,10 +383,10 @@ public partial class MainWindow : Window
         catch { }
     }
 
-    private void Gear_Click(object sender, RoutedEventArgs e)
+    private void ShowAbout(bool changelog)
     {
-        if (MainArea.Visibility != Visibility.Visible) return; // antes do login não há navegação
-        NavChangelog.IsChecked = true;
+        Go(NavSettings, "about");
+        _settingsPage?.Get<AboutView>("about")?.SelectTab(changelog ? "changelog" : "opensource");
     }
 
     // Verificação contínua: a cada 10 min confirma no backend que o jogador
@@ -351,6 +437,7 @@ public partial class MainWindow : Window
 
     private void LockOut()
     {
+        OverlayService.Shutdown();
         DiscordAuth.ClearOfflineSnapshot(); // revogado: sem entrada offline
         _revalidateTimer?.Stop();
         _presenceTimer?.Stop();
@@ -365,59 +452,144 @@ public partial class MainWindow : Window
     }
 
     // ---- navegação ----
+    //
+    // 5 entradas na barra lateral (pedido do dono: "muita opção, organiza") e o resto
+    // como separadores dentro de cada uma.
 
-    private DashboardView GetDashboard() => _dashboard ??= new DashboardView();
+    private RadioButton? _lastNav;
 
-    private System.Windows.Controls.RadioButton? _lastNav;
+    private TabHostView Page(RadioButton nav)
+    {
+        TabHostView Make(params TabHostView.Tab[] tabs)
+        {
+            var t = new TabHostView(tabs);
+            t.TabChanged += label => { if (ReferenceEquals(ContentHost.Content, t)) UpdateCrumb(nav, label); };
+            return t;
+        }
+        TabHostView.Tab T(string key, string label, Func<UserControl> create) => new(key, label, create);
+
+        if (ReferenceEquals(nav, NavAjustes))
+            return _optimize ??= Make(T("ajustes", "Ajustes", () => new AjustesView()), T("optimizer", "Boost", () => new OptimizerView()),
+                                      T("gamemode", "Modo Jogo", () => new GameModeView()), T("timer", "Timer", () => new TimerResolutionView()));
+        if (ReferenceEquals(nav, NavFiveM))
+            return _game ??= Make(T("fivem", "FiveM", () => new FiveMCenterView()), T("overlay", "Overlay", () => new OverlayView()));
+        if (ReferenceEquals(nav, NavInstall))
+            return _tools ??= Make(T("rede", "Rede", () => new RedeView()), T("install", "Instalar", () => new InstallCenterView()),
+                                   T("uninstall", "Desinstalar", () => new UninstallerView()));
+        if (ReferenceEquals(nav, NavSettings))
+            return _settingsPage ??= Make(T("settings", "Definições", () => new SettingsView()), T("about", "Sobre", () => new AboutView()));
+        return _home ??= Make(T("home", "Visão geral", () => new DashboardView()), T("pc", "O meu PC", () => new PcSpecsView()),
+                              T("diag", "Diagnóstico", () => new DiagnosticoView()));
+    }
 
     private void Nav_Checked(object sender, RoutedEventArgs e)
     {
-        if (ContentHost == null) return; // durante InitializeComponent
-        // Editor de Clips é uma janela à parte (v1.71): abre-a e devolve a seleção ao item anterior
-        if (ReferenceEquals(sender, NavEditor))
+        if (ContentHost == null || sender is not RadioButton nav) return; // durante InitializeComponent
+        // Editor de Clips: entrada própria na barra, abre a janela dele e devolve a seleção
+        if (ReferenceEquals(nav, NavEditor))
         {
             EditorWindow.Open();
             var back = _lastNav ?? NavDashboard;
             Dispatcher.BeginInvoke(() => back.IsChecked = true);
             return;
         }
-        _lastNav = sender as System.Windows.Controls.RadioButton;
-        UserControl view = sender switch
-        {
-            _ when ReferenceEquals(sender, NavInstall) => _install ??= new InstallCenterView(),
-            _ when ReferenceEquals(sender, NavFiveM) => _fivem ??= new FiveMCenterView(),
-            _ when ReferenceEquals(sender, NavUninstaller) => _uninstaller ??= new UninstallerView(),
-            _ when ReferenceEquals(sender, NavOptimizer) => _optimizer ??= new OptimizerView(),
-            _ when ReferenceEquals(sender, NavTimer) => _timerRes ??= new TimerResolutionView(),
-            _ when ReferenceEquals(sender, NavPc) => _pcSpecs ??= new PcSpecsView(),
-            _ when ReferenceEquals(sender, NavChangelog) => _changelog ??= new ChangelogView(),
-            _ when ReferenceEquals(sender, NavOpenSource) => _openSource ??= new OpenSourceView(),
-            _ => GetDashboard(),
-        };
-        ShowView(view);
+        _lastNav = nav;
+        ShowView(Page(nav), nav);
     }
 
-    // Usado pelas Ações Rápidas do dashboard: marca o item da sidebar
-    // (o Checked trata da navegação e da view em cache).
+    /// <summary>Abre uma página e, opcionalmente, um separador dela.</summary>
+    private void Go(RadioButton nav, string? tab = null)
+    {
+        if (nav.IsChecked != true) nav.IsChecked = true;
+        if (tab != null) Page(nav).Select(tab);
+    }
+
+    // Ações rápidas, diagnóstico, etc.: chave → página + separador
     public void NavigateTo(string key)
     {
         switch (key)
         {
-            case "optimizer": NavOptimizer.IsChecked = true; break;
-            case "fivem": NavFiveM.IsChecked = true; break;
-            case "install": NavInstall.IsChecked = true; break;
-            case "pc": NavPc.IsChecked = true; break;
-            case "opensource": NavOpenSource.IsChecked = true; break;
+            case "ajustes" or "optimizer" or "gamemode" or "timer": Go(NavAjustes, key); break;
+            case "fivem" or "overlay": Go(NavFiveM, key); break;
+            case "rede" or "install": Go(NavInstall, key); break;
+            case "pc" or "diag": Go(NavDashboard, key); break;
+            case "settings": Go(NavSettings, "settings"); break;
+            case "opensource": ShowAbout(changelog: false); break;
             case "editor": EditorWindow.Open(); break;
         }
     }
 
-    private void ShowView(UserControl view)
+    // nome + subtítulo de cada página (breadcrumb no topo e transição ao entrar)
+    private (string title, string sub) PageInfo(RadioButton? nav) => nav switch
+    {
+        _ when ReferenceEquals(nav, NavAjustes) => ("Otimizar", "Ajustes · Boost · Modo Jogo · Timer"),
+        _ when ReferenceEquals(nav, NavFiveM) => ("Jogo", "FiveM · Overlay"),
+        _ when ReferenceEquals(nav, NavInstall) => ("Ferramentas", "Rede · Instalar · Desinstalar"),
+        _ when ReferenceEquals(nav, NavSettings) => ("Definições", "Preferências · Sobre"),
+        _ => ("Início", "Visão geral · O meu PC · Diagnóstico"),
+    };
+
+    private void UpdateCrumb(RadioButton? nav, string tab) => PageCrumb.Text = $"{PageInfo(nav).title} · {tab}";
+
+    private void ShowView(UserControl view, RadioButton? nav = null)
     {
         view.RenderTransform = new TranslateTransform();
         ContentHost.Content = view;
         if (FindResource("ViewFadeIn") is Storyboard sb)
             sb.Begin(view);
+
+        var (title, sub) = PageInfo(nav ?? _lastNav);
+        // textos em PT: o gancho do Lang traduz e guarda o original (troca de idioma ao vivo)
+        PageCrumb.Text = view is TabHostView th ? $"{title} · {th.CurrentLabel}" : title;
+        PlayTransition(title, sub);
+        Lang.Apply(view); // view em cache pode ter sido vista noutro idioma
+    }
+
+    // Igual ao NX: o nome da página aparece ao centro e some (~0.6 s). Só opacidade —
+    // nada de desfoque, que pesa em PCs fracos.
+    private bool _firstView = true;
+    private void PlayTransition(string title, string sub)
+    {
+        if (_firstView) { _firstView = false; return; } // a 1ª página (após login) entra sem isto
+        TransTitle.Text = title;
+        TransSub.Text = sub;
+        TransLayer.Visibility = Visibility.Visible;
+        var a = new DoubleAnimationUsingKeyFrames();
+        a.KeyFrames.Add(new LinearDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(110))));
+        a.KeyFrames.Add(new LinearDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(300))));
+        a.KeyFrames.Add(new EasingDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(650)),
+            new QuadraticEase { EasingMode = EasingMode.EaseIn }));
+        a.Completed += (_, _) => TransLayer.Visibility = Visibility.Collapsed;
+        TransLayer.BeginAnimation(OpacityProperty, a);
+    }
+
+    // ---- avisos rápidos (canto inferior direito) ----
+
+    /// <summary>Aviso curto que some sozinho em ~3 s. Seguro chamar de qualquer view.</summary>
+    public static void Toast(string text) => _instance?.Dispatcher.Invoke(() => _instance.ShowToast(text));
+
+    private void ShowToast(string text)
+    {
+        var card = new Border
+        {
+            Background = (Brush)FindResource("BrBg"), // opaco: lê-se por cima de qualquer coisa
+            BorderBrush = (Brush)FindResource("BrActiveBorder"),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(10),
+            Padding = new Thickness(14, 9, 14, 9),
+            Margin = new Thickness(0, 6, 0, 0),
+            MaxWidth = 380,
+            Opacity = 0,
+            Child = new TextBlock { Text = text, FontSize = 12.5, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("BrText") },
+        };
+        ToastHost.Children.Add(card);
+        while (ToastHost.Children.Count > 3) ToastHost.Children.RemoveAt(0);
+        var a = new DoubleAnimationUsingKeyFrames();
+        a.KeyFrames.Add(new LinearDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(180))));
+        a.KeyFrames.Add(new LinearDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(3200))));
+        a.KeyFrames.Add(new LinearDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(3600))));
+        a.Completed += (_, _) => ToastHost.Children.Remove(card);
+        card.BeginAnimation(OpacityProperty, a);
     }
 
     // ---- chrome ----

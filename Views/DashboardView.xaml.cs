@@ -1,197 +1,232 @@
+using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Microsoft.Win32;
 using AdamsToolkit.Core;
 
 namespace AdamsToolkit.Views;
 
+/// <summary>
+/// Início ao estilo NX (na nossa cor): 6 tiras, especificações, 4 gráficos ao vivo,
+/// saúde do PC e ações rápidas — só ações seguras para PC check.
+///
+/// Peso: igual ao painel antigo — 1 amostra/s, ping a cada 5 s, temperaturas a cada
+/// 10 s, e tudo parado com a app escondida ou o jogo à frente (AppState).
+/// </summary>
 public partial class DashboardView : UserControl
 {
-    private DispatcherTimer? _monitorTimer;
-    private DispatcherTimer? _pingTimer;
-    private DispatcherTimer? _tempTimer;
+    public record HealthRow(string Label, string Value, double Width);
 
-    // 60 amostras por série (1/s no monitor, 1/3s nas temperaturas)
-    private readonly Queue<double> _cpuHistory = new();
-    private readonly Queue<double> _gpuHistory = new();
-    private readonly Queue<double> _ramHistory = new();
-    private readonly Queue<double> _diskHistory = new();
-    private readonly Queue<double> _cpuTempHistory = new();
-    private readonly Queue<double> _gpuTempHistory = new();
+    private readonly DispatcherTimer _monitor = new() { Interval = TimeSpan.FromSeconds(1) };
+    private readonly DispatcherTimer _slow = new() { Interval = TimeSpan.FromSeconds(5) };
 
-    private bool _pinging;
-    private bool _readingTemp;
+    private readonly Queue<double> _cpuH = new(), _ramH = new(), _netH = new(), _pingH = new();
+    private long _lastRx;
+    private DateTime _lastNet;
+    private double _ramPct = -1, _diskFreePct = -1, _gpuTemp = -1;
+    private bool _sampling, _pinging;
+    private int _slowTicks;
 
     public DashboardView()
     {
         InitializeComponent();
-        // Loaded (não construtor): re-lê a preferência sempre que a view volta a
-        // aparecer — pode ter mudado no menu da bandeja entretanto.
-        Loaded += (_, _) => { RefreshStartupCheck(); Refresh(); StartMonitor(); AppState.Changed += OnVisibilityChanged; };
-        Unloaded += (_, _) => { AppState.Changed -= OnVisibilityChanged; StopMonitor(); };
-        SizeChanged += (_, _) => RedrawSparks(); // largura dos tiles mudou → refazer curvas
+        _monitor.Tick += async (_, _) => await SampleAsync();
+        _slow.Tick += async (_, _) => await SlowAsync();
+        Loaded += (_, _) => { LoadStatic(); RefreshPills(); Start(); AppState.Changed += OnVisibility; };
+        Unloaded += (_, _) => { AppState.Changed -= OnVisibility; Stop(); };
+        SizeChanged += (_, _) => DrawAll();
     }
 
-    // ---- iniciar com o Windows ----
+    private void OnVisibility(bool visible) { if (visible) Start(); else Stop(); }
 
-    private bool _startupSyncing;
-
-    private void RefreshStartupCheck()
+    private void Start()
     {
-        _startupSyncing = true;
-        StartupCheck.IsChecked = StartupManager.IsEnabled;
-        _startupSyncing = false;
-    }
-
-    private void Startup_Toggled(object sender, RoutedEventArgs e)
-    {
-        if (_startupSyncing) return;
-        StartupManager.SetEnabled(StartupCheck.IsChecked == true);
-    }
-
-    // ---- ações rápidas (navegam para a secção respetiva) ----
-
-    private static void Nav(string key) =>
-        (Application.Current.MainWindow as MainWindow)?.NavigateTo(key);
-
-    private void QuickOptimize_Click(object sender, RoutedEventArgs e) => Nav("optimizer");
-    private void QuickClean_Click(object sender, RoutedEventArgs e) => Nav("optimizer");
-    private void QuickFiveM_Click(object sender, RoutedEventArgs e) => Nav("fivem");
-
-    // ---- monitor de desempenho ----
-
-    private void StartMonitor()
-    {
-        GpuNameText.Text = SystemMonitor.GetGpuName();
-        OsText.Text = SystemMonitor.GetOsName();
-        OsDetailText.Text = OsText.Text;
-        ArchText.Text = Environment.Is64BitOperatingSystem ? "64-bit" : "32-bit";
-
-        StopMonitor();
-        // Janela por trás do jogo (ou na bandeja) = ninguém vê os gráficos: não se
-        // arranca nada. O AppState avisa quando voltar à frente.
-        if (!AppState.IsVisible) return;
-
-        _monitorTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-        _monitorTimer.Tick += async (_, _) => await SampleAsync();
-        _monitorTimer.Start();
+        if (!AppState.IsVisible || _monitor.IsEnabled) return;
+        _monitor.Start();
+        _slow.Start();
         _ = SampleAsync();
-
-        // ping: 10s chega para um número que quase não muda
-        _pingTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
-        _pingTimer.Tick += async (_, _) => await UpdatePingAsync();
-        _pingTimer.Start();
-        _ = UpdatePingAsync();
-
-        // temperaturas: sensores (LHM/WMI/nvidia-smi) são a leitura mais cara — 5s
-        _tempTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
-        _tempTimer.Tick += async (_, _) => await UpdateTempsAsync();
-        _tempTimer.Start();
-        _ = UpdateTempsAsync();
+        _ = SlowAsync();
     }
 
-    private void StopMonitor()
-    {
-        _monitorTimer?.Stop(); _monitorTimer = null;
-        _pingTimer?.Stop(); _pingTimer = null;
-        _tempTimer?.Stop(); _tempTimer = null;
-    }
+    private void Stop() { _monitor.Stop(); _slow.Stop(); }
 
-    /// <summary>App voltou à frente → religa o monitor; saiu de vista → desliga tudo.</summary>
-    private void OnVisibilityChanged(bool visible)
-    {
-        // Nota: os contadores ficam abertos no alt-tab (não custam nada parados e
-        // reabri-los perderia a 1ª amostra). Só se largam ao ir para a bandeja.
-        if (visible) StartMonitor();
-        else StopMonitor();
-    }
+    // ---------- estático (uma vez) ----------
 
-    private async Task UpdateTempsAsync()
+    private void LoadStatic()
     {
-        if (_readingTemp) return;
-        _readingTemp = true;
+        SpecOs.Text = SystemMonitor.GetOsName();
+        SpecGpu.Text = GpuSub.Text = SystemMonitor.GetGpuName();
         try
         {
-            var (cpuT, gpuT) = await Task.Run(SystemMonitor.GetTemps);
-            GpuTempText.Text = gpuT < 0 ? "N/D" : $"{gpuT:0}°C";
-            if (gpuT >= 0) Push(_gpuTempHistory, gpuT);
-
-            // A temperatura do CPU precisa do driver de kernel (admin) e o Windows 11
-            // com Integridade da Memória bloqueia-o — em muitos PCs é impossível de ler.
-            // Em vez de mostrar "N/D" (parece avariado), escondemos o campo TEMP CPU
-            // quando não há leitura; a GPU ocupa a largura toda. Quem consegue ler
-            // (admin + sem bloqueio) continua a vê-lo normalmente.
-            if (cpuT < 0)
-            {
-                CpuTempTile.Visibility = Visibility.Collapsed;
-                TempGrid.Columns = 1;
-            }
-            else
-            {
-                CpuTempText.Text = $"{cpuT:0}°C";
-                CpuTempTile.Visibility = Visibility.Visible;
-                TempGrid.Columns = 2;
-                Push(_cpuTempHistory, cpuT);
-            }
-            TempAdminHint.Visibility = Visibility.Collapsed;
-
-            DrawSeries(CpuTempSpark, null, CpuTempSparkHost, _cpuTempHistory, TempScale(_cpuTempHistory));
-            DrawSeries(GpuTempSpark, null, GpuTempSparkHost, _gpuTempHistory, TempScale(_gpuTempHistory));
+            using var k = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0");
+            SpecCpu.Text = CpuSub.Text = (k?.GetValue("ProcessorNameString") as string)?.Trim() ?? "—";
         }
-        finally { _readingTemp = false; }
+        catch { SpecCpu.Text = "—"; }
+
+        var cfg = ConfigService.Current;
+        NewsList.ItemsSource = cfg.News;
+        CommunityText.Text = $"Comunidade · {cfg.CommunityStatus}";
+        NewsCard.Visibility = cfg.News.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void TempAdmin_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    private void RefreshPills()
     {
-        try
-        {
-            var exe = Environment.ProcessPath;
-            if (exe == null) return;
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe)
-            {
-                UseShellExecute = true,
-                Verb = "runas", // pede UAC
-            });
-            System.Windows.Application.Current.Shutdown();
-        }
-        catch { /* UAC recusado — fica em N/D */ }
+        var all = TweakLibrary.All;
+        bool On(LibTweak t) { try { return t.IsActive(); } catch { return false; } }
+        var active = all.Count(On);
+        var pending = all.Count(t => t.Recommended && !On(t));
+        ActivePill.Text = $"{active} ajustes ativos";
+        PendingPill.Text = pending == 0 ? "Recomendados em dia" : $"{pending} recomendados por ativar";
+        var admin = UninstallerEngine.IsAdmin();
+        AdminPill.Text = admin ? "● Administrador" : "○ Sem admin";
+        AdminPill.Foreground = (Brush)FindResource(admin ? "BrSuccess" : "BrWarn");
+        AdminPillBox.Background = (Brush)FindResource("BrSurface");
+        AdminPillBox.ToolTip = admin ? null : "Clica para reabrir como administrador (precisa para FPS e ajustes de sistema)";
+        _recActivePct = all.Count(t => t.Recommended) is var rec and > 0 ? (rec - pending) * 100.0 / rec : 100;
     }
+    private double _recActivePct = -1;
+
+    private void AdminPill_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (!UninstallerEngine.IsAdmin() && UninstallerEngine.RestartAsAdmin()) Application.Current.Shutdown();
+    }
+
+    // ---------- amostras ----------
 
     private async Task SampleAsync()
     {
-        var (cpu, gpu, ram, disk) = await Task.Run(() =>
-            (SystemMonitor.GetCpuUsage(), SystemMonitor.GetGpuUsage(),
-             SystemMonitor.GetRam(), SystemMonitor.GetSystemDisk()));
-
-        CpuText.Text = cpu < 0 ? "—" : $"{cpu:0.0}%";
-        GpuText.Text = gpu < 0 ? "—" : $"{gpu:0}%";
-        if (ram.pct < 0) { RamText.Text = "—"; }
-        else
+        if (_sampling) return;
+        _sampling = true;
+        try
         {
-            RamText.Text = $"{ram.pct:0}%";
-            RamDetailText.Text = $"{ram.usedGb:0.0} / {ram.totalGb:0.0} GB";
-        }
-        if (disk.pct < 0) { DiskText.Text = "—"; }
-        else
-        {
-            DiskText.Text = $"{disk.pct:0}%";
-            DiskDetailText.Text = $"{disk.freeGb:0} GB livres";
-        }
-        UptimeText.Text = SystemMonitor.GetUptime();
+            var (cpu, gpu, ram, disk, rx) = await Task.Run(() =>
+            {
+                long bytes = 0;
+                foreach (var n in NetworkInterface.GetAllNetworkInterfaces())
+                    if (n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                        bytes += n.GetIPv4Statistics().BytesReceived;
+                return (SystemMonitor.GetCpuUsage(), SystemMonitor.GetGpuUsage(), SystemMonitor.GetRam(), SystemMonitor.GetSystemDisk(), bytes);
+            });
 
-        Push(_cpuHistory, Math.Max(0, cpu));
-        Push(_gpuHistory, Math.Max(0, gpu));
-        Push(_ramHistory, Math.Max(0, ram.pct));
-        Push(_diskHistory, Math.Max(0, disk.pct));
+            CpuText.Text = cpu < 0 ? "—" : $"{cpu:0}%";
+            GpuText.Text = gpu < 0 ? "—" : $"{gpu:0}%";
+            _ramPct = ram.pct;
+            RamText.Text = ram.pct < 0 ? "—" : $"{ram.pct:0}%";
+            RamSub.Text = ram.pct < 0 ? "" : $"{ram.usedGb:0.0} / {ram.totalGb:0.0} GB";
+            SpecRam.Text = ram.totalGb > 0 ? $"{ram.totalGb:0.0} GB" : "—";
+            if (disk.pct >= 0)
+            {
+                DiskText.Text = $"{disk.pct:0}%";
+                DiskSub.Text = $"{disk.freeGb:0} GB livres · C:";
+                SpecDisk.Text = $"C: · {disk.freeGb:0} GB livres de {disk.totalGb:0} GB";
+                _diskFreePct = 100 - disk.pct;
+            }
 
-        SetGauge(CpuArc, cpu);
-        SetGauge(GpuArc, gpu);
-        SetGauge(RamArc, ram.pct);
-        SetGauge(DiskArc, disk.pct);
-        RedrawSparks();
+            var now = DateTime.UtcNow;
+            double down = 0;
+            if (_lastNet != default) down = Math.Max(0, (rx - _lastRx) / Math.Max(0.2, (now - _lastNet).TotalSeconds));
+            _lastRx = rx; _lastNet = now;
+            NetText.Text = Rate(down);
+            NetSub.Text = "download agora";
+
+            Push(_cpuH, Math.Max(0, cpu));
+            Push(_ramH, Math.Max(0, ram.pct));
+            Push(_netH, down);
+            CpuChartVal.Text = CpuText.Text;
+            RamChartVal.Text = RamText.Text;
+            NetChartVal.Text = Rate(down);
+            DrawAll();
+        }
+        finally { _sampling = false; }
     }
+
+    private async Task SlowAsync()
+    {
+        SpecUptime.Text = SystemMonitor.GetUptime();
+        if (!_pinging)
+        {
+            _pinging = true;
+            try
+            {
+                var r = await NetTools.PingAsync(NetworkOptimizer.ServerHost, 3);
+                PingText.Text = r.Ok ? $"{r.Avg:0} ms" : "—";
+                PingSub.Text = !r.Ok ? "sem resposta" : r.Avg < 40 ? "Excelente" : r.Avg < 90 ? "Boa" : "Fraca";
+                if (r.Ok) { Push(_pingH, r.Avg); PingChartVal.Text = $"{r.Avg:0} ms"; }
+            }
+            finally { _pinging = false; }
+        }
+        // temperatura: processo/sensor — de 10 em 10 s chega
+        if (_slowTicks++ % 2 == 0)
+        {
+            var (cpuT, gpuT) = await Task.Run(SystemMonitor.GetTemps);
+            _gpuTemp = gpuT;
+            if (gpuT > 0) GpuSub.Text = $"{SystemMonitor.GetGpuName()} · {gpuT:0}°C";
+            if (cpuT > 0) CpuSub.Text = $"{SpecCpu.Text} · {cpuT:0}°C";
+        }
+        UpdateHealth();
+        DrawAll();
+    }
+
+    // ---------- saúde do PC ----------
+
+    private void UpdateHealth()
+    {
+        var rows = new List<(string label, double pct)>();
+        if (_ramPct >= 0) rows.Add(("Memória livre", 100 - _ramPct));
+        if (_diskFreePct >= 0) rows.Add(("Disco livre", Math.Min(100, _diskFreePct * 2.5))); // 40 % livre já é 100
+        if (_recActivePct >= 0) rows.Add(("Ajustes", _recActivePct));
+        if (_gpuTemp > 0) rows.Add(("Temp. GPU", Math.Clamp((90 - _gpuTemp) * 100 / 40, 0, 100))); // ≤50 °C = 100, 90 °C = 0
+        if (rows.Count == 0) return;
+
+        var score = (int)Math.Round(rows.Average(r => r.pct));
+        HealthText.Text = score.ToString();
+        HealthArc.Stroke = (Brush)FindResource(score >= 70 ? "BrAccent" : score >= 45 ? "BrWarn" : "BrDanger");
+        HealthArc.Data = Arc(43, 43, 39.5, score / 100.0);
+        HealthBars.ItemsSource = rows.Select(r => new HealthRow(r.label, $"{r.pct:0}", Math.Max(2, r.pct * 0.9))).ToList();
+    }
+
+    private static Geometry? Arc(double cx, double cy, double r, double frac)
+    {
+        frac = Math.Clamp(frac, 0, 0.9999);
+        if (frac <= 0) return null;
+        var a = frac * 2 * Math.PI;
+        var start = new Point(cx, cy - r);
+        var end = new Point(cx + r * Math.Sin(a), cy - r * Math.Cos(a));
+        var g = new StreamGeometry();
+        using (var c = g.Open())
+        {
+            c.BeginFigure(start, false, false);
+            c.ArcTo(end, new Size(r, r), 0, frac > 0.5, SweepDirection.Clockwise, true, false);
+        }
+        g.Freeze();
+        return g;
+    }
+
+    // ---------- ações rápidas ----------
+
+    private static void Nav(string key) => (Application.Current.MainWindow as MainWindow)?.NavigateTo(key);
+    private void Optimize_Click(object sender, RoutedEventArgs e) => Nav("ajustes");
+    private void GameMode_Click(object sender, RoutedEventArgs e) => Nav("gamemode");
+    private void Diag_Click(object sender, RoutedEventArgs e) => Nav("diag");
+    private void PcCheck_Click(object sender, RoutedEventArgs e) => Nav("fivem");
+
+    private async void Restore_Click(object sender, RoutedEventArgs e)
+    {
+        RestoreBtn.IsEnabled = false;
+        ActionStatus.Text = "A criar ponto de restauro… (aceita o pedido de administrador)";
+        var (ok, msg) = await RestorePointService.CreateAsync("Adams Toolkit - ponto manual");
+        ActionStatus.Text = ok ? "" : msg;
+        if (ok) MainWindow.Toast("Ponto de restauro criado.");
+        RestoreBtn.IsEnabled = true;
+    }
+
+    // ---------- desenho ----------
+
+    private static string Rate(double bps) =>
+        bps >= 1_048_576 ? $"{bps / 1_048_576:0.0} MB/s" : $"{bps / 1024:0} KB/s";
 
     private static void Push(Queue<double> q, double v)
     {
@@ -199,155 +234,53 @@ public partial class DashboardView : UserControl
         while (q.Count > 60) q.Dequeue();
     }
 
-    // temperaturas não são 0–100%: escala com folga por cima do pico
-    private static double TempScale(Queue<double> q) =>
-        q.Count == 0 ? 100 : Math.Max(90, Math.Ceiling(q.Max() / 10) * 10 + 5);
-
-    private void RedrawSparks()
+    private void DrawAll()
     {
-        DrawSeries(GpuSpark, null, GpuSparkHost, _gpuHistory, 100);
-        DrawSeries(RamSpark, null, RamSparkHost, _ramHistory, 100);
-        DrawSeries(CpuSpark, null, CpuSparkHost, _cpuHistory, 100);
-        DrawSeries(DiskSpark, null, DiskSparkHost, _diskHistory, 100);
-        DrawSeries(ChartStroke, ChartFill, ChartHost, _cpuHistory, 100);
+        DrawSeries(CpuLine, CpuFill, CpuHost, _cpuH, 100);
+        DrawSeries(RamLine, RamFill, RamHost, _ramH, 100);
+        DrawSeries(NetLine, NetFill, NetHost, _netH, Math.Max(64 * 1024, _netH.DefaultIfEmpty(0).Max() * 1.25));
+        DrawSeries(PingLine, PingFill, PingHost, _pingH, Math.Max(60, _pingH.DefaultIfEmpty(0).Max() * 1.4));
     }
 
-    // ---- desenho ----
-
-    /// <summary>
-    /// Curva suave (Catmull-Rom → Bézier) dentro do host. Redesenhada a cada
-    /// amostra (1/s) — nada de render por frame: na bandeja/idle custa zero.
-    /// </summary>
-    private static void DrawSeries(Path stroke, Path? fill, FrameworkElement host,
-                                   Queue<double> values, double max)
+    /// <summary>Curva suave (Catmull-Rom → Bézier) — redesenhada 1x por amostra, nunca por frame.</summary>
+    private static void DrawSeries(Path stroke, Path fill, FrameworkElement host, Queue<double> values, double max)
     {
         var w = host.ActualWidth;
         var h = host.ActualHeight;
-        if (w < 8 || h < 6 || values.Count < 2)
-        {
-            stroke.Data = null;
-            if (fill != null) fill.Data = null;
-            return;
-        }
+        if (w < 8 || h < 6 || values.Count < 2) { stroke.Data = fill.Data = null; return; }
 
-        var samples = values.ToArray();
-        var n = samples.Length;
-        var step = w / Math.Max(1, n - 1);
+        var s = values.ToArray();
+        var n = s.Length;
+        var step = w / 59.0; // 60 amostras ocupam a largura toda; poucas ficam à direita
+        var x0 = w - (n - 1) * step;
         var pts = new Point[n];
         for (var i = 0; i < n; i++)
-        {
-            var y = h - (Math.Clamp(samples[i], 0, max) / max * (h - 5)) - 2.5;
-            pts[i] = new Point(i * step, y);
-        }
+            pts[i] = new Point(x0 + i * step, h - Math.Clamp(s[i], 0, max) / max * (h - 4) - 2);
 
         var sg = new StreamGeometry();
         var fg = new StreamGeometry();
         using (var sc = sg.Open())
+        using (var fc = fg.Open())
         {
-            var fc = fill != null ? fg.Open() : null;
-            try
+            sc.BeginFigure(pts[0], false, false);
+            fc.BeginFigure(new Point(pts[0].X, h), true, true);
+            fc.LineTo(pts[0], false, false);
+            for (var i = 0; i < n - 1; i++)
             {
-                sc.BeginFigure(pts[0], false, false);
-                fc?.BeginFigure(new Point(pts[0].X, h), true, true);
-                fc?.LineTo(pts[0], false, false);
-                for (var i = 0; i < n - 1; i++)
-                {
-                    var p0 = pts[Math.Max(i - 1, 0)];
-                    var p1 = pts[i];
-                    var p2 = pts[i + 1];
-                    var p3 = pts[Math.Min(i + 2, n - 1)];
-                    var c1 = new Point(p1.X + (p2.X - p0.X) / 6.0, p1.Y + (p2.Y - p0.Y) / 6.0);
-                    var c2 = new Point(p2.X - (p3.X - p1.X) / 6.0, p2.Y - (p3.Y - p1.Y) / 6.0);
-                    sc.BezierTo(c1, c2, p2, true, false);
-                    fc?.BezierTo(c1, c2, p2, false, false);
-                }
-                fc?.LineTo(new Point(pts[n - 1].X, h), false, false);
+                var p0 = pts[Math.Max(i - 1, 0)];
+                var p1 = pts[i];
+                var p2 = pts[i + 1];
+                var p3 = pts[Math.Min(i + 2, n - 1)];
+                var c1 = new Point(p1.X + (p2.X - p0.X) / 6.0, p1.Y + (p2.Y - p0.Y) / 6.0);
+                var c2 = new Point(p2.X - (p3.X - p1.X) / 6.0, p2.Y - (p3.Y - p1.Y) / 6.0);
+                sc.BezierTo(c1, c2, p2, true, false);
+                fc.BezierTo(c1, c2, p2, false, false);
             }
-            finally { fc?.Close(); }
+            fc.LineTo(new Point(pts[n - 1].X, h), false, false);
         }
         sg.Freeze();
+        fg.Freeze();
         stroke.Data = sg;
-        if (fill != null) { fg.Freeze(); fill.Data = fg; }
-    }
-
-    /// <summary>Anel de progresso: arco a começar às 12h, no sentido dos ponteiros.</summary>
-    private static void SetGauge(Path arc, double pct, double size = 34, double thickness = 3.4)
-    {
-        if (pct <= 0.5) { arc.Data = null; return; }
-
-        var r = (size - thickness) / 2.0;
-        var c = new Point(size / 2.0, size / 2.0);
-        var p = Math.Clamp(pct, 0, 100);
-
-        if (p >= 99.5)
-        {
-            var full = new EllipseGeometry(c, r, r);
-            full.Freeze();
-            arc.Data = full;
-            return;
-        }
-
-        var a = p / 100.0 * 2 * Math.PI;
-        var start = new Point(c.X, c.Y - r);
-        var end = new Point(c.X + r * Math.Sin(a), c.Y - r * Math.Cos(a));
-
-        var fig = new PathFigure { StartPoint = start, IsClosed = false, IsFilled = false };
-        fig.Segments.Add(new ArcSegment(end, new Size(r, r), 0,
-            p > 50, SweepDirection.Clockwise, true));
-        var geo = new PathGeometry();
-        geo.Figures.Add(fig);
-        geo.Freeze();
-        arc.Data = geo;
-    }
-
-    private async Task UpdatePingAsync()
-    {
-        if (_pinging) return;
-        _pinging = true;
-        try
-        {
-            var ms = await SystemMonitor.PingAsync();
-            PingText.Text = ms < 0 ? "—" : ms.ToString();
-            PingLabel.Text = ms switch
-            {
-                < 0 => "Sem ligação",
-                < 40 => "● Ligação excelente",
-                < 90 => "● Ligação boa",
-                _ => "● Ligação fraca",
-            };
-
-            // cor do badge segue o estado (antes ficava sempre verde, mesmo em "fraca")
-            var (fg, bg) = ms switch
-            {
-                < 0 => (Color.FromRgb(0xF8, 0x71, 0x71), Color.FromArgb(0x1A, 0xF8, 0x71, 0x71)),
-                < 40 => (Color.FromRgb(0x34, 0xD3, 0x99), Color.FromArgb(0x1A, 0x34, 0xD3, 0x99)),
-                < 90 => (Color.FromRgb(0xFB, 0xBF, 0x24), Color.FromArgb(0x1A, 0xFB, 0xBF, 0x24)),
-                _ => (Color.FromRgb(0xF8, 0x71, 0x71), Color.FromArgb(0x1A, 0xF8, 0x71, 0x71)),
-            };
-            PingLabel.Foreground = new SolidColorBrush(fg);
-            PingBadge.Background = new SolidColorBrush(bg);
-
-            // anel cheio = ligação perfeita; vazio a partir de 200 ms
-            var quality = ms < 0 ? 0 : (1 - Math.Min(ms, 200) / 200.0) * 100;
-            SetGauge(PingArc, quality, 84, 3);
-        }
-        finally { _pinging = false; }
-    }
-
-    private void Refresh()
-    {
-        var cfg = ConfigService.Current;
-        var user = MainWindow.CurrentUser;
-
-        GreetingText.Text = user == null ? "Bem-vindo" : $"Bem-vindo, {user.DisplayName}";
-        CommunityText.Text = cfg.CommunityStatus;
-        NewsList.ItemsSource = cfg.News;
-
-        Task.Run(() =>
-        {
-            InstallDetector.InvalidateCache();
-            var installed = cfg.Apps.Count(InstallDetector.IsInstalled);
-            Dispatcher.Invoke(() => InstalledText.Text = $"{installed} / {cfg.Apps.Count}");
-        });
+        fill.Data = fg;
     }
 }

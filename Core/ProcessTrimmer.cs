@@ -404,7 +404,7 @@ public static class ProcessTrimmer
                             sc.WaitForStatus(System.ServiceProcess.ServiceControllerStatus.Running, TimeSpan.FromSeconds(8));
                         }
                     }
-                    catch { }
+                    catch (Exception ex) { Log.Error($"parar/arrancar serviço {name} falhou", ex); }
                 }
                 break;
 
@@ -426,10 +426,13 @@ public static class ProcessTrimmer
                         uint orig = SvcHostDefault;
                         try { if (File.Exists(SvcHostBackup) && uint.TryParse(File.ReadAllText(SvcHostBackup).Trim(), out var o)) orig = o; } catch { }
                         k.SetValue(SvcHostVal, unchecked((int)orig), Microsoft.Win32.RegistryValueKind.DWord);
-                        try { File.Delete(SvcHostBackup); } catch { }
+                        try { File.Delete(SvcHostBackup); }
+                        catch (Exception ex) { Log.Swallow("apagar backup do svchost", ex); }
                     }
                 }
-                catch { }
+                // mexe no limite de agrupamento do svchost: falhar em silêncio deixava
+                // o PC num estado que ninguém conseguia explicar depois
+                catch (Exception ex) { Log.Error($"svchost {args[1]} falhou", ex); }
                 break;
         }
     }

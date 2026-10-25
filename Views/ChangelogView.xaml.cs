@@ -17,6 +17,104 @@ public partial class ChangelogView : UserControl
 {
     private static readonly List<Release> Releases = new()
     {
+        new("v3.0.0", "25 out 2026", "Visual novo + Ajustes, Rede, Overlay e Modo Jogo",
+        new()
+        {
+            "Visual todo novo: barra lateral com só 5 secções (Início, Otimizar, Jogo, Ferramentas, Definições) e separadores dentro de cada uma. Rede de partículas roxa no fundo (podes desligar nas Definições).",
+            "Novo painel inicial com gráficos de CPU, RAM, rede e ping, e uma nota de «Saúde do PC».",
+            "Nova aba «Ajustes»: todos os ajustes do Windows numa lista só, com risco indicado, pesquisa e botão «Aplicar recomendados» (cria ponto de restauro antes). Inclui um plano de energia próprio «Adams Toolkit — Desempenho».",
+            "Nova aba «Rede»: teste de velocidade, ping para vários sítios e comparação de DNS.",
+            "Novo «Overlay» por cima do jogo com FPS, CPU, GPU, RAM, temperatura e ping — escolhes o que aparece, as cores e o canto.",
+            "Novo «Diagnóstico»: diz-te o que mais está a travar o teu PC. Novo «Modo Jogo»: baixa a prioridade de launchers e browsers enquanto jogas FiveM e volta tudo ao normal quando fechas o jogo.",
+            "Nova página «Definições» (tema claro/escuro, idioma, arrancar com o Windows, restaurar tudo). A app passa a estar em Português e Inglês.",
+            "Como sempre: nada disto apaga o que um PC check precisa de ver.",
+        }),
+        new("v2.1.7", "11 out 2026", "Editor: Play arranca logo",
+        new()
+        {
+            "No editor de clips, ao carregar em Play o vídeo arranca logo no ponto onde estás — acabou aquela paragem de 1 segundo em que a imagem mudava de resolução.",
+        }),
+        new("v2.1.6", "4 out 2026", "Editor: botão «Último 1 min»",
+        new()
+        {
+            "No editor de clips há um botão novo «Último 1 min»: põe a linha onde queres e o clip fica logo só com o minuto anterior a esse ponto. É só exportar.",
+            "Se ainda não passou 1 minuto, fica desde o início do clip até à linha. Ctrl+Z desfaz.",
+        }),
+        new("v2.1.5", "4 out 2026", "Repetição do teclado com botão ON/OFF",
+        new()
+        {
+            "O cartão «Repetição do teclado (W A S D)» tem agora um interruptor ON/OFF: ligas e desligas num clique.",
+            "Ao desligar, os teus valores ficam guardados — ao voltar a ligar fica tudo como estava. «Repor padrão» continua lá para voltar aos valores do Windows.",
+        }),
+        new("v2.1.4", "21 set 2026", "Entrar com Discord: só um clique, sem código",
+        new()
+        {
+            "O ecrã de entrada deixou de mostrar o código de 6 dígitos e o botão de copiar. Entras só com o botão «Entrar com Discord» — autorizas no browser e voltas para a app já lá dentro.",
+            "Nada muda em quem já tem sessão iniciada: continua a entrar sozinho ao abrir a app.",
+        }),
+        new("v2.1.3", "20 set 2026", "Ctrl+Alt+A para voltar à app com a interface desligada",
+        new()
+        {
+            "Com a interface do Windows desligada ficavas sem forma de voltar à janela do Toolkit se a minimizasses. Não é só a barra de tarefas que desaparece: o Alt+Tab também morre, porque quem o desenha é o próprio explorer.exe.",
+            "Agora há um atalho de emergência — Ctrl+Alt+A — que traz a janela para a frente, mesmo com o jogo em ecrã inteiro. Só está ativo enquanto a interface estiver desligada; fora disso não rouba o atalho a ninguém.",
+            "Se outra app já estiver a usar Ctrl+Alt+A, a app avisa-te ANTES de desligar a interface, em vez de te deixar sem saída.",
+        }),
+        new("v2.1.2", "20 set 2026", "Desligar a interface: agora fica mesmo desligada",
+        new()
+        {
+            "Na v2.1.1 a interface voltava sozinha ao fim de 1–2 segundos. A culpa era do Windows: o Winlogon volta a abrir a barra de tarefas sempre que ela fecha. Agora a app fica de vigia e mantém-na fechada até carregares em «Repor interface».",
+            "Os dois botões passaram a estar separados — «Desligar interface» e «Repor interface» — em vez de um só que alternava.",
+            "Continua sem mexer no registo: é só um processo parado, e reiniciar o PC repõe tudo.",
+        }),
+        new("v2.1.1", "20 set 2026", "Desligar a interface do Windows enquanto jogas",
+        new()
+        {
+            "Em Otimizações há um botão novo: «Desligar a interface do Windows». Fecha o ambiente de trabalho, a barra de tarefas, a bandeja e as janelas do Explorador — o jogo, o Discord e esta app continuam na mesma.",
+            "Serve para libertar RAM e tirar trabalho ao Windows enquanto jogas. Em PCs fracos dá alguns FPS e, sobretudo, menos daqueles picos em que a imagem tranca por um instante. Não esperes milagres: o ganho é pequeno, o que se nota mesmo é a imagem ficar mais constante.",
+            "O botão «Repor interface» traz tudo de volta. Fechar o Adams Toolkit ou reiniciar o PC também repõe sozinho — nunca ficas sem barra de tarefas.",
+            "Com a interface desligada a app deixa de se esconder na bandeja (que não existe nesse estado): fica sempre a um Alt+Tab de distância.",
+            "Antes de desligares, grava o que tiveres aberto no Explorador de Ficheiros — essas janelas fecham-se.",
+            "Não mexe no registo nem apaga nada do PC.",
+        }),
+        new("v2.1", "20 set 2026", "A app deixou de desaparecer sem explicar porquê",
+        new()
+        {
+            "Quando alguma coisa corria mal por dentro, a janela fechava-se de repente e não ficava rasto nenhum — não havia forma de perceber o que tinha acontecido. Agora a app aguenta-se aberta, avisa-te do que falhou e deixa tudo registado.",
+            "Botão novo 🩺 lá em cima: guarda os registos num ficheiro no Ambiente de trabalho, pronto a arrastar para o ticket. É a primeira coisa que a staff vai pedir.",
+            "Muita coisa que antes falhava calada (repor serviços, arranque com o Windows, guardar as tuas definições) passa a ficar no registo — o «✓ feito» deixa de mentir.",
+            "Os ficheiros da app passaram a ter morada própria (cdn.atl-pvp.com) e a app sabe tentar outra se uma falhar. Das últimas vezes que o servidor mudou de casa houve quem ficasse sem atualizações e com o instalador morto; isso não volta a acontecer.",
+            "O otimizador já trata o servidor pelo nome certo (ATL PVP), e a versão que aparece nas propriedades do ficheiro é finalmente a mesma que a app mostra.",
+        }),
+        new("v2.0.3", "19 set 2026", "Repetição do teclado: duas teclas ao mesmo tempo",
+        new()
+        {
+            "Com duas teclas premidas (W + A para correr na diagonal, ou A e depois D para corrigir), a app repetia as duas ao mesmo tempo e o jogo recebia W, A, W, A… misturados. Com valores diferentes por tecla isto ficava irregular e o boneco mudava de direção sozinho.",
+            "Agora faz como o Windows: só a última tecla que carregaste repete. As outras continuam premidas normalmente, só não repetem.",
+        }),
+        new("v2.0.2", "18 set 2026", "Repetição do teclado por tecla",
+        new()
+        {
+            "Na «Repetição do teclado (W A S D)» há agora o interruptor «Ajustar cada tecla em separado»: cada tecla tem o seu atraso inicial e o seu intervalo de repetição.",
+            "Serve para afinar o movimento do boneco — por exemplo W mais rápido para correr e A/D mais suaves para curvar.",
+            "Cada tecla pode ser desligada à parte: fica exatamente como o Windows a trata, sem repetição nossa.",
+            "Quem já tinha a repetição ligada continua igual; o modo por tecla só muda alguma coisa se o ligares e carregares em Aplicar.",
+        }),
+        new("v2.0.1", "17 set 2026", "Repetição do teclado: fim dos engasgos e da tecla presa",
+        new()
+        {
+            "Com a «Repetição do teclado (W A S D)» ligada, o jogo engasgava por instantes e às vezes o boneco continuava a andar sozinho. O teclado era tratado na mesma linha de trabalho que desenha a janela da app: quando essa linha estava ocupada, o Windows descartava a tecla — e uma tecla largada que se perde fica presa dentro do jogo.",
+            "Agora o teclado tem uma linha só para ele, sem nada mais a competir, e a app deixou de ir perguntar ao Windows qual é o jogo em primeiro plano a cada tecla (essa pergunta demorava milissegundos e era feita no pior sítio).",
+            "Se fizeres alt-tab com uma tecla premida, a repetição para em vez de continuar a escrever na janela para onde foste.",
+            "Continua a valer o aviso: abaixo de 25 ms a repetição fica muito agressiva, e muitos servidores consideram isto macro.",
+        }),
+        new("v2.0", "17 set 2026", "Visual novo: Voltagem",
+        new()
+        {
+            "A app foi redesenhada de alto a baixo: fundo quase preto, o violeta elétrico do logo como cor principal e títulos e números em letra mais larga.",
+            "Menu lateral arrumado em Geral e Ferramentas; o item aberto fica marcado com o ícone aceso em vez do bloco colorido.",
+            "Painel novo: banner com o logo, CPU, GPU, RAM e Disco em barras que acendem, e gráfico do ping dos últimos 10 minutos.",
+            "FiveM Center com faixa de estado no topo e separadores num seletor. Nenhuma função mudou — só o aspeto.",
+        }),
         new("v1.99", "16 set 2026", "Mudança de servidor",
         new()
         {

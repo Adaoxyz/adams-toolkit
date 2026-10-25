@@ -40,13 +40,14 @@ public partial class EditorWindow : Window
 
     private EditorWindow()
     {
+        ThemeManager.Load(); // aberto sem o Toolkit: carrega o tema (caixas semi-transparentes, claro/escuro)
         InitializeComponent();
         VersionText.Text = $"v{SelfUpdater.CurrentVersion}";
         Loaded += async (_, _) => await EnsureReadyAsync();
         Closing += (_, _) => { _setupCts?.Cancel(); _editor?.Shutdown(); };
         // v1.97: janela opaca (sem AllowsTransparency) — ver nota no XAML. Cantos redondos pedidos ao
         // DWM (Win11; no Win10 ficam direitos, sem Clip = sem superfície intermédia a cada frame).
-        SourceInitialized += (_, _) => { ApplyDwmCorners(); HookMinMax(); };
+        SourceInitialized += (_, _) => WindowChromeHelper.Apply(this);
         StateChanged += (_, _) =>
         {
             var max = WindowState == WindowState.Maximized;
@@ -55,61 +56,6 @@ public partial class EditorWindow : Window
             TitleBar.CornerRadius = new CornerRadius(max ? 0 : 13, max ? 0 : 13, 0, 0);
             MaximizeBtn.Content = max ? "🗗" : "🗖";
         };
-    }
-
-    // ---- DWM / Win32 (só chrome; nada disto toca no vídeo) ----
-    [System.Runtime.InteropServices.DllImport("dwmapi.dll", PreserveSig = true)]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);
-    [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-    private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO info);
-
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-    private struct POINT { public int X, Y; }
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-    private struct RECT { public int Left, Top, Right, Bottom; }
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-    private struct MINMAXINFO { public POINT Reserved, MaxSize, MaxPosition, MinTrackSize, MaxTrackSize; }
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-    private struct MONITORINFO { public int Size; public RECT Monitor, Work; public uint Flags; }
-
-    private void ApplyDwmCorners()
-    {
-        try
-        {
-            var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-            int pref = 2; // DWMWCP_ROUND — DWMWA_WINDOW_CORNER_PREFERENCE (33), Win11 22000+; noutros Windows devolve erro e ignora-se
-            DwmSetWindowAttribute(hwnd, 33, ref pref, sizeof(int));
-        }
-        catch { }
-    }
-
-    // WindowStyle=None + maximizar: sem isto a janela "sai" 6-8 px para fora do monitor.
-    // Mantém-se o comportamento antigo (ecrã inteiro, por cima da barra de tarefas).
-    private void HookMinMax()
-    {
-        var src = System.Windows.Interop.HwndSource.FromHwnd(new System.Windows.Interop.WindowInteropHelper(this).Handle);
-        src?.AddHook((IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) =>
-        {
-            if (msg != 0x0024) return IntPtr.Zero; // WM_GETMINMAXINFO
-            try
-            {
-                var mon = MonitorFromWindow(hwnd, 2 /* MONITOR_DEFAULTTONEAREST */);
-                if (mon == IntPtr.Zero) return IntPtr.Zero;
-                var mi = new MONITORINFO { Size = System.Runtime.InteropServices.Marshal.SizeOf<MONITORINFO>() };
-                if (!GetMonitorInfo(mon, ref mi)) return IntPtr.Zero;
-                var mmi = System.Runtime.InteropServices.Marshal.PtrToStructure<MINMAXINFO>(lParam);
-                var r = mi.Monitor;
-                mmi.MaxPosition = new POINT { X = 0, Y = 0 }; // relativo ao monitor
-                mmi.MaxSize = new POINT { X = r.Right - r.Left, Y = r.Bottom - r.Top };
-                mmi.MaxTrackSize = mmi.MaxSize;
-                System.Runtime.InteropServices.Marshal.StructureToPtr(mmi, lParam, true);
-                handled = true;
-            }
-            catch { }
-            return IntPtr.Zero;
-        });
     }
 
     private async Task EnsureReadyAsync()

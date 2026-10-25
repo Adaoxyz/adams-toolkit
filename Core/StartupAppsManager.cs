@@ -71,7 +71,7 @@ public static class StartupAppsManager
                 });
             }
         }
-        catch { }
+        catch (Exception ex) { Log.Swallow($"listar apps de arranque ({source})", ex); }
     }
 
     private static void CollectFolder(string folder, RegistryKey hive,
@@ -96,7 +96,7 @@ public static class StartupAppsManager
                 });
             }
         }
-        catch { }
+        catch (Exception ex) { Log.Swallow($"listar atalhos de arranque ({source})", ex); }
     }
 
     // Sem valor gravado = ligado; byte 0 par = ligado, ímpar = desligado.

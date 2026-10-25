@@ -221,7 +221,7 @@ public static class ServiceChecker
             using var k = Registry.LocalMachine.OpenSubKey(ServicesKey + key);
             if (k?.GetValue("Start") is int start && start <= 2) return; // já arranca sozinho
         }
-        catch { }
+        catch (Exception ex) { Log.Swallow($"ler arranque do serviço {key}", ex); }
 
         if (ScConfigAuto(key)) return;
 
@@ -230,7 +230,8 @@ public static class ServiceChecker
             using var k = Registry.LocalMachine.OpenSubKey(ServicesKey + key, writable: true);
             k?.SetValue("Start", 2, RegistryValueKind.DWord);
         }
-        catch { } // política de grupo / serviço protegido
+        // política de grupo / serviço protegido: o utilizador vai ver "reposto" e não foi
+        catch (Exception ex) { Log.Error($"pôr {key} em arranque automático falhou", ex); }
     }
 
     private static void Start(string name) => StartWithReason(name);

@@ -8,7 +8,21 @@ cd "$(dirname "$0")"
 
 VER=$(grep -oP '<Version>\K[^<]+' AdamsToolkit.csproj)
 DEST=/var/www/adams-toolkit
-URL="https://adams-176-111-109-91.sslip.io/files/AdamsToolkit.exe"
+
+# Host escrito no version.json. O domínio é o canónico, mas só se já estiver a
+# responder: clientes <= 2.0.3 não sabem tentar outro host, e apontá-los para um
+# nome que ainda não existe deixava-os presos sem update. Assim que o
+# cdn.atl-pvp.com ficar de pé (ver /root/atl-cdn-apply.sh), o deploy passa a
+# usá-lo sozinho, sem ninguém ter de se lembrar disto.
+BASE_PRIMARY="https://cdn.atl-pvp.com"
+BASE_LEGACY="https://adams-176-111-109-91.sslip.io"
+if curl -fsS -m 8 -o /dev/null "$BASE_PRIMARY/files/version.json" 2>/dev/null; then
+  BASE="$BASE_PRIMARY"
+else
+  BASE="$BASE_LEGACY"
+  echo "== AVISO: $BASE_PRIMARY ainda não responde — version.json fica no host antigo"
+fi
+URL="$BASE/files/AdamsToolkit.exe"
 
 # framework-dependent (config estável, 4.5MB). NOTA: self-contained (v1.28.0) fez
 # a app não abrir para ninguém — exe 60MB rebentava em silêncio (packaging/AV).
@@ -53,7 +67,7 @@ PASSFILE=/root/codesign/adams.pass
 if [[ -f "$PFX" && -f "$PASSFILE" ]]; then
   echo "== a assinar exe (Authenticode + timestamp)"
   osslsigncode sign -pkcs12 "$PFX" -readpass "$PASSFILE" \
-    -n "Adams Toolkit" -i "https://adams-176-111-109-91.sslip.io" \
+    -n "Adams Toolkit" -i "https://atl-pvp.com" \
     -t http://timestamp.digicert.com -h sha256 \
     -in "$DEST/AdamsToolkit.exe" -out "$DEST/AdamsToolkit.signed.exe"
   mv "$DEST/AdamsToolkit.signed.exe" "$DEST/AdamsToolkit.exe"
@@ -72,7 +86,7 @@ cat > "$DEST/version.json" <<EOF
 EOF
 chmod -R a+rX "$DEST"
 
-echo "== deploy OK: v$VER"
+echo "== deploy OK: v$VER  (host: $BASE)"
 echo "   exe sha256: $SHA"
 echo "   zip sha256: $ZIPSHA"
 echo "   $URL"

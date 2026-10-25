@@ -11,12 +11,11 @@ public class ToolkitConfig
 {
     [JsonPropertyName("configVersion")] public int ConfigVersion { get; set; } = 1;
     // Backend de verificação (bot Adao.exe): a app pede código + valida a presença no Discord aqui.
-    [JsonPropertyName("authApiBase")] public string AuthApiBase { get; set; } =
-        "https://adams-176-111-109-91.sslip.io";
+    [JsonPropertyName("authApiBase")] public string AuthApiBase { get; set; } = Endpoints.Primary;
     [JsonPropertyName("discordInvite")] public string DiscordInvite { get; set; } = "https://discord.gg/2VzE6PZ7J8";
-    // Pack ReShade do WestRP (zip com dxgi.dll + ReShade.ini + reshade-shaders)
+    // Pack ReShade do ATL PVP (zip com dxgi.dll + ReShade.ini + reshade-shaders)
     [JsonPropertyName("reshadeZipUrl")] public string ReshadeZipUrl { get; set; } =
-        "https://adams-176-111-109-91.sslip.io/files/reshade-westrp.zip";
+        Endpoints.Url("/files/reshade-atl.zip");
     [JsonPropertyName("communityStatus")] public string CommunityStatus { get; set; } = "Online";
     [JsonPropertyName("news")] public List<NewsItem> News { get; set; } = new();
     [JsonPropertyName("apps")] public List<AppEntry> Apps { get; set; } = new();
@@ -73,8 +72,8 @@ public static class ConfigService
 {
     // URL da configuração remota (JSON). Alterar aqui ou via ficheiro
     // %AppData%\AdamsToolkit\config-url.txt (uma linha com a URL).
-    public const string DefaultConfigUrl =
-        "https://adams-176-111-109-91.sslip.io/files/config.json";
+    public const string ConfigPath = "/files/config.json";
+    public static string DefaultConfigUrl => Endpoints.Url(ConfigPath);
 
     public static string DataDir
     {
@@ -94,32 +93,48 @@ public static class ConfigService
 
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(10) };
 
-    private static string GetConfigUrl()
+    /// <summary>URL forçado à mão em %AppData%\AdamsToolkit\config-url.txt (escape de emergência).</summary>
+    private static string? GetOverrideUrl()
     {
-        var overrideFile = Path.Combine(DataDir, "config-url.txt");
-        if (File.Exists(overrideFile))
+        try
         {
-            var url = File.ReadAllText(overrideFile).Trim();
-            if (url.StartsWith("http")) return url;
+            var overrideFile = Path.Combine(DataDir, "config-url.txt");
+            if (File.Exists(overrideFile))
+            {
+                var url = File.ReadAllText(overrideFile).Trim();
+                if (url.StartsWith("http")) return url;
+            }
         }
-        return DefaultConfigUrl;
+        catch (Exception ex) { Log.Swallow("ler config-url.txt", ex); }
+        return null;
+    }
+
+    /// <summary>Override (se existir) + todos os hosts conhecidos, por ordem.</summary>
+    private static IEnumerable<string> ConfigUrls()
+    {
+        var ov = GetOverrideUrl();
+        if (ov != null) yield return ov;
+        foreach (var u in Endpoints.All(ConfigPath)) yield return u;
     }
 
     public static async Task LoadAsync()
     {
-        try
+        var json = await Endpoints.FirstOkAsync(ConfigUrls(), u => Http.GetStringAsync(u));
+        if (json != null)
         {
-            var json = await Http.GetStringAsync(GetConfigUrl());
-            var cfg = JsonSerializer.Deserialize<ToolkitConfig>(json);
-            if (cfg != null)
+            try
             {
-                Current = cfg;
-                LoadedFromRemote = true;
-                File.WriteAllText(CachePath, json);
-                return;
+                var cfg = JsonSerializer.Deserialize<ToolkitConfig>(json);
+                if (cfg != null)
+                {
+                    Current = cfg;
+                    LoadedFromRemote = true;
+                    File.WriteAllText(CachePath, json);
+                    return;
+                }
             }
+            catch (Exception ex) { Log.Error("config remota ilegível — a usar cache", ex); }
         }
-        catch { /* offline ou URL ainda não configurada — cai para cache/default */ }
 
         try
         {
@@ -129,7 +144,7 @@ public static class ConfigService
                 if (cached != null) { Current = cached; return; }
             }
         }
-        catch { }
+        catch (Exception ex) { Log.Swallow("ler cache da config", ex); }
 
         Current = BuiltInDefault();
     }

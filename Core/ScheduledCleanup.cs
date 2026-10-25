@@ -24,7 +24,8 @@ public static class ScheduledCleanup
 
     public static bool SetEnabled(bool enabled)
     {
-        try { File.WriteAllText(PrefPath, enabled ? "on" : "off"); } catch { }
+        try { File.WriteAllText(PrefPath, enabled ? "on" : "off"); }
+        catch (Exception ex) { Log.Error("gravar preferência da limpeza agendada falhou", ex); }
         return Sync();
     }
 

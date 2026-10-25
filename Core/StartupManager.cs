@@ -38,7 +38,8 @@ public static class StartupManager
 
     public static void SetEnabled(bool enabled)
     {
-        try { File.WriteAllText(PrefPath, enabled ? "on" : "off"); } catch { }
+        try { File.WriteAllText(PrefPath, enabled ? "on" : "off"); }
+        catch (Exception ex) { Log.Error("gravar preferência de arranque falhou", ex); }
         Sync();
     }
 
@@ -51,7 +52,8 @@ public static class StartupManager
         {
             if (!IsEnabled)
             {
-                try { if (File.Exists(LinkPath)) File.Delete(LinkPath); } catch { }
+                try { if (File.Exists(LinkPath)) File.Delete(LinkPath); }
+                catch (Exception ex) { Log.Error("apagar atalho da pasta Arranque falhou", ex); }
                 return;
             }
 
@@ -61,7 +63,9 @@ public static class StartupManager
             if (!WriteShortcut(LinkPath, exe, "--startup"))
                 WriteRunKeyFallback(exe); // COM indisponível/bloqueado → não perder a funcionalidade
         }
-        catch { } // pasta Arranque bloqueada por política → app continua a funcionar normal
+        // pasta Arranque bloqueada por política → app continua a funcionar normal,
+        // mas quem ligou "arrancar com o Windows" merece saber porque não arrancou
+        catch (Exception ex) { Log.Error("configurar arranque com o Windows falhou", ex); }
     }
 
     /// <summary>Apaga o valor deixado pelas versões &lt;= 1.88.1 na chave Run.</summary>
@@ -73,7 +77,7 @@ public static class StartupManager
             if (key?.GetValue(ValueName) != null)
                 key.DeleteValue(ValueName, throwOnMissingValue: false);
         }
-        catch { }
+        catch (Exception ex) { Log.Swallow("limpar chave Run antiga", ex); }
     }
 
     /// <summary>

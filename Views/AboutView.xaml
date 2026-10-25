@@ -1,0 +1,39 @@
+<UserControl x:Class="AdamsToolkit.Views.AboutView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Border Width="58" Height="58" CornerRadius="14" ClipToBounds="True" Background="{DynamicResource BrLogoBg}"
+                        BorderBrush="{DynamicResource BrHeroBorder}" BorderThickness="1">
+                    <Image Source="{DynamicResource ImgLogo}" Width="74" Height="74" Margin="-8" RenderOptions.BitmapScalingMode="HighQuality"/>
+                </Border>
+                <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+                    <TextBlock x:Name="NameText" Text="Adams Toolkit" Style="{StaticResource H1}" FontSize="22"/>
+                    <TextBlock x:Name="VerText" Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+                    <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,8,0,0" TextWrapping="Wrap"
+                               Text="🛡 Promessa: nenhuma opção desta app apaga registos, histórico, cache ou ficheiros que um PC check verifica. Tudo o que muda no Windows tem botão para reverter."/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Background="{DynamicResource BrSurface}" CornerRadius="11" HorizontalAlignment="Left" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="TabChangelog" GroupName="about" Style="{StaticResource SegBtn}" Content="⭐  Novidades" IsChecked="True" Checked="Tab_Checked"/>
+                <RadioButton x:Name="TabOpenSource" GroupName="about" Style="{StaticResource SegBtn}" Content="🛡  Código aberto" Checked="Tab_Checked"/>
+            </StackPanel>
+        </Border>
+
+        <ContentControl Grid.Row="2" x:Name="TabHost"/>
+    </Grid>
+</UserControl>

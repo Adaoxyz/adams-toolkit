@@ -1,0 +1,91 @@
+<UserControl x:Class="AdamsToolkit.Views.GameModeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <Style x:Key="OptRow" TargetType="Grid">
+            <Setter Property="Margin" Value="0,7"/>
+        </Style>
+    </UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+        <StackPanel>
+            <TextBlock Text="Modo Jogo" Style="{StaticResource H1}"/>
+            <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,14" TextWrapping="Wrap"
+                       Text="1 clique antes de jogar: os programas pesados em fundo saem da frente do FiveM. Ao desligar — ou quando fechas o FiveM — tudo volta exatamente como estava."/>
+
+            <!-- ligar -->
+            <Border x:Name="HeroCard" Style="{StaticResource Card}" Margin="0,0,0,12" Padding="22,20">
+                <Grid>
+                    <StackPanel Margin="0,0,200,0" VerticalAlignment="Center">
+                        <TextBlock x:Name="StateTitle" Text="Desligado" Style="{StaticResource H2}" FontSize="19"/>
+                        <TextBlock x:Name="StateText" Style="{StaticResource Muted}" Margin="0,4,0,0" TextWrapping="Wrap"
+                                   Text="Liga antes de entrar no servidor."/>
+                    </StackPanel>
+                    <Button x:Name="ToggleBtn" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Content="🎮  Ativar Modo Jogo" Click="Toggle_Click" Padding="22,11" FontSize="13.5"/>
+                </Grid>
+            </Border>
+
+            <!-- opções -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="O que faz" Style="{StaticResource Body}" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                    <Grid Style="{StaticResource OptRow}">
+                        <StackPanel Margin="60,0,0,0">
+                            <TextBlock Text="Launchers e sincronizações em espera" Style="{StaticResource Body}"/>
+                            <TextBlock Text="OneDrive, Epic, EA, Ubisoft, Battle.net, GOG, Adobe, Widgets, Ligação ao Telemóvel: prioridade mínima e modo eficiência. Continuam abertos, só deixam de competir com o jogo." Style="{StaticResource Muted}" FontSize="11.5" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <CheckBox x:Name="OptPause" Style="{StaticResource ToggleSwitch}" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Opt_Click"/>
+                    </Grid>
+                    <Grid Style="{StaticResource OptRow}">
+                        <StackPanel Margin="60,0,0,0">
+                            <TextBlock Text="Browsers em segundo plano" Style="{StaticResource Body}"/>
+                            <TextBlock Text="Chrome, Edge, Firefox, Opera, Brave, Steam (janela), Teams, WhatsApp: prioridade baixa e modo eficiência. Continuam a funcionar." Style="{StaticResource Muted}" FontSize="11.5" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <CheckBox x:Name="OptLower" Style="{StaticResource ToggleSwitch}" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Opt_Click"/>
+                    </Grid>
+                    <Grid Style="{StaticResource OptRow}">
+                        <StackPanel Margin="60,0,0,0">
+                            <TextBlock Text="Libertar RAM para o jogo" Style="{StaticResource Body}"/>
+                            <TextBlock Text="A memória que esses programas não estão a usar volta ao Windows — sobra mais para o FiveM. Ajuda muito com 8 GB." Style="{StaticResource Muted}" FontSize="11.5" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <CheckBox x:Name="OptTrim" Style="{StaticResource ToggleSwitch}" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Opt_Click"/>
+                    </Grid>
+                    <Grid Style="{StaticResource OptRow}">
+                        <StackPanel Margin="60,0,0,0">
+                            <TextBlock Text="FiveM com prioridade alta" Style="{StaticResource Body}"/>
+                            <TextBlock Text="O Windows dá ao jogo a vez antes dos outros programas." Style="{StaticResource Muted}" FontSize="11.5" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <CheckBox x:Name="OptHigh" Style="{StaticResource ToggleSwitch}" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Opt_Click"/>
+                    </Grid>
+                    <Grid Style="{StaticResource OptRow}">
+                        <StackPanel Margin="60,0,0,0">
+                            <TextBlock Text="Desligar sozinho quando o FiveM fecha" Style="{StaticResource Body}"/>
+                            <TextBlock Text="Saíste do jogo? Em ~10 s tudo volta ao normal sem teres de voltar aqui." Style="{StaticResource Muted}" FontSize="11.5" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <CheckBox x:Name="OptAuto" Style="{StaticResource ToggleSwitch}" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Opt_Click"/>
+                    </Grid>
+                    <TextBlock Style="{StaticResource Muted}" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap"
+                               Text="🛡 Nunca toca no Discord, TeamSpeak, OBS, Steam nem em processos do Windows. Não fecha nem apaga nada e nada fica gravado no sistema — seguro para PC check."/>
+                </StackPanel>
+            </Border>
+
+            <!-- afetados -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock x:Name="ListTitle" Text="Programas afetados agora" Style="{StaticResource Body}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <TextBlock x:Name="EmptyText" Style="{StaticResource Muted}" FontSize="11.5" Text="Nenhum — liga o Modo Jogo para ver o que sai da frente."/>
+                    <ItemsControl x:Name="List">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,3">
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource Body}"/>
+                                    <TextBlock Text="{Binding Action}" Style="{StaticResource Muted}" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

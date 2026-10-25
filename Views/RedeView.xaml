@@ -1,0 +1,138 @@
+<UserControl x:Class="AdamsToolkit.Views.RedeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolVis"/>
+        <Style x:Key="Metric" TargetType="TextBlock" BasedOn="{StaticResource BigNum}">
+            <Setter Property="FontSize" Value="28"/>
+        </Style>
+        <Style x:Key="AccCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Padding" Value="20,14"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+        <StackPanel>
+            <TextBlock Text="Rede" Style="{StaticResource H1}"/>
+            <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,14" TextWrapping="Wrap"
+                       Text="Velocidade, ping e DNS. Esta aba só mede — não mexe em nada da tua ligação."/>
+
+            <!-- teste de velocidade -->
+            <Border Style="{StaticResource AccCard}">
+                <StackPanel>
+                    <ToggleButton x:Name="AccSpeed" Style="{StaticResource AccHeader}" IsChecked="True" Content="Teste de velocidade"
+                                  Tag="Download, upload e latência reais contra o servidor da Cloudflare mais perto de ti (~20 s)."/>
+                    <StackPanel Margin="0,14,0,0" Visibility="{Binding IsChecked, ElementName=AccSpeed, Converter={StaticResource BoolVis}}">
+                        <Button x:Name="SpeedBtn" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left"
+                                Content="▶  Iniciar teste" Click="Speed_Click"/>
+                        <ProgressBar x:Name="SpeedBar" Style="{StaticResource DlProgress}" Maximum="1" Margin="0,14,0,0" Visibility="Collapsed"/>
+                        <UniformGrid Columns="4" Margin="0,14,0,0">
+                            <StackPanel>
+                                <TextBlock Text="DOWNLOAD" Style="{StaticResource SectionLabel}"/>
+                                <TextBlock x:Name="DownText" Style="{StaticResource Metric}" Text="—"/>
+                                <TextBlock Text="Mbps" Style="{StaticResource Muted}" FontSize="11"/>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="UPLOAD" Style="{StaticResource SectionLabel}"/>
+                                <TextBlock x:Name="UpText" Style="{StaticResource Metric}" Text="—"/>
+                                <TextBlock Text="Mbps" Style="{StaticResource Muted}" FontSize="11"/>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="LATÊNCIA" Style="{StaticResource SectionLabel}"/>
+                                <TextBlock x:Name="PingText" Style="{StaticResource Metric}" Text="—"/>
+                                <TextBlock Text="ms" Style="{StaticResource Muted}" FontSize="11"/>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="JITTER" Style="{StaticResource SectionLabel}"/>
+                                <TextBlock x:Name="JitterText" Style="{StaticResource Metric}" Text="—"/>
+                                <TextBlock Text="ms" Style="{StaticResource Muted}" FontSize="11"/>
+                            </StackPanel>
+                        </UniformGrid>
+                        <TextBlock x:Name="SpeedStatus" Style="{StaticResource Muted}" FontSize="11.5" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ping -->
+            <Border Style="{StaticResource AccCard}">
+                <StackPanel>
+                    <ToggleButton x:Name="AccPing" Style="{StaticResource AccHeader}" Content="Teste de ping"
+                                  Tag="8 pings a cada destino: média, mínimo–máximo, jitter e pacotes perdidos."/>
+                    <StackPanel Margin="0,14,0,0" Visibility="{Binding IsChecked, ElementName=AccPing, Converter={StaticResource BoolVis}}">
+                        <Button x:Name="PingBtn" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left"
+                                Content="Testar" Click="Ping_Click"/>
+                        <ItemsControl x:Name="PingList" Margin="0,12,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="210"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Name}" Style="{StaticResource Body}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Result}" Style="{StaticResource Body}" Foreground="{Binding Brush}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- DNS -->
+            <Border Style="{StaticResource AccCard}">
+                <StackPanel>
+                    <ToggleButton x:Name="AccDns" Style="{StaticResource AccHeader}" Content="DNS"
+                                  Tag="Compara a velocidade dos DNS públicos com o teu atual."/>
+                    <StackPanel Margin="0,14,0,0" Visibility="{Binding IsChecked, ElementName=AccDns, Converter={StaticResource BoolVis}}">
+                        <TextBlock x:Name="DnsCurrent" Style="{StaticResource Muted}" FontSize="11.5" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="DnsBtn" Style="{StaticResource PrimaryButton}" Content="Comparar DNS" Click="Dns_Click" Margin="0,0,8,0"/>
+                            <Button Style="{StaticResource GhostButton}" Content="Definições de rede ↗" Click="NetSettings_Click"/>
+                        </StackPanel>
+                        <ItemsControl x:Name="DnsList" Margin="0,12,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="210"/>
+                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Name}" Style="{StaticResource Body}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Server}" Style="{StaticResource Muted}" FontFamily="{StaticResource FontMono}"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Result}" Style="{StaticResource Body}" Foreground="{Binding Brush}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Style="{StaticResource Muted}" FontSize="11" Margin="0,10,0,0" TextWrapping="Wrap"
+                                   Text="🛡 A app não muda o DNS sozinha: mudar o DNS esvazia a cache DNS do Windows, e essa cache é uma das coisas que um PC check consulta. Se quiseres trocar, usa as Definições de rede — e nunca mesmo antes de um PC check."/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ligação -->
+            <Border Style="{StaticResource AccCard}">
+                <StackPanel>
+                    <ToggleButton x:Name="AccLink" Style="{StaticResource AccHeader}" Content="A tua ligação"
+                                  Tag="Placa de rede, velocidade da ligação, IP, router e DNS."/>
+                    <ItemsControl x:Name="AdapterList" Margin="0,12,0,0"
+                                  Visibility="{Binding IsChecked, ElementName=AccLink, Converter={StaticResource BoolVis}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,4,0,8">
+                                    <TextBlock Style="{StaticResource Body}" FontWeight="SemiBold" Text="{Binding Title}"/>
+                                    <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Text="{Binding Detail}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                    <TextBlock Style="{StaticResource Body}" FontSize="11.5" Text="{Binding Warning}" Foreground="{DynamicResource BrWarn}"
+                                               TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

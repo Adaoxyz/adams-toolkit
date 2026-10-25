@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "authApiBase": "https://adams-176-111-109-91.sslip.io",
+  "authApiBase": "https://cdn.atl-pvp.com",
   "discordInvite": "https://discord.com/invite/westrpp",
   "communityStatus": "Online",
   "news": [
@@ -958,5 +958,5 @@
       ]
     }
   ],
-  "reshadeZipUrl": "https://adams-176-111-109-91.sslip.io/files/reshade-westrp.zip"
+  "reshadeZipUrl": "https://cdn.atl-pvp.com/files/reshade-atl.zip"
 }

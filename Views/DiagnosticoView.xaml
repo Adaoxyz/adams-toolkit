@@ -1,0 +1,65 @@
+<UserControl x:Class="AdamsToolkit.Views.DiagnosticoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid Margin="0,0,0,12">
+            <StackPanel Margin="0,0,180,0">
+                <TextBlock Text="Diagnóstico" Style="{StaticResource H1}"/>
+                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,0" TextWrapping="Wrap"
+                           Text="O que está mesmo a travar o teu PC no FiveM — do mais grave para o menos grave. Só lê, não altera nada."/>
+            </StackPanel>
+            <Button x:Name="RunBtn" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                    Content="🔍  Analisar de novo" Click="Run_Click"/>
+        </Grid>
+
+        <!-- veredicto -->
+        <Border Grid.Row="1" x:Name="VerdictCard" Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="VerdictIcon" FontSize="28" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                <StackPanel Grid.Column="1">
+                    <TextBlock x:Name="VerdictTitle" Style="{StaticResource H2}" TextWrapping="Wrap"/>
+                    <TextBlock x:Name="VerdictText" Style="{StaticResource Muted}" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                    <Button x:Name="GameModeBtn" Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Margin="0,10,0,0"
+                            Content="🎮  Abrir o Modo Jogo" Click="GameMode_Click" Visibility="Collapsed"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
+            <StackPanel>
+                <TextBlock x:Name="StatusText" Style="{StaticResource Muted}" Margin="2,0,0,8"/>
+                <ItemsControl x:Name="List">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Card}" Padding="16,12" Margin="0,0,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Icon}" FontSize="16" VerticalAlignment="Top" Margin="0,1,12,0"/>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding Title}" Style="{StaticResource Body}" FontWeight="SemiBold"
+                                                   Foreground="{Binding TitleBrush}" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding Detail}" Style="{StaticResource Muted}" FontSize="11.5"
+                                                   Margin="0,3,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

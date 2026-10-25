@@ -16,18 +16,35 @@
             BorderBrush="{DynamicResource BrAccentGradient}" BorderThickness="1" ClipToBounds="True">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="44"/>
+                <RowDefinition Height="40"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <!-- barra de título -->
-            <Border x:Name="TitleBar" Grid.Row="0" Background="{DynamicResource BrSurface}" CornerRadius="13,13,0,0" MouseLeftButtonDown="TitleBar_Drag">
+            <!-- mesmo fundo do Toolkit: brilho roxo no canto + bolinhas (a janela continua
+                 opaca — isto é desenhado DENTRO dela, não obriga a janela "layered") -->
+            <Ellipse Grid.RowSpan="2" Width="900" Height="700" HorizontalAlignment="Left" VerticalAlignment="Top"
+                     Margin="-380,-360,0,0" IsHitTestVisible="False" Opacity="0.55">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#33A66BFF" Offset="0"/>
+                        <GradientStop Color="#00A66BFF" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+            <v:ParticleField Grid.RowSpan="2" Count="32"/>
+
+            <!-- barra de título (igual à do Toolkit: ADAMS · página) -->
+            <Border x:Name="TitleBar" Grid.Row="0" Background="Transparent" CornerRadius="13,13,0,0" MouseLeftButtonDown="TitleBar_Drag">
             <Grid>
-                <StackPanel Orientation="Horizontal" Margin="18,0,0,0" VerticalAlignment="Center">
-                    <Image Source="/Assets/logo.png" Height="28" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <TextBlock Text="✂" FontSize="15" Foreground="{DynamicResource BrAccent}" Margin="10,0,6,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="Editor de Clips" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource BrText}" VerticalAlignment="Center"/>
-                    <TextBlock x:Name="VersionText" FontSize="11" Foreground="{DynamicResource BrMuted}" Margin="10,1,0,0" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                    <Border Width="24" Height="24" CornerRadius="7" ClipToBounds="True" Background="{DynamicResource BrLogoBg}">
+                        <Image Source="{DynamicResource ImgLogo}" Width="32" Height="32" Margin="-4" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
+                    <TextBlock Text="ADAMS" FontSize="12.5" FontFamily="{StaticResource FontDisplay}" Margin="9,0,0,0"
+                               VerticalAlignment="Center" Foreground="{DynamicResource BrAccent}"/>
+                    <TextBlock Text="·" Margin="7,0" VerticalAlignment="Center" Foreground="{DynamicResource BrMuted}"/>
+                    <TextBlock Text="Editor de Clips" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource BrMuted}"/>
+                    <TextBlock x:Name="VersionText" FontSize="10.5" Foreground="{DynamicResource BrMuted}" Margin="10,1,0,0" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0">
                     <Button x:Name="ToolkitBtn" Content="🛠  Abrir o Toolkit" ToolTip="Abre o Adams Toolkit (o editor continua aberto)"
@@ -43,7 +60,7 @@
                 <ContentControl x:Name="Host"/>
 
                 <!-- 1ª vez: descarregar FFmpeg -->
-                <Border x:Name="SetupPanel" Background="{DynamicResource BrBg}" Visibility="Collapsed">
+                <Border x:Name="SetupPanel" Background="Transparent" Visibility="Collapsed">
                     <Border Style="{StaticResource Card}" Width="440" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="24">
                         <StackPanel>
                             <TextBlock Text="A preparar o editor" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource BrText}"/>

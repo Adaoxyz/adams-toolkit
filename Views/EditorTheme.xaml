@@ -142,7 +142,7 @@
                             <ContentPresenter Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                               Margin="10,0,28,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
                             <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" PopupAnimation="Fade" StaysOpen="False">
-                                <Border Background="{DynamicResource BrCard}" BorderBrush="{DynamicResource BrBorder}" BorderThickness="1" CornerRadius="8"
+                                <Border Background="{DynamicResource BrBg}" BorderBrush="{DynamicResource BrBorder}" BorderThickness="1" CornerRadius="8"
                                         MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="260" Margin="0,4,0,0">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <ItemsPresenter/>

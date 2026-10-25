@@ -13,7 +13,9 @@ namespace AdamsToolkit.Core;
 /// </summary>
 public static class FfmpegManager
 {
-    public const string ZipUrl = "https://adams-176-111-109-91.sslip.io/files/ffmpeg7-win64.zip"; // v1.79: build shared 7.1 (DLLs p/ o leitor FFME + ffmpeg.exe)
+    // v1.79: build shared 7.1 (DLLs p/ o leitor FFME + ffmpeg.exe)
+    public const string ZipPath = "/files/ffmpeg7-win64.zip";
+    public static string ZipUrl => Endpoints.Url(ZipPath);
     public const string ZipSha256 = "4acb8e2bfa52f6906c73bce33b0b10bfd26a3299a9fe33dc0e13aa41158f3e5d";
 
     public static string Dir => Path.Combine(EditorPaths.LocalDir, "ffmpeg7");
@@ -37,7 +39,7 @@ public static class FfmpegManager
         var tmp = Path.Combine(Dir, "ffmpeg.zip.part");
 
         progress.Report((0, "A descarregar o motor de vídeo (60 MB)…"));
-        using (var resp = await Http.GetAsync(ZipUrl, HttpCompletionOption.ResponseHeadersRead, ct))
+        using (var resp = await Endpoints.GetFirstOkAsync(Http, Endpoints.All(ZipPath), ct))
         {
             resp.EnsureSuccessStatusCode();
             var total = resp.Content.Headers.ContentLength ?? -1L;

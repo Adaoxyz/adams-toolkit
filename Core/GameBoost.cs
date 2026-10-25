@@ -49,7 +49,7 @@ public static class GameBoost
             if (File.Exists(StateFile))
                 return JsonSerializer.Deserialize<OptState>(File.ReadAllText(StateFile)) ?? new OptState();
         }
-        catch { }
+        catch (Exception ex) { Log.Swallow("ler estado do boost", ex); }
         return new OptState();
     }
 
@@ -60,7 +60,8 @@ public static class GameBoost
             Directory.CreateDirectory(Path.GetDirectoryName(StateFile)!);
             File.WriteAllText(StateFile, JsonSerializer.Serialize(_state));
         }
-        catch { }
+        // sem estado gravado não há como reverter depois — isto tem de aparecer no log
+        catch (Exception ex) { Log.Error("gravar estado do boost falhou (reverter pode não repor tudo)", ex); }
     }
 
     public static bool IsApplied(string id) => _state.Applied.Contains(id);
@@ -130,7 +131,7 @@ public static class GameBoost
                 else if (val.StartsWith("s:"))
                     k.SetValue(parts[2], val[2..], RegistryValueKind.String);
             }
-            catch { }
+            catch (Exception ex) { Log.Error($"repor {key} falhou", ex); }
         }
     }
 

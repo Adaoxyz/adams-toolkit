@@ -94,7 +94,7 @@ Get-AppxPackage | Where-Object { -not $_.IsFramework -and -not $_.IsResourcePack
                 list.Add(p);
             }
         }
-        catch { }
+        catch (Exception ex) { AdamsToolkit.Core.Log.Error("enumerar apps da Store falhou — a lista fica incompleta", ex); }
         list.Sort((a, b) => string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase));
         Log($"enumerate: {list.Count} removíveis");
         return list;
@@ -203,7 +203,7 @@ Set-Content -Path '{result}' -Value ($out -join ""`n"") -Encoding UTF8
             var logo = props?.Elements().FirstOrDefault(x => x.Name.LocalName == "Logo")?.Value?.Trim() ?? "";
             if (logo.Length > 0) p.LogoPath = ResolveLogo(p.InstallLocation, logo);
         }
-        catch { }
+        catch (Exception ex) { AdamsToolkit.Core.Log.Swallow($"ler manifesto de {p.PackageFullName}", ex); }
     }
 
     private static string FriendlyFromName(string name)

@@ -19,6 +19,13 @@ public partial class App : Application
 
     protected override async void OnStartup(StartupEventArgs e)
     {
+        // PRIMEIRA coisa a acontecer: a partir daqui nada morre em silêncio.
+        // Modos headless e o arranque com o Windows não mostram caixas de erro
+        // (ninguém está a olhar, e popups no boot são exatamente o que não queremos);
+        // registam na mesma. Quando o jogador abre a janela, os avisos voltam.
+        Crash.Silent = e.Args.Length > 0 && e.Args[0].StartsWith("--");
+        Crash.Install(this);
+
         // Modo headless de segurar o timer: corre o loop e NÃO cria janela WPF.
         // (não conta como "instância" — arg próprio, sai antes do mutex)
         if (e.Args.Length > 0 && e.Args[0] == "--hold-timer")
@@ -89,6 +96,11 @@ public partial class App : Application
         }
 
         base.OnStartup(e);
+        Lang.Install(); // antes de qualquer janela; em PT-PT não faz nada
+
+        // Rede de segurança: se a interface do Windows tiver sido desligada pela app,
+        // fechar o Toolkit (ou terminar a sessão) repõe-na sempre.
+        ExplorerControl.InstallExitGuard();
 
         // v1.76: a atualização corre AQUI, antes de qualquer escolha — quem vai direto ao
         // editor também fica atualizado (antes só o Toolkit verificava, no seu boot).
@@ -138,7 +150,7 @@ public partial class App : Application
             _toolkit = new MainWindow();
             app.MainWindow = _toolkit;
             if (StartMinimized) _toolkit.StartInTray();
-            else _toolkit.Show();
+            else { Crash.Silent = false; _toolkit.Show(); } // janela à frente = há quem veja o aviso
         }
         else _toolkit.RestoreFromTray();
     }
@@ -152,19 +164,9 @@ public partial class App : Application
         w.Closed += (_, _) => { if (_toolkit == null) Shutdown(); };
     }
 
-    // %AppData%\AdamsToolkit\start.log — só p/ diagnosticar "abre no sítio errado"
-    private static void StartLog(string line)
-    {
-        try
-        {
-            var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AdamsToolkit");
-            System.IO.Directory.CreateDirectory(dir);
-            var f = System.IO.Path.Combine(dir, "start.log");
-            if (System.IO.File.Exists(f) && new System.IO.FileInfo(f).Length > 200_000) System.IO.File.Delete(f);
-            System.IO.File.AppendAllText(f, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] v{SelfUpdater.CurrentVersion} {line}\n");
-        }
-        catch { }
-    }
+    // Diagnóstico de arranque ("abre no sítio errado"). Vivia num start.log à parte;
+    // agora vai para o registo único, que é o que segue no zip para a staff.
+    private static void StartLog(string line) => Log.Info($"v{SelfUpdater.CurrentVersion} {line}", "arranque");
 
     private static bool IsVideoFile(string path)
     {

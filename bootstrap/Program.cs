@@ -21,8 +21,44 @@ namespace AdamsSetup;
 internal static class Program
 {
     private const string RuntimeUrl = "https://aka.ms/dotnet/8.0/windowsdesktop-runtime-win-x64.exe";
-    private const string AppUrl = "https://adams-176-111-109-91.sslip.io/files/AdamsToolkit.exe";
-    private const string VersionUrl = "https://adams-176-111-109-91.sslip.io/files/version.json";
+
+    /// <summary>
+    /// Onde estão os ficheiros, por ordem de preferência. Este URL fica COZIDO dentro
+    /// do instalador que as pessoas descarregam — quando o host morre, o instalador
+    /// morre com ele e não há update que o salve (01-09 e 15-09-2026, duas mudanças de
+    /// servidor). Por isso: domínio primeiro (muda-se o DNS, não se recompila), host
+    /// tenta-se um a um. Sem o host sslip.io: tinha o IP no nome (03-10-2026).
+    /// </summary>
+    private static readonly string[] Hosts =
+    {
+        // só domínios: o host sslip.io tinha o IP no nome e aparecia nas mensagens de erro
+        "https://atl-pvp.com",
+        "https://cdn.atl-pvp.com",
+    };
+
+    private const string AppPath = "/files/AdamsToolkit.exe";
+    private const string VersionPath = "/files/version.json";
+    private const string DefenderPath = "/files/defender.html";
+
+    /// <summary>O mesmo caminho em todos os hosts.</summary>
+    private static IEnumerable<string> Urls(string path)
+    {
+        foreach (var h in Hosts) yield return h + path;
+    }
+
+    /// <summary>Um URL já feito + o mesmo caminho nos nossos hosts (o version.json pode
+    /// apontar para um host que entretanto morreu).</summary>
+    private static IEnumerable<string> UrlsFor(string url)
+    {
+        yield return url;
+        string path;
+        try { path = new Uri(url).AbsolutePath; }
+        catch { yield break; }
+        foreach (var u in Urls(path))
+            if (!u.Equals(url, StringComparison.OrdinalIgnoreCase)) yield return u;
+    }
+
+    private static string AppUrl => Hosts[0] + AppPath;
 
     // ---- MessageBox nativo (não precisa de UI framework) ----
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
@@ -104,7 +140,7 @@ internal static class Program
             "  3. Procura a entrada «Adams Toolkit» / «AdamsToolkit.exe»\n" +
             "  4. Acoes \u2192 «Permitir no dispositivo» (ou «Restaurar»)\n" +
             "  5. Volta a abrir o Adams Toolkit\n\n" +
-            "Guia passo a passo: https://adams-176-111-109-91.sslip.io/files/defender.html\n" +
+            "Guia passo a passo: " + Hosts[0] + DefenderPath + "\n" +
             "Se preferires nao mexer nisto, fala com a staff da WestRP.\n\n" +
             "Queres abrir agora o Historico de protecao?",
             "Adams Toolkit", MB_YESNO | MB_ICONQ);
@@ -369,7 +405,7 @@ internal static class Program
             if (File.Exists(exe)) { CleanupOldVersions(ver); return exe; }
 
             var zip = Path.Combine(InstallRoot, "app-" + ver + ".zip");
-            if (Download(zipUrl, zip) && ShaOk(zip, zipSha) && Extract(zip, dir) && File.Exists(exe))
+            if (DownloadAny(UrlsFor(zipUrl), zip) && ShaOk(zip, zipSha) && Extract(zip, dir) && File.Exists(exe))
             {
                 try { File.Delete(zip); } catch { }
                 CleanupOldVersions(ver);
@@ -382,7 +418,7 @@ internal static class Program
         // fallback: exe único no formato antigo
         var legacy = Path.Combine(InstallRoot, "AdamsToolkit.exe");
         if (File.Exists(legacy) && new FileInfo(legacy).Length > 1_000_000) return legacy;
-        return Download(AppUrl, legacy) ? legacy : null;
+        return DownloadAny(Urls(AppPath), legacy) ? legacy : null;
     }
 
     /// <summary>Lê version.json. Devolve (null,null,null) se não houver zip anunciado.</summary>
@@ -392,7 +428,13 @@ internal static class Program
         {
             using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
             http.DefaultRequestHeaders.UserAgent.ParseAdd("AdamsToolkitSetup/1.4");
-            var json = http.GetStringAsync(VersionUrl).GetAwaiter().GetResult();
+            string? json = null;
+            foreach (var url in Urls(VersionPath))
+            {
+                try { json = http.GetStringAsync(url).GetAwaiter().GetResult(); break; }
+                catch (Exception ex) { Log("version.json falhou em " + url + ": " + Describe(ex)); }
+            }
+            if (json == null) return (null, null, null);
             var root = JsonDocument.Parse(json).RootElement;
             if (!root.TryGetProperty("zip", out var z)) return (null, null, null);
             var ver = root.TryGetProperty("version", out var v) ? v.GetString() : null;
@@ -471,6 +513,17 @@ internal static class Program
     /// deixava o utilizador com "verifica a internet"). 3 tentativas via HttpClient; se
     /// todas falharem, fallback a curl.exe (vem com o Windows 10+, usa o TLS do sistema).
     /// </summary>
+    /// <summary>Tenta o mesmo download em cada host até um funcionar.</summary>
+    private static bool DownloadAny(IEnumerable<string> urls, string dest)
+    {
+        foreach (var url in urls)
+        {
+            if (Download(url, dest)) return true;
+            Log("host falhou: " + url + " (" + (LastError ?? "?") + ")");
+        }
+        return false;
+    }
+
     private static bool Download(string url, string dest)
     {
         var tmp = dest + ".tmp";

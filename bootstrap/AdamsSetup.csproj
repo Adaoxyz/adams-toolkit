@@ -15,11 +15,11 @@
 
     <AssemblyName>AdamsToolkitSetup</AssemblyName>
     <RootNamespace>AdamsSetup</RootNamespace>
-    <Version>1.5.0</Version>
-    <Company>WestRP</Company>
+    <Version>1.7.0</Version>
+    <Company>ATL PVP</Company>
     <Product>Adams Toolkit Setup</Product>
     <Description>Instalador do Adams Toolkit — prepara os componentes e abre a aplicação.</Description>
-    <Copyright>© 2026 WestRP</Copyright>
+    <Copyright>© 2026 ATL PVP</Copyright>
 
     <!-- mesmo logo da app: o instalador que chega pelo /dtoolkit deixa de ter o
          ícone genérico do .NET (parecia ficheiro estranho a quem descarrega) -->

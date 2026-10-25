@@ -1,0 +1,103 @@
+<UserControl x:Class="AdamsToolkit.Views.OverlayView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+        <StackPanel>
+            <TextBlock Text="Overlay" Style="{StaticResource H1}"/>
+            <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,14" TextWrapping="Wrap"
+                       Text="CPU, RAM, GPU, rede e ping ao servidor por cima do jogo. Funciona com o FiveM em janela ou ecrã inteiro sem bordas."/>
+
+            <!-- pré-visualização -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="PRÉ-VISUALIZAÇÃO" Style="{StaticResource SectionLabel}"/>
+                    <Border Height="96" CornerRadius="10" Margin="0,8,0,0" Background="#0A0910" ClipToBounds="True"
+                            BorderBrush="{DynamicResource BrBorder}" BorderThickness="1">
+                        <Border x:Name="PreviewChip" Background="#8C08070C" CornerRadius="7" Padding="10,5" Margin="10"
+                                HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <TextBlock x:Name="PreviewText" FontFamily="{StaticResource FontDisplay}">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect BlurRadius="3" ShadowDepth="1" Opacity="0.9" Color="Black"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
+                        </Border>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- ligar + posição + tamanho -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <Grid>
+                        <StackPanel Margin="60,0,0,0">
+                            <TextBlock Text="Ativar overlay" Style="{StaticResource Body}" FontWeight="SemiBold"/>
+                            <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,2,0,0" TextWrapping="Wrap"
+                                       Text="Fica ligado mesmo com a app na bandeja. Não recebe cliques nem rouba o foco ao jogo."/>
+                        </StackPanel>
+                        <CheckBox x:Name="EnableToggle" Style="{StaticResource ToggleSwitch}" HorizontalAlignment="Left"
+                                  VerticalAlignment="Center" Click="Enable_Click"/>
+                    </Grid>
+                    <Border Height="1" Background="{DynamicResource BrBorder}" Margin="0,14"/>
+                    <WrapPanel>
+                        <StackPanel Margin="0,0,24,8">
+                            <TextBlock Text="POSIÇÃO" Style="{StaticResource SectionLabel}" Margin="0,0,0,4"/>
+                            <Border Background="{DynamicResource BrSurface}" CornerRadius="11">
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton x:Name="PosTL" GroupName="pos" Style="{StaticResource SegBtn}" Content="↖ Cima esq." Tag="TL" Checked="Pos_Checked"/>
+                                    <RadioButton x:Name="PosTR" GroupName="pos" Style="{StaticResource SegBtn}" Content="↗ Cima dir." Tag="TR" Checked="Pos_Checked"/>
+                                    <RadioButton x:Name="PosBL" GroupName="pos" Style="{StaticResource SegBtn}" Content="↙ Baixo esq." Tag="BL" Checked="Pos_Checked"/>
+                                    <RadioButton x:Name="PosBR" GroupName="pos" Style="{StaticResource SegBtn}" Content="↘ Baixo dir." Tag="BR" Checked="Pos_Checked"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="TAMANHO" Style="{StaticResource SectionLabel}" Margin="0,0,0,4"/>
+                            <Border Background="{DynamicResource BrSurface}" CornerRadius="11">
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton x:Name="Size11" GroupName="size" Style="{StaticResource SegBtn}" Content="Pequeno" Tag="11" Checked="Size_Checked"/>
+                                    <RadioButton x:Name="Size13" GroupName="size" Style="{StaticResource SegBtn}" Content="Médio" Tag="13" Checked="Size_Checked"/>
+                                    <RadioButton x:Name="Size16" GroupName="size" Style="{StaticResource SegBtn}" Content="Grande" Tag="16" Checked="Size_Checked"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- métricas -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="MÉTRICAS" Style="{StaticResource SectionLabel}"/>
+                    <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="0,2,0,8" TextWrapping="Wrap"
+                               Text="Clica na cor para trocar. FPS não está incluído: medi-lo precisa de um driver de captura, e isso não entra no PC de quem joga."/>
+                    <ItemsControl x:Name="MetricList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding On, Mode=OneWay}"
+                                              VerticalAlignment="Center" Click="Metric_Click"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Label}" Style="{StaticResource Body}"
+                                               VerticalAlignment="Center" Margin="14,0,0,0"/>
+                                    <Button Grid.Column="2" Width="34" Height="22" Cursor="Hand" Click="Color_Click"
+                                            ToolTip="Trocar cor">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border CornerRadius="6" Background="{Binding Swatch}"
+                                                        BorderBrush="{DynamicResource BrBorder}" BorderThickness="1"/>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
